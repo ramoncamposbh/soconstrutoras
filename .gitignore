@@ -1,0 +1,28 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+.next/
+out/
+
+# Variáveis de ambiente — NUNCA commitar
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.local.example
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Vercel / Railway
+.vercel

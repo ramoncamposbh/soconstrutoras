@@ -1,0 +1,14 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.r2.cloudflarestorage.com' },
+      { protocol: 'https', hostname: 'midias.soconstrutoras.com.br' },
+      { protocol: 'http', hostname: 'localhost' },
+    ],
+  },
+  // Leaflet usa require() interno — precisa ser transpilado pelo Next.js
+  transpilePackages: ['leaflet', 'react-leaflet'],
+};
+
+module.exports = nextConfig;
