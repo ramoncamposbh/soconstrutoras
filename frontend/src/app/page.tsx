@@ -191,9 +191,75 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
 
-      {/* ══ NAVBAR ══ */}
+      {/* ══ MOBILE HEADER (apenas mobile) ══ */}
+      <div className="md:hidden sticky top-0 z-50 bg-white" style={{ boxShadow: '0 1px 0 #E5E7EB' }}>
+        {/* Linha logo + entrar */}
+        <div className="flex items-center justify-between px-4 pt-3 pb-2">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/logo.png" alt="SóConstrutoras" width={34} height={34} className="object-contain" priority />
+            <div className="leading-tight">
+              <span className="block font-extrabold text-[12px]" style={{ color: '#04241D' }}>SÓCONSTRUTORAS</span>
+              <span className="block text-[9px]" style={{ color: '#9CA3AF' }}>Portal das Construtoras</span>
+            </div>
+          </Link>
+          <div className="flex items-center gap-2">
+            {isAuthenticated ? (
+              <Link href={user?.role === 'construtora' || user?.role === 'admin' ? '/dashboard' : '/'}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                  style={{ background: '#D1FAE5', color: '#0A6A52' }}>
+                  {user?.nome?.[0]?.toUpperCase()}
+                </div>
+              </Link>
+            ) : (
+              <Link href="/auth/login"
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
+                style={{ background: '#0E8F6E' }}>
+                Entrar
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* Barra de busca */}
+        <div className="px-4 pb-2">
+          <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 border"
+            style={{ background: '#F9FAF9', borderColor: '#E5E7EB' }}>
+            <Search className="w-4 h-4 shrink-0" style={{ color: '#9CA3AF' }} />
+            <input
+              value={aiText}
+              onChange={(e) => setAiText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAiSearch(); }}
+              placeholder="Cidade, bairro ou tipo de imóvel..."
+              className="flex-1 text-sm bg-transparent outline-none placeholder:text-gray-400"
+              style={{ color: '#1F2937' }}
+            />
+            <button onClick={handleAiSearch}
+              className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: '#0E8F6E' }}>
+              <Send className="w-3.5 h-3.5 text-white" />
+            </button>
+          </div>
+        </div>
+
+        {/* Chips de pesquisa rápida */}
+        <div className="flex gap-2 px-4 pb-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          {PESQUISAS_RAPIDAS.map(({ label, icon: Icon, query }) => (
+            <button key={label}
+              onClick={() => handlePesquisaRapida({ label, icon: Icon, query })}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-all"
+              style={pesquisaAtiva === label
+                ? { background: '#0E8F6E', color: '#fff' }
+                : { background: '#F0FAF7', color: '#0E8F6E', border: '1px solid #C6EDE1' }
+              }>
+              <Icon className="w-3 h-3" /> {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ══ NAVBAR DESKTOP (oculto no mobile) ══ */}
       <nav
-        className="sticky top-0 z-50 h-[66px] flex items-center px-5 md:px-7 gap-0"
+        className="hidden md:flex sticky top-0 z-50 h-[66px] items-center px-5 md:px-7 gap-0"
         style={{ background: '#04241D', borderBottom: '1px solid #19483D' }}
       >
         {/* Logo */}
@@ -255,10 +321,10 @@ export default function HomePage() {
         <div className="ml-auto">{renderNavBtn()}</div>
       </nav>
 
-      {/* ══ HERO — Skyline Premium (Opção B aprovada) ══ */}
+      {/* ══ HERO — Skyline Premium (Opção B aprovada) — apenas desktop ══ */}
       <section
         ref={heroRef}
-        className="relative px-4 md:px-8 pt-7 pb-6 shrink-0 overflow-hidden"
+        className="hidden md:block relative px-4 md:px-8 pt-7 pb-6 shrink-0 overflow-hidden"
       >
         {/* Foto de fundo com parallax */}
         <div
@@ -547,7 +613,7 @@ export default function HomePage() {
       </div>
 
       {/* ══ CARDS + MAPA ══ */}
-      <div className="flex h-[60vh] md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:border md:border-gray-200 overflow-hidden">
+      <div className="flex h-[60vh] md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:border md:border-gray-200 overflow-hidden pb-16 md:pb-0">
 
         {/* Cards */}
         <div className={`w-full md:w-[55%] xl:w-[52%] md:overflow-y-auto bg-[#f9fafb] md:shrink-0 ${vista === 'mapa' ? 'hidden md:block' : 'block'}`}>
@@ -589,8 +655,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ══ COMO FUNCIONA ══ */}
-      <section style={{ background: '#fff', borderTop: '1px solid #F3F4F6', padding: '28px 32px', marginTop: 8 }}>
+      {/* ══ COMO FUNCIONA (apenas desktop) ══ */}
+      <section className="hidden md:block" style={{ background: '#fff', borderTop: '1px solid #F3F4F6', padding: '28px 32px', marginTop: 8 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, alignItems: 'stretch' }}>
             {/* Título */}
@@ -649,6 +715,34 @@ export default function HomePage() {
         </div>
       </footer>
 
+
+      {/* ══ BOTTOM NAV MOBILE ══ */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100"
+        style={{ boxShadow: '0 -1px 0 #E5E7EB' }}>
+        <div className="flex">
+          {[
+            { href: '/',              icon: Home,      label: 'Início'    },
+            { href: '/busca',         icon: Search,    label: 'Buscar'    },
+            { href: '/favoritos',     icon: Heart,     label: 'Favoritos' },
+            {
+              href: isAuthenticated
+                ? (user?.role === 'construtora' || user?.role === 'admin' ? '/dashboard' : '/')
+                : '/auth/login',
+              icon: isAuthenticated ? Users : LogIn,
+              label: isAuthenticated ? 'Painel' : 'Entrar',
+            },
+          ].map(({ href, icon: Icon, label }) => (
+            <Link key={label} href={href}
+              className="flex-1 flex flex-col items-center py-2.5 gap-1 transition-colors"
+              style={{ color: '#9CA3AF' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0E8F6E'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#9CA3AF'; }}>
+              <Icon className="w-5 h-5" strokeWidth={1.6} />
+              <span className="text-[10px] font-medium">{label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
 
     </div>
   );
