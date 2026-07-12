@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
@@ -39,7 +39,8 @@ function getCompatibilidade(id: string): number {
   return 82 + (hash % 17);
 }
 
-const PESQUISAS_RAPIDAS = [
+type PesquisaRapida = { label: string; icon: React.ComponentType<{ className?: string }>; query: Record<string, number> };
+const PESQUISAS_RAPIDAS: PesquisaRapida[] = [
   { label: 'Primeiro imóvel',   icon: Home,        query: { preco_max: 600000 } },
   { label: 'Investimento',      icon: TrendingUp,  query: {} },
   { label: 'Família',           icon: Users,       query: { quartos_min: 3 } },
@@ -99,7 +100,7 @@ export default function HomePage() {
     buscar({ cidade: aiText });
   };
 
-  const handlePesquisaRapida = (item: typeof PESQUISAS_RAPIDAS[0]) => {
+  const handlePesquisaRapida = (item: PesquisaRapida) => {
     setPesquisaAtiva(item.label);
     buscar(item.query);
   };
@@ -613,10 +614,10 @@ export default function HomePage() {
       </div>
 
       {/* ══ CARDS + MAPA ══ */}
-      <div className="flex h-[60vh] md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:border md:border-gray-200 overflow-hidden pb-16 md:pb-0">
+      <div className="flex md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:border md:border-gray-200 md:overflow-hidden pb-16 md:pb-0">
 
         {/* Cards */}
-        <div className={`w-full md:w-[55%] xl:w-[52%] md:overflow-y-auto bg-[#f9fafb] md:shrink-0 ${vista === 'mapa' ? 'hidden md:block' : 'block'}`}>
+        <div className={`w-full md:w-[55%] xl:w-[52%] overflow-y-auto bg-[#f9fafb] md:shrink-0 ${vista === 'mapa' ? 'hidden md:block' : 'block'}`}>
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
               {Array.from({ length: 6 }).map((_, i) => (
