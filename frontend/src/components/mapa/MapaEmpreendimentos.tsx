@@ -5,12 +5,6 @@
  *
  * Componente Leaflet com marcadores dos empreendimentos.
  * Deve ser importado via `dynamic` com ssr: false para evitar erros no Next.js.
- *
- * Exemplo de uso:
- *   const MapaEmpreendimentos = dynamic(
- *     () => import('@/components/mapa/MapaEmpreendimentos'),
- *     { ssr: false }
- *   );
  */
 
 import { useEffect } from 'react';
@@ -88,6 +82,8 @@ interface Props {
   altura?: string;
   centroInicial?: [number, number];
   zoomInicial?: number;
+  /** Passa true quando o container do mapa se torna visível (ex: toggle lista/mapa no mobile) */
+  visivel?: boolean;
 }
 
 /** Componente auxiliar: re-centra o mapa quando os empreendimentos mudam */
@@ -105,6 +101,38 @@ function AjustarBounds({ empreendimentos }: { empreendimentos: EmpreendimentoMap
       map.fitBounds(L.latLngBounds(coords), { padding: [40, 40] });
     }
   }, [empreendimentos, map]);
+
+  return null;
+}
+
+/**
+ * Componente auxiliar: quando o container fica visível (ex: tab mobile muda para "mapa"),
+ * o Leaflet precisa recalcular o tamanho e re-centrar nos marcadores.
+ */
+function InvalidarECentralizar({
+  visivel,
+  empreendimentos,
+}: {
+  visivel: boolean;
+  empreendimentos: EmpreendimentoMapa[];
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!visivel) return;
+    // Pequeno delay para garantir que o DOM já aplicou display:flex
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+      if (empreendimentos.length === 0) return;
+      const coords = empreendimentos.map(e => [e.latitude, e.longitude] as [number, number]);
+      if (coords.length === 1) {
+        map.setView(coords[0], 14);
+      } else {
+        map.fitBounds(L.latLngBounds(coords), { padding: [40, 40] });
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [visivel, map]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return null;
 }
@@ -132,6 +160,7 @@ export default function MapaEmpreendimentos({
   altura = '100%',
   centroInicial = [-15.77972, -47.92972], // Brasília
   zoomInicial = 5,
+  visivel = true,
 }: Props) {
   const temEmpreendimentos = empreendimentos.length > 0;
 
@@ -149,6 +178,9 @@ export default function MapaEmpreendimentos({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
         />
+
+        {/* Invalida tamanho e re-centra quando o container se torna visível (mobile toggle) */}
+        <InvalidarECentralizar visivel={visivel} empreendimentos={empreendimentos} />
 
         {temEmpreendimentos && <AjustarBounds empreendimentos={empreendimentos} />}
 

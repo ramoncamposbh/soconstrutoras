@@ -650,7 +650,7 @@ export default function HomePage() {
         <div className={`flex-1 relative border-l border-gray-200 ${vista === 'lista' ? 'hidden md:flex' : 'flex'}`}>
           <div className="absolute inset-0">
             {!loading && (
-              <MapaEmpreendimentos empreendimentos={comCoordenadas} destacado={destacado} altura="100%" />
+              <MapaEmpreendimentos empreendimentos={comCoordenadas} destacado={destacado} altura="100%" visivel={vista === 'mapa'} />
             )}
           </div>
         </div>
