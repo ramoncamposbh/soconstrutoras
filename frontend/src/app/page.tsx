@@ -614,7 +614,7 @@ export default function HomePage() {
       </div>
 
       {/* ══ CARDS + MAPA ══ */}
-      <div className="flex md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:border md:border-gray-200 md:overflow-hidden pb-16 md:pb-0">
+      <div className={`flex md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:border md:border-gray-200 md:overflow-hidden pb-16 md:pb-0 ${vista === 'mapa' ? 'h-[calc(100vh-180px)]' : ''}`}>
 
         {/* Cards */}
         <div className={`w-full md:w-[55%] xl:w-[52%] overflow-y-auto bg-[#f9fafb] md:shrink-0 ${vista === 'mapa' ? 'hidden md:block' : 'block'}`}>
