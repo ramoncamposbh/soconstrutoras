@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { construtoraApi } from '@/lib/api';
 import type { DashboardStats } from '@/types';
 import { Building2, Users, Bell, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
@@ -11,11 +12,12 @@ interface StatCardProps {
   icon: React.ElementType;
   color: string;
   sub?: string;
+  href?: string;
 }
 
-function StatCard({ label, value, icon: Icon, color, sub }: StatCardProps) {
-  return (
-    <div className="card p-6 flex items-center gap-4">
+function StatCard({ label, value, icon: Icon, color, sub, href }: StatCardProps) {
+  const inner = (
+    <div className={`card p-6 flex items-center gap-4 transition-shadow${href ? ' hover:shadow-md hover:ring-2 hover:ring-primary-200 cursor-pointer' : ''}`}>
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
         <Icon className="w-6 h-6 text-white" />
       </div>
@@ -26,6 +28,9 @@ function StatCard({ label, value, icon: Icon, color, sub }: StatCardProps) {
       </div>
     </div>
   );
+
+  if (href) return <Link href={href}>{inner}</Link>;
+  return inner;
 }
 
 export default function DashboardPage() {
@@ -61,6 +66,7 @@ export default function DashboardPage() {
           icon={Building2}
           color="bg-primary-500"
           sub={`${stats?.publicados ?? 0} publicado${stats?.publicados !== 1 ? 's' : ''}`}
+          href="/dashboard/empreendimentos"
         />
         <StatCard
           label="Total de leads"
@@ -68,12 +74,14 @@ export default function DashboardPage() {
           icon={Bell}
           color="bg-purple-500"
           sub={`${stats?.leads_novos ?? 0} novo${stats?.leads_novos !== 1 ? 's' : ''}`}
+          href="/dashboard/leads"
         />
         <StatCard
           label="Convertidos"
           value={stats?.leads_convertidos ?? 0}
           icon={CheckCircle}
           color="bg-green-500"
+          href="/dashboard/leads"
         />
         <StatCard
           label="Taxa de conversão"
@@ -81,6 +89,7 @@ export default function DashboardPage() {
           icon={TrendingUp}
           color="bg-orange-500"
           sub={`${stats?.total_parceiros ?? 0} parceiros ativos`}
+          href="/dashboard/parceiros"
         />
       </div>
 
