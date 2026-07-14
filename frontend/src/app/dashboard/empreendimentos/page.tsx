@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { empreendimentosApi } from '@/lib/api';
 import type { Empreendimento } from '@/types';
 import { formatCurrency } from '@/lib/utils';
-import { Plus, MapPin, Bell, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Plus, MapPin, Bell, Eye, EyeOff, Loader2, Building2 } from 'lucide-react';
 
 const STATUS_COLOR: Record<string, string> = {
   lancamento: 'badge bg-blue-100 text-blue-700',
@@ -67,6 +67,21 @@ export default function EmpreendimentosPage() {
         <div className="card divide-y divide-gray-100">
           {empreendimentos.map((emp) => (
             <div key={emp.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+              {/* Thumbnail */}
+              <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                {emp.foto_capa ? (
+                  <img
+                    src={emp.foto_capa}
+                    alt={emp.nome}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-gray-300" />
+                  </div>
+                )}
+              </div>
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={STATUS_COLOR[emp.status] ?? 'badge bg-gray-100 text-gray-600'}>
