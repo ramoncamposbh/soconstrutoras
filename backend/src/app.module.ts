@@ -11,6 +11,7 @@ import { MidiasModule } from './midias/midias.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { HealthModule } from './health/health.module';
 import { BillingModule } from './billing/billing.module';
+import { UnidadesModule } from './unidades/unidades.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BillingModule } from './billing/billing.module';
     NotificationsModule,
     HealthModule,
     BillingModule,
+    UnidadesModule,
   ],
 })
 export class AppModule {}

@@ -5,19 +5,35 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm, useWatch } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { empreendimentosApi, midiasApi } from '@/lib/api';
-import type { Empreendimento, Midia } from '@/types';
-import { TIPOS_IMOVEL, STATUS_OBRA, ESTADOS_BR } from '@/lib/utils';
+import { empreendimentosApi, midiasApi, unidadesApi } from '@/lib/api';
+import type { Empreendimento, Midia, Unidade, TipoUnidade } from '@/types';
+import { TIPOS_IMOVEL, STATUS_OBRA, ESTADOS_BR, formatCurrency } from '@/lib/utils';
 import UploadFotos from '@/components/empreendimentos/UploadFotos';
 import VincularParceiro from '@/components/parceiros/VincularParceiro';
 import CampoGeocode from '@/components/mapa/CampoGeocode';
+import FormUnidade from '@/components/unidades/FormUnidade';
 import {
   ArrowLeft, Save, Eye, Loader2,
   Image as ImageIcon, Users, Settings,
+  LayoutGrid, Plus, Home, Building2, Leaf, Layers, Square, Store,
+  BedDouble, Car, Maximize2, BadgeCheck, BadgeX, ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type Tab = 'dados' | 'fotos' | 'parceiros';
+type Tab = 'dados' | 'fotos' | 'parceiros' | 'unidades';
+
+const TIPO_ICON: Record<string, React.ElementType> = {
+  apartamento: Home, cobertura: Building2, garden: Leaf,
+  duplex: Layers, studio: Square, comercial: Store,
+};
+const TIPO_COR: Record<string, string> = {
+  apartamento: 'bg-blue-50 text-blue-700',
+  cobertura:   'bg-purple-50 text-purple-700',
+  garden:      'bg-green-50 text-green-700',
+  duplex:      'bg-orange-50 text-orange-700',
+  studio:      'bg-yellow-50 text-yellow-700',
+  comercial:   'bg-gray-100 text-gray-700',
+};
 
 export default function EditarEmpreendimentoPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,8 +41,11 @@ export default function EditarEmpreendimentoPage() {
 
   const [empreendimento, setEmpreendimento] = useState<Empreendimento | null>(null);
   const [midias, setMidias] = useState<Midia[]>([]);
+  const [unidades, setUnidades] = useState<Unidade[]>([]);
+  const [limiteUnidades, setLimiteUnidades] = useState<number>(10);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('dados');
+  const [formUnidade, setFormUnidade] = useState<{ open: boolean; unidade?: Unidade | null }>({ open: false });
 
   const { register, handleSubmit, reset, setValue, getValues, formState: { isSubmitting, isDirty } } = useForm();
 
@@ -34,12 +53,14 @@ export default function EditarEmpreendimentoPage() {
     Promise.all([
       empreendimentosApi.listar(),
       midiasApi.listar(id),
-    ]).then(([emps, mds]) => {
+      unidadesApi.listar(id).catch(() => ({ data: [] })),
+    ]).then(([emps, mds, uns]) => {
       const emp = emps.data.find((e: Empreendimento) => e.id === id);
       if (!emp) { router.push('/dashboard/empreendimentos'); return; }
       setEmpreendimento(emp);
       reset(emp);
       setMidias(mds.data);
+      setUnidades(uns.data ?? []);
     }).finally(() => setLoading(false));
   }, [id, reset, router]);
 
@@ -77,9 +98,10 @@ export default function EditarEmpreendimentoPage() {
 
   if (!empreendimento) return null;
 
-  const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
+  const tabs: { key: Tab; label: string; icon: React.ElementType; badge?: number }[] = [
     { key: 'dados',     label: 'Dados',     icon: Settings },
-    { key: 'fotos',     label: 'Fotos',     icon: ImageIcon },
+    { key: 'fotos',     label: 'Fotos',     icon: ImageIcon,  badge: midias.length || undefined },
+    { key: 'unidades',  label: 'Unidades',  icon: LayoutGrid, badge: unidades.length || undefined },
     { key: 'parceiros', label: 'Parceiros', icon: Users },
   ];
 
@@ -120,7 +142,7 @@ export default function EditarEmpreendimentoPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 border-b border-gray-200">
-        {tabs.map(({ key, label, icon: Icon }) => (
+        {tabs.map(({ key, label, icon: Icon, badge }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -133,11 +155,11 @@ export default function EditarEmpreendimentoPage() {
           >
             <Icon className="w-4 h-4" />
             {label}
-            {key === 'fotos' && midias.length > 0 && (
+            {badge ? (
               <span className="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">
-                {midias.length}
+                {badge}
               </span>
-            )}
+            ) : null}
           </button>
         ))}
       </div>
@@ -251,7 +273,130 @@ export default function EditarEmpreendimentoPage() {
         </div>
       )}
 
-      {/* Aba: Parceiros */}
+      {/* ══ Aba: Unidades ══ */}
+      {tab === 'unidades' && (
+        <div className="max-w-3xl">
+          {/* Cabeçalho da aba */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-sm text-gray-500">
+                {unidades.length} de {limiteUnidades} unidades cadastradas
+              </p>
+              <div className="mt-1 w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary-500 transition-all"
+                  style={{ width: `${Math.min(100, (unidades.length / limiteUnidades) * 100)}%` }}
+                />
+              </div>
+            </div>
+            <button
+              onClick={() => setFormUnidade({ open: true, unidade: null })}
+              disabled={unidades.length >= limiteUnidades}
+              className="btn-primary flex items-center gap-2 text-sm"
+            >
+              <Plus className="w-4 h-4" /> Nova unidade
+            </button>
+          </div>
+
+          {/* Lista de unidades */}
+          {unidades.length === 0 ? (
+            <div className="card p-12 text-center">
+              <LayoutGrid className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+              <p className="text-gray-500 font-medium">Nenhuma unidade cadastrada ainda.</p>
+              <p className="text-gray-400 text-sm mt-1 mb-4">
+                Adicione os tipos disponíveis neste empreendimento.
+              </p>
+              <button
+                onClick={() => setFormUnidade({ open: true, unidade: null })}
+                className="btn-primary inline-flex items-center gap-2 text-sm"
+              >
+                <Plus className="w-4 h-4" /> Adicionar primeira unidade
+              </button>
+            </div>
+          ) : (
+            <div className="grid gap-3">
+              {unidades.map((u) => {
+                const Icon = TIPO_ICON[u.tipo] ?? Home;
+                const cor  = TIPO_COR[u.tipo]  ?? 'bg-gray-100 text-gray-600';
+                const foto = u.midias?.[0]?.url;
+                return (
+                  <div
+                    key={u.id}
+                    onClick={() => setFormUnidade({ open: true, unidade: u })}
+                    className="card p-4 flex items-center gap-4 hover:shadow-md hover:ring-1 hover:ring-primary-200 cursor-pointer transition-all"
+                  >
+                    {/* Thumb da unidade */}
+                    <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+                      {foto ? (
+                        <img src={foto} alt={u.nome ?? u.tipo} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Icon className="w-6 h-6 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Informações */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cor}`}>
+                          {u.tipo.charAt(0).toUpperCase() + u.tipo.slice(1)}
+                        </span>
+                        {u.disponivel ? (
+                          <span className="text-xs text-green-600 flex items-center gap-0.5">
+                            <BadgeCheck className="w-3 h-3" /> Disponível
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400 flex items-center gap-0.5">
+                            <BadgeX className="w-3 h-3" /> Indisponível
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-medium text-gray-900 text-sm truncate">
+                        {u.nome || `${u.tipo.charAt(0).toUpperCase() + u.tipo.slice(1)} — sem nome`}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                        {u.metragem_privativa && (
+                          <span className="flex items-center gap-0.5">
+                            <Maximize2 className="w-3 h-3" /> {u.metragem_privativa} m²
+                          </span>
+                        )}
+                        {u.quartos > 0 && (
+                          <span className="flex items-center gap-0.5">
+                            <BedDouble className="w-3 h-3" /> {u.quartos} qtos
+                          </span>
+                        )}
+                        {u.vagas > 0 && (
+                          <span className="flex items-center gap-0.5">
+                            <Car className="w-3 h-3" /> {u.vagas} vagas
+                          </span>
+                        )}
+                        {u.midias?.length > 0 && (
+                          <span className="flex items-center gap-0.5">
+                            <ImageIcon className="w-3 h-3" /> {u.midias.length} foto{u.midias.length > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Preço + seta */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {u.preco && (
+                        <p className="text-sm font-semibold text-primary-700">
+                          {formatCurrency(u.preco)}
+                        </p>
+                      )}
+                      <ChevronRight className="w-4 h-4 text-gray-300" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══ Aba: Parceiros ══ */}
       {tab === 'parceiros' && (
         <div className="max-w-xl">
           <div className="card p-6">
@@ -259,6 +404,28 @@ export default function EditarEmpreendimentoPage() {
             <VincularParceiro empreendimentoId={id} />
           </div>
         </div>
+      )}
+      {/* ══ Drawer: FormUnidade ══ */}
+      {formUnidade.open && (
+        <FormUnidade
+          empreendimentoId={id}
+          unidade={formUnidade.unidade}
+          limiteAtingido={unidades.length >= limiteUnidades}
+          onSave={(u) => {
+            setUnidades((prev) => {
+              const idx = prev.findIndex((x) => x.id === u.id);
+              return idx >= 0
+                ? prev.map((x) => x.id === u.id ? u : x)
+                : [...prev, u];
+            });
+            setFormUnidade({ open: false });
+          }}
+          onDelete={(deletedId) => {
+            setUnidades((prev) => prev.filter((x) => x.id !== deletedId));
+            setFormUnidade({ open: false });
+          }}
+          onClose={() => setFormUnidade({ open: false })}
+        />
       )}
     </div>
   );

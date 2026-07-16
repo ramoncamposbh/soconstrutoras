@@ -79,6 +79,28 @@ export const billingApi = {
   status: () => api.get('/billing/status'),
 };
 
+export const unidadesApi = {
+  listar:  (empreendimentoId: string) =>
+    api.get(`/unidades/empreendimentos/${empreendimentoId}`),
+  criar:   (empreendimentoId: string, data: any) =>
+    api.post(`/unidades/empreendimentos/${empreendimentoId}`, data),
+  atualizar: (id: string, data: any) =>
+    api.patch(`/unidades/${id}`, data),
+  remover:   (id: string) =>
+    api.delete(`/unidades/${id}`),
+  uploadFoto: (unidadeId: string, file: File) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return api.post(`/unidades/${unidadeId}/midias/upload-local`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  removerFoto: (unidadeId: string, midiaId: string) =>
+    api.delete(`/unidades/${unidadeId}/midias/${midiaId}`),
+  listarPublico: (empreendimentoId: string) =>
+    api.get(`/public/unidades/empreendimentos/${empreendimentoId}`),
+};
+
 export const midiasApi = {
   listar: (empreendimentoId: string) =>
     api.get(`/empreendimentos/${empreendimentoId}/midias`),
