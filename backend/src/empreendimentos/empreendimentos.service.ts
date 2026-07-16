@@ -167,4 +167,6 @@ export class EmpreendimentosService {
       'SELECT id FROM empreendimentos WHERE id = $1 AND construtora_id = $2',
       [id, construtoraId],
     );
-    if (!emp) throw new ForbiddenException('Empreendimento não encontrado ou sem permissão.
+    if (!emp) throw new ForbiddenException('Empreendimento não encontrado ou sem permissão.');
+  }
+}

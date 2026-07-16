@@ -25,4 +25,9 @@ import { UnidadesModule } from './unidades/unidades.module';
     LeadsModule,
     MidiasModule,
     NotificationsModule,
-    Health
+    HealthModule,
+    BillingModule,
+    UnidadesModule,
+  ],
+})
+export class AppModule {}

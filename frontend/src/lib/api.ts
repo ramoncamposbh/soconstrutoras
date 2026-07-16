@@ -97,4 +97,23 @@ export const unidadesApi = {
   },
   removerFoto: (unidadeId: string, midiaId: string) =>
     api.delete(`/unidades/${unidadeId}/midias/${midiaId}`),
-  listarPublico: (empreendim
+  listarPublico: (empreendimentoId: string) =>
+    api.get(`/public/unidades/empreendimentos/${empreendimentoId}`),
+};
+
+export const midiasApi = {
+  listar: (empreendimentoId: string) =>
+    api.get(`/empreendimentos/${empreendimentoId}/midias`),
+
+  gerarUrlUpload: (empreendimentoId: string, tipo: string, contentType: string) =>
+    api.post(`/empreendimentos/${empreendimentoId}/midias/url-upload`, { tipo, contentType }),
+
+  confirmar: (empreendimentoId: string, url: string, tipo: string, legenda?: string) =>
+    api.post(`/empreendimentos/${empreendimentoId}/midias/confirmar`, { url, tipo, legenda }),
+
+  reordenar: (empreendimentoId: string, ordens: { id: string; ordem: number }[]) =>
+    api.post(`/empreendimentos/${empreendimentoId}/midias/reordenar`, { ordens }),
+
+  remover: (empreendimentoId: string, midiaId: string) =>
+    api.delete(`/empreendimentos/${empreendimentoId}/midias/${midiaId}`),
+};

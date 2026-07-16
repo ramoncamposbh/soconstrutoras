@@ -798,4 +798,354 @@ export default function HomePage() {
                   </p>
                 </div>
                 <Link href="/auth/register"
-                  className="inline-flex items-center gap-1.5 text-white text-xs font-semibold px-4 py-2 rou
+                  className="inline-flex items-center gap-1.5 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
+                  style={{ background: '#22c55e' }}>
+                  <UserPlus className="w-3.5 h-3.5" /> Criar perfil grátis
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ BARRA DE RESULTADOS ══ */}
+      <div className="bg-white border-b border-gray-100 px-4 md:px-8 py-4 shrink-0">
+        <div className="max-w-6xl mx-auto flex items-start justify-between gap-4">
+          <div>
+            {loading ? (
+              <>
+                <div className="w-64 h-6 bg-gray-100 rounded animate-pulse mb-1.5" />
+                <div className="w-44 h-3.5 bg-gray-100 rounded animate-pulse" />
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold text-gray-900 leading-tight">
+                  {empreendimentos.length} empreendimento{empreendimentos.length !== 1 ? 's' : ''} encontrado{empreendimentos.length !== 1 ? 's' : ''} para você
+                </h2>
+                <p className="text-sm text-gray-400 mt-0.5">
+                  Ordenados por compatibilidade com seu perfil
+                  {pesquisaAtiva && (
+                    <button onClick={() => { setPesquisaAtiva(null); buscar(); }}
+                      className="ml-2 inline-flex items-center gap-1 font-medium" style={{ color: '#0E8F6E' }}>
+                      · {pesquisaAtiva} <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </p>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0 pt-1">
+            <button className="hidden md:flex items-center gap-1.5 text-sm font-semibold border rounded-lg px-3 py-1.5 transition-colors"
+              style={{ color: '#0E8F6E', borderColor: '#0E8F6E' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F0FAF7'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>
+              <Map className="w-3.5 h-3.5" /> Ver no mapa
+            </button>
+            <div className="flex md:hidden items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
+              <button onClick={() => setVista('lista')}
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${vista === 'lista' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <LayoutGrid className="w-3 h-3" /> Lista
+              </button>
+              <button onClick={() => setVista('mapa')}
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${vista === 'mapa' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <Map className="w-3 h-3" /> Mapa
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══ CARDS + MAPA ══ */}
+      <div className={`flex md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:border md:border-gray-200 md:overflow-hidden pb-16 md:pb-0 ${vista === 'mapa' ? 'h-[calc(100vh-180px)]' : ''}`}>
+
+        {/* Cards */}
+        <div className={`w-full md:w-[55%] xl:w-[52%] overflow-y-auto bg-[#f9fafb] md:shrink-0 ${vista === 'mapa' ? 'hidden md:block' : 'block'}`}>
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="aspect-square bg-gray-200 rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          ) : empreendimentos.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center px-8 py-16">
+              <Building2 className="w-12 h-12 text-gray-200 mb-3" />
+              <p className="text-gray-500 font-medium">Nenhum empreendimento encontrado.</p>
+              <p className="text-gray-400 text-sm mt-1">Tente outros filtros ou busca por IA.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
+              {empreendimentos.map((emp) => {
+                const compat = getCompatibilidade(emp.id);
+                return (
+                  <div key={emp.id}
+                    onMouseEnter={() => setDestacado(emp.id)}
+                    onMouseLeave={() => setDestacado(null)}>
+                    <CardEmpreendimento emp={emp} compatibilidade={compat} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Mapa */}
+        <div className={`flex-1 relative border-l border-gray-200 ${vista === 'lista' ? 'hidden md:flex' : 'flex'}`}>
+          <div className="absolute inset-0">
+            {!loading && (
+              <MapaEmpreendimentos empreendimentos={comCoordenadas} destacado={destacado} altura="100%" visivel={vista === 'mapa'} />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ COMO FUNCIONA (apenas desktop) ══ */}
+      <section className="hidden md:block" style={{ background: '#fff', borderTop: '1px solid #F3F4F6', padding: '28px 32px', marginTop: 8 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, alignItems: 'stretch' }}>
+            {/* Título */}
+            <div style={{ flex: '0 0 220px', paddingRight: 28, borderRight: '1px solid #F3F4F6', marginRight: 28 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>
+                Como funciona nossa IA
+              </p>
+              <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
+                Um processo simples para encontrar o imóvel ideal.
+              </p>
+            </div>
+
+            {/* Steps */}
+            {[
+              { icon: MessageCircle, n: 1, title: 'Converse com a IA',        desc: 'Conte suas necessidades em linguagem natural.' },
+              { icon: Brain,         n: 2, title: 'IA analisa seu perfil',     desc: 'Entendemos seu momento de vida e preferências.' },
+              { icon: Target,        n: 3, title: 'Encontramos o ideal',       desc: 'Buscamos entre milhares de imóveis novos.' },
+              { icon: CheckCircle,   n: 4, title: 'Resultados personalizados', desc: 'Você recebe apenas imóveis compatíveis com você.' },
+            ].map(({ icon: Icon, n, title, desc }) => (
+              <div key={n} style={{ flex: '1 1 160px', display: 'flex', gap: 10, paddingRight: 16 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                  background: '#F0FAF7', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon size={15} color="#0E8F6E" />
+                </div>
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: '#1F2937', marginBottom: 3 }}>{n}. {title}</p>
+                  <p style={{ fontSize: 11, color: '#9CA3AF', lineHeight: 1.6 }}>{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FOOTER SIMPLES ══ */}
+      <footer style={{ background: '#04241D', borderTop: '1px solid #19483D', padding: '20px 32px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0E8F6E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Building2 size={16} color="#fff" />
+            </div>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#AAB5B2', letterSpacing: '0.05em' }}>SÓCONSTRUTORAS</span>
+          </div>
+          <p style={{ fontSize: 11, color: '#19483D' }}>© {new Date().getFullYear()} SóConstrutoras. Todos os direitos reservados.</p>
+          <div style={{ display: 'flex', gap: 20 }}>
+            {['Privacidade', 'Termos', 'Contato'].map(l => (
+              <a key={l} href="#" style={{ fontSize: 11, color: '#AAB5B2', textDecoration: 'none' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#AAB5B2'; }}>
+                {l}
+              </a>
+            ))}
+          </div>
+        </div>
+      </footer>
+
+
+      {/* ══ BOTTOM NAV MOBILE ══ */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100"
+        style={{ boxShadow: '0 -1px 0 #E5E7EB' }}>
+        <div className="flex">
+          {[
+            { href: '/',              icon: Home,      label: 'Início'    },
+            { href: '/busca',         icon: Search,    label: 'Buscar'    },
+            { href: '/favoritos',     icon: Heart,     label: 'Favoritos' },
+            {
+              href: isAuthenticated
+                ? (user?.role === 'construtora' || user?.role === 'admin' ? '/dashboard' : '/')
+                : '/auth/login',
+              icon: isAuthenticated ? Users : LogIn,
+              label: isAuthenticated ? 'Painel' : 'Entrar',
+            },
+          ].map(({ href, icon: Icon, label }) => (
+            <Link key={label} href={href}
+              className="flex-1 flex flex-col items-center py-2.5 gap-1 transition-colors"
+              style={{ color: '#9CA3AF' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0E8F6E'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#9CA3AF'; }}>
+              <Icon className="w-5 h-5" strokeWidth={1.6} />
+              <span className="text-[10px] font-medium">{label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* ══ MODAL: Progresso da busca IA ══ */}
+      {buscaProgresso && (() => {
+        const { pais, estado, cidade, regiao, totalConstrutoras, totalImoveis, etapa } = buscaProgresso;
+        const pct = Math.round((etapa / 6) * 100);
+        const R = 44; const C = 2 * Math.PI * R;
+        const offset = C - (pct / 100) * C;
+        const itens = [
+          { label: 'País',                  valor: pais,                                                     e: 1 },
+          { label: 'Estado',                valor: estado,                                                   e: 2 },
+          { label: 'Cidade',                valor: cidade,                                                   e: 3 },
+          { label: 'Construtoras consultadas', valor: totalConstrutoras !== null ? `${totalConstrutoras} encontradas` : 'Verificando...', e: 4 },
+          { label: 'Imóveis consultados',   valor: totalImoveis !== null ? `${totalImoveis} disponíveis` : 'Verificando...', e: 5 },
+          { label: 'Região / Bairro',       valor: regiao,                                                   e: 6 },
+        ];
+        return (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}>
+            <div className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 shadow-2xl"
+              style={{ background: 'linear-gradient(160deg, #0A2318 0%, #0C3525 100%)', border: '1px solid #1B5C3E' }}>
+
+              {/* Logo */}
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#0E8F6E' }}>
+                  <Building2 size={15} color="#fff" />
+                </div>
+                <div>
+                  <p className="font-bold text-white text-xs tracking-widest">SÓCONSTRUTORAS</p>
+                  <p className="text-[9px] tracking-wider" style={{ color: '#22D497' }}>PORTAL DAS CONSTRUTORAS</p>
+                </div>
+              </div>
+
+              {/* Título + círculo de progresso */}
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0">
+                  <svg width="96" height="96" style={{ transform: 'rotate(-90deg)' }}>
+                    <circle cx="48" cy="48" r={R} fill="none" stroke="#1B5C3E" strokeWidth="8" />
+                    <circle cx="48" cy="48" r={R} fill="none" stroke="#22D497" strokeWidth="8"
+                      strokeDasharray={C} strokeDashoffset={offset}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.45s ease' }} />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-white font-bold text-xl">{pct}%</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-white font-bold text-base">Busca em andamento</p>
+                  <p className="text-sm mt-0.5" style={{ color: '#A7C4BB' }}>
+                    {etapa < 6 ? 'Verificando sua solicitação...' : 'Concluído!'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Checklist */}
+              <div className="flex flex-col gap-2.5 py-1">
+                {itens.map(({ label, valor, e }) => {
+                  const done    = etapa >= e;
+                  const current = etapa === e - 1;
+                  return (
+                    <div key={label} className="flex items-center gap-3">
+                      {done ? (
+                        <CheckCircle size={18} style={{ color: '#22D497', flexShrink: 0 }} />
+                      ) : current ? (
+                        <div className="w-[18px] h-[18px] rounded-full border-2 border-t-transparent animate-spin flex-shrink-0"
+                          style={{ borderColor: '#22D497', borderTopColor: 'transparent' }} />
+                      ) : (
+                        <div className="w-[18px] h-[18px] rounded-full border-2 flex-shrink-0" style={{ borderColor: '#1B5C3E' }} />
+                      )}
+                      <div className="min-w-0">
+                        <span className="text-xs" style={{ color: '#718C84' }}>{label}  </span>
+                        {done && (
+                          <span className="text-sm font-semibold text-white">{valor}</span>
+                        )}
+                        {current && (
+                          <span className="text-xs italic" style={{ color: '#A7C4BB' }}>verificando...</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Barra de progresso */}
+              <div>
+                <p className="text-xs mb-1.5 font-semibold" style={{ color: '#718C84' }}>
+                  {etapa < 6 ? 'Verificando orçamento...' : 'Análise completa!'}
+                </p>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.4)' }}>
+                  <div className="h-full rounded-full"
+                    style={{
+                      background: 'linear-gradient(90deg, #0E8F6E, #22D497)',
+                      width: `${pct}%`,
+                      transition: 'width 0.45s ease',
+                    }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ══ MODAL: Sugestão de região quando sem resultados ══ */}
+      {mensagemBusca && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-2xl"
+            style={{ background: 'linear-gradient(160deg, #0D2B22 0%, #0A3D2C 100%)', border: '1px solid #1A5440' }}
+          >
+            {/* Ícone central */}
+            <div className="flex flex-col items-center gap-2 pt-2">
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center"
+                style={{ border: '4px solid #0E8F6E', background: 'rgba(14,143,110,0.12)' }}
+              >
+                <MapPin className="w-9 h-9" style={{ color: '#22D497' }} />
+              </div>
+              <h3 className="text-white text-lg font-bold text-center mt-1">
+                Região não disponível
+              </h3>
+            </div>
+
+            {/* Mensagem principal */}
+            <p className="text-sm text-center" style={{ color: '#A7C4BB', lineHeight: 1.6 }}>
+              {mensagemBusca.texto}
+            </p>
+
+            {/* Sugestões */}
+            {mensagemBusca.sugestoes.length > 0 && (
+              <div
+                className="rounded-2xl p-4 flex flex-col gap-2"
+                style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid #1A5440' }}
+              >
+                <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#22D497' }}>
+                  Sugestão
+                </p>
+                {mensagemBusca.sugestoes.map((s, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#22D497' }} />
+                    <span className="text-sm" style={{ color: '#CBD5E1', lineHeight: 1.5 }}>{s}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Botão OK */}
+            <button
+              onClick={() => setMensagemBusca(null)}
+              className="w-full py-3.5 rounded-2xl font-bold text-base transition-all active:scale-95"
+              style={{ background: 'linear-gradient(90deg, #0E8F6E, #22D497)', color: '#fff', letterSpacing: '0.02em' }}
+            >
+              Ok, entendi
+            </button>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
