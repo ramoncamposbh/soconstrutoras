@@ -99,7 +99,7 @@ export class EmpreendimentosService {
     const offset = (filtros.pagina ?? 0) * limit;
 
     const { rows } = await this.pool.query(
-      `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.cidade, e.estado,
+      `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.bairro, e.cidade, e.estado,
               e.preco_min, e.preco_max, e.area_min, e.area_max,
               e.quartos_min, e.quartos_max, e.vagas,
               e.latitude, e.longitude,

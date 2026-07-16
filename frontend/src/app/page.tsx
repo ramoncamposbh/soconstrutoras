@@ -96,20 +96,37 @@ export default function HomePage() {
   useEffect(() => { buscar(); }, [buscar]);
 
   /**
-   * Parser de linguagem natural — extrai filtros do texto livre.
-   * Ex: "quero um apartamento de 3 quartos na savassi bh"
-   *     → { tipo: 'apartamento', quartos_min: 3, cidade: 'Belo Horizonte' }
+   * Bairros de cada região administrativa de BH.
+   * Usado para filtro client-side quando o usuário menciona uma região.
    */
-  const parseAiQuery = (texto: string) => {
+  const REGIOES_BH: Record<string, string[]> = {
+    'centro sul': ['Funcionários', 'Lourdes', 'Santo Antônio', 'Savassi', 'Serra',
+                   'Sion', 'Anchieta', 'Carmo', 'Luxemburgo', 'Santa Efigênia',
+                   'São Pedro', 'Belvedere', 'Cidade Jardim', 'Barro Preto'],
+    'norte': ['Pampulha', 'Venda Nova', 'Norte', 'Lagoinha', 'Floresta'],
+    'oeste': ['Gutierrez', 'Buritis', 'Nova Granada', 'Gameleira', 'Caiçara'],
+    'noroeste': ['Caiçara', 'Padre Eustáquio', 'Carlos Prates'],
+    'leste': ['Horto', 'Santa Inês', 'Santa Tereza', 'Colégio Batista'],
+    'sul': ['Castelo', 'Mangabeiras', 'Nova Lima', 'Jardim América'],
+    'pampulha': ['Pampulha', 'Glória', 'Mantiqueira'],
+  };
+
+  /**
+   * Parser de linguagem natural — extrai filtros do texto livre.
+   * Retorna { filtros } para o backend e { bairrosRegiao } para filtro client-side.
+   * Ex: "3 quartos centro sul bh" → filtros={quartos_min:3, cidade:'BH'} + bairrosRegiao=[...]
+   */
+  const parseAiQuery = (texto: string): { filtros: Record<string, any>; bairrosRegiao: string[] } => {
     const t = texto.toLowerCase()
       .normalize('NFD').replace(/[̀-ͯ]/g, ''); // remove acentos
 
     const filtros: Record<string, any> = {};
+    let bairrosRegiao: string[] = [];
 
     // Tipo de imóvel
-    if (/apart|apto/.test(t))  filtros.tipo = 'apartamento';
-    else if (/casa|sobrado/.test(t)) filtros.tipo = 'casa';
-    else if (/terreno|lote/.test(t)) filtros.tipo = 'terreno';
+    if (/apart|apto/.test(t))             filtros.tipo = 'apartamento';
+    else if (/casa|sobrado/.test(t))      filtros.tipo = 'casa';
+    else if (/terreno|lote/.test(t))      filtros.tipo = 'terreno';
     else if (/comercial|loja|sala/.test(t)) filtros.tipo = 'comercial';
     else if (/studio|kitnet|kit/.test(t)) filtros.tipo = 'studio';
 
@@ -117,7 +134,6 @@ export default function HomePage() {
     const mQuartos = t.match(/(\d+)\s*quarto/);
     if (mQuartos) {
       const n = parseInt(mQuartos[1]);
-      // Aviso se parecer typo (ex: "33 quartos" → provavelmente "3")
       filtros.quartos_min = n > 10 ? Math.round(n / 10) : n;
       if (n > 10) {
         toast(`Interpretando "${n} quartos" como ${filtros.quartos_min} quartos.`, { icon: '💡' });
@@ -128,42 +144,73 @@ export default function HomePage() {
     const mVagas = t.match(/(\d+)\s*vaga/);
     if (mVagas) filtros.vagas = parseInt(mVagas[1]);
 
-    // Preço máximo — "ate X mil" ou "ate X reais"
+    // Preço máximo
     const mPreco = t.match(/ate\s+r?\$?\s*([\d.]+)\s*(mil|k|reais)?/);
     if (mPreco) {
       const v = parseFloat(mPreco[1].replace('.', ''));
       filtros.preco_max = /mil|k/.test(mPreco[2] ?? '') ? v * 1000 : v;
     }
 
-    // Cidade / região
-    if (/\bbh\b|belo horizonte/.test(t))   filtros.cidade = 'Belo Horizonte';
-    else if (/nova lima/.test(t))           filtros.cidade = 'Nova Lima';
-    else if (/contagem/.test(t))            filtros.cidade = 'Contagem';
-    else if (/betim/.test(t))               filtros.cidade = 'Betim';
-    else if (/ribeirao das neves/.test(t))  filtros.cidade = 'Ribeirão das Neves';
-
-    // Bairro / região (campo cidade aceita bairro também para busca textual)
-    const bairros: Record<string, string> = {
-      savassi: 'Savassi', funcionarios: 'Funcionários', lourdes: 'Lourdes',
-      'santo antonio': 'Santo Antônio', gutierrez: 'Gutierrez',
-      'centro sul': 'Belo Horizonte', 'vale do sereno': 'Nova Lima',
-      'boa viagem': 'Belo Horizonte', pampulha: 'Belo Horizonte',
-      buritis: 'Belo Horizonte', belvedere: 'Belo Horizonte',
-    };
-    for (const [chave, cidadeRef] of Object.entries(bairros)) {
-      if (t.includes(chave)) {
-        if (!filtros.cidade) filtros.cidade = cidadeRef;
+    // Regiões administrativas de BH — filtro client-side após busca
+    for (const [regiao, bairros] of Object.entries(REGIOES_BH)) {
+      if (t.includes(regiao)) {
+        bairrosRegiao = bairros;
+        filtros.cidade = 'Belo Horizonte';
         break;
       }
     }
 
-    return filtros;
+    // Cidade
+    if (!filtros.cidade) {
+      if (/\bbh\b|belo horizonte/.test(t))  filtros.cidade = 'Belo Horizonte';
+      else if (/nova lima/.test(t))          filtros.cidade = 'Nova Lima';
+      else if (/contagem/.test(t))           filtros.cidade = 'Contagem';
+      else if (/betim/.test(t))              filtros.cidade = 'Betim';
+    }
+
+    // Bairros específicos — sem filtro client-side, só cidade
+    if (!filtros.cidade) {
+      const bairrosCidade: Record<string, string> = {
+        savassi: 'Belo Horizonte', funcionarios: 'Belo Horizonte',
+        lourdes: 'Belo Horizonte', 'santo antonio': 'Belo Horizonte',
+        gutierrez: 'Belo Horizonte', pampulha: 'Belo Horizonte',
+        buritis: 'Belo Horizonte', belvedere: 'Belo Horizonte',
+        'vale do sereno': 'Nova Lima', 'boa viagem': 'Belo Horizonte',
+      };
+      for (const [chave, cid] of Object.entries(bairrosCidade)) {
+        if (t.includes(chave)) { filtros.cidade = cid; break; }
+      }
+    }
+
+    return { filtros, bairrosRegiao };
   };
 
-  const handleAiSearch = () => {
+  const handleAiSearch = async () => {
     if (!aiText.trim()) return;
-    const filtros = parseAiQuery(aiText);
-    buscar(filtros);
+    const { filtros, bairrosRegiao } = parseAiQuery(aiText);
+    setLoading(true);
+    try {
+      const { data } = await empreendimentosApi.buscarPublico(filtros);
+      // Filtro client-side por região (ex: centro sul) usando campo bairro retornado pelo backend
+      if (bairrosRegiao.length > 0) {
+        const normalizar = (s: string) =>
+          s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        const bairrosNorm = bairrosRegiao.map(normalizar);
+        const filtrado = data.filter((e: any) =>
+          e.bairro && bairrosNorm.some(b => normalizar(e.bairro).includes(b))
+        );
+        setEmpreendimentos(filtrado.length > 0 ? filtrado : data);
+        if (filtrado.length === 0 && data.length > 0) {
+          toast('Região específica não encontrada — mostrando todos de BH.', { icon: '📍' });
+        }
+      } else {
+        setEmpreendimentos(data);
+      }
+    } catch {
+      toast.error('Erro ao buscar imóveis.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePesquisaRapida = (item: PesquisaRapida) => {
