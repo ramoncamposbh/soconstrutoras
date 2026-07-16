@@ -3,7 +3,8 @@ import Image from 'next/image';
 import Header from '@/components/layout/Header';
 import FormularioLead from '@/components/empreendimentos/FormularioLead';
 import SecaoLocalizacao from '@/components/mapa/SecaoLocalizacao';
-import { MapPin, BedDouble, Car, Maximize2, Building2 } from 'lucide-react';
+import SecaoUnidades from '@/components/unidades/SecaoUnidades';
+import { MapPin, BedDouble, Car, Maximize2, Building2, ArrowRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 async function getEmpreendimento(slug: string) {
@@ -19,6 +20,19 @@ async function getEmpreendimento(slug: string) {
   }
 }
 
+async function getUnidades(empreendimentoId: string) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/public/unidades/empreendimentos/${empreendimentoId}`,
+      { next: { revalidate: 60 } },
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const emp = await getEmpreendimento(params.slug);
   if (!emp) return { title: 'Imóvel não encontrado' };
@@ -31,6 +45,18 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function PaginaEmpreendimento({ params }: { params: { slug: string } }) {
   const emp = await getEmpreendimento(params.slug);
   if (!emp) notFound();
+
+  // Busca unidades públicas em paralelo
+  const unidades = await getUnidades(emp.id);
+
+  // Calcula faixa de preço a partir das unidades
+  const precosUnidades = unidades.filter((u: any) => u.preco).map((u: any) => Number(u.preco));
+  const precoMinUnidades = precosUnidades.length > 0 ? Math.min(...precosUnidades) : null;
+  const precoMaxUnidades = precosUnidades.length > 0 ? Math.max(...precosUnidades) : null;
+  const temFaixa = precoMinUnidades && precoMaxUnidades && precoMinUnidades !== precoMaxUnidades;
+
+  // Preço a exibir (prioriza unidades, fallback para dados do empreendimento)
+  const precoExibir = precoMinUnidades ?? emp.preco_min;
 
   const fotos = (emp.midias ?? []).filter((m: any) => m.tipo === 'foto');
 
@@ -74,15 +100,33 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
                   {emp.bairro ? `${emp.bairro}, ` : ''}{emp.cidade} — {emp.estado}
                 </p>
               </div>
-              <div className="text-right">
-                {emp.preco_min && (
+
+              {/* ── Faixa de preço ── */}
+              <div className="text-right flex-shrink-0 ml-4">
+                {temFaixa ? (
+                  <>
+                    <p className="text-xs text-gray-400 mb-0.5">Faixa de preço</p>
+                    <p className="text-sm font-semibold text-gray-600">
+                      De{' '}
+                      <span className="text-primary-600 font-bold">
+                        {formatCurrency(precoMinUnidades!)}
+                      </span>
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      até{' '}
+                      <span className="text-primary-600 font-bold">
+                        {formatCurrency(precoMaxUnidades!)}
+                      </span>
+                    </p>
+                  </>
+                ) : precoExibir ? (
                   <>
                     <p className="text-xs text-gray-400">A partir de</p>
                     <p className="text-2xl font-bold text-primary-600">
-                      {formatCurrency(emp.preco_min)}
+                      {formatCurrency(precoExibir)}
                     </p>
                   </>
-                )}
+                ) : null}
               </div>
             </div>
 
@@ -112,9 +156,19 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
               )}
             </div>
 
+            {/* ── Botão de unidades ── */}
+            {unidades.length > 0 && (
+              <div className="border-t border-gray-100 pt-4">
+                <SecaoUnidades
+                  unidades={unidades}
+                  nomeEmpreendimento={emp.nome}
+                />
+              </div>
+            )}
+
             {/* Descrição */}
             {emp.descricao && (
-              <div className="border-t border-gray-100 pt-4">
+              <div className="border-t border-gray-100 pt-4 mt-4">
                 <h2 className="font-semibold mb-2">Sobre o empreendimento</h2>
                 <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
                   {emp.descricao}
@@ -123,7 +177,7 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
             )}
           </div>
 
-          {/* Seção de localização — sempre visível; mapa aparece quando há coordenadas */}
+          {/* Seção de localização */}
           <SecaoLocalizacao
             latitude={emp.latitude}
             longitude={emp.longitude}
