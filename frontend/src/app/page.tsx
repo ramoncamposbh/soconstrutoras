@@ -206,17 +206,46 @@ export default function HomePage() {
       else if (/betim/.test(t))             filtros.cidade = 'Betim';
     }
 
-    // Bairros específicos
+    // Bairros específicos mapeados por nome → cidade
+    const mapaBairros: Record<string, string> = {
+      savassi: 'Belo Horizonte', funcionarios: 'Belo Horizonte',
+      lourdes: 'Belo Horizonte', 'santo antonio': 'Belo Horizonte',
+      gutierrez: 'Belo Horizonte', pampulha: 'Belo Horizonte',
+      buritis: 'Belo Horizonte', belvedere: 'Belo Horizonte',
+      floresta: 'Belo Horizonte', barreiro: 'Belo Horizonte',
+      contorno: 'Belo Horizonte', sereno: 'Nova Lima',
+      'vale do sereno': 'Nova Lima', alphaville: 'Nova Lima',
+    };
     if (!filtros.cidade) {
-      const map: Record<string, string> = {
-        savassi: 'Belo Horizonte', funcionarios: 'Belo Horizonte',
-        lourdes: 'Belo Horizonte', 'santo antonio': 'Belo Horizonte',
-        gutierrez: 'Belo Horizonte', pampulha: 'Belo Horizonte',
-        buritis: 'Belo Horizonte', belvedere: 'Belo Horizonte',
-        'vale do sereno': 'Nova Lima',
-      };
-      for (const [k, v] of Object.entries(map)) {
+      for (const [k, v] of Object.entries(mapaBairros)) {
         if (t.includes(k)) { filtros.cidade = v; break; }
+      }
+    }
+
+    // ── Detecção de bairro explícito ──────────────────────────────
+    // Ex: "no bairro união", "bairro savassi", "no uniao"
+    if (bairrosRegiao.length === 0) {
+      // Padrão "no bairro X" ou "bairro X"
+      const mBairroExplicito = texto.toLowerCase()
+        .match(/(?:no\s+bairro|pelo\s+bairro|bairro)\s+([\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+(?:\s+(?:do|da|de|dos|das)\s+[\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+)?)/);
+
+      // Fallback: "no X" onde X não é preposição/artigo
+      const mNoX = !mBairroExplicito
+        ? texto.toLowerCase()
+            .match(/\bno\s+((?!bairro|centro|norte|sul|leste|oeste|estado|pais|bh)[áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇa-z]+(?:\s+(?:do|da|de|dos|das)\s+[áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇa-z]+)?)/)
+        : null;
+
+      const bairroDetectado = mBairroExplicito?.[1]?.trim() || mNoX?.[1]?.trim() || null;
+
+      if (bairroDetectado) {
+        // Capitaliza para exibição (ex: "uniao" → "Uniao")
+        regiaoLabel = bairroDetectado
+          .split(' ')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+        // bairrosRegiao em texto normalizado para comparação client-side
+        bairrosRegiao = [normalizarTexto(bairroDetectado)];
+        if (!filtros.cidade) filtros.cidade = 'Belo Horizonte'; // assume BH se não foi informado
       }
     }
 
@@ -256,10 +285,10 @@ export default function HomePage() {
     });
     setLoading(true);
 
-    // Avança etapas 1-3 enquanto a API responde
-    const t1 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 1 } : null), 350);
-    const t2 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 2 } : null), 750);
-    const t3 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 3 } : null), 1150);
+    // Avança etapas 1-3 enquanto a API responde (ritmo legível ~900ms por etapa)
+    const t1 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 1 } : null),  900);
+    const t2 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 2 } : null), 1800);
+    const t3 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 3 } : null), 2700);
 
     try {
       const { data } = await empreendimentosApi.buscarPublico(filtros);
@@ -268,13 +297,13 @@ export default function HomePage() {
       const totalConstrutoras = new Set(data.map((e: any) => e.construtora)).size;
       const totalImoveis = data.length;
 
-      // Completa animação com dados reais
+      // Completa animação com dados reais (800ms por etapa final)
       setBuscaProgresso((p) => p ? { ...p, etapa: 4, totalConstrutoras } : null);
-      await esperar(450);
+      await esperar(800);
       setBuscaProgresso((p) => p ? { ...p, etapa: 5, totalImoveis } : null);
-      await esperar(450);
+      await esperar(800);
       setBuscaProgresso((p) => p ? { ...p, etapa: 6 } : null);
-      await esperar(700);
+      await esperar(1200);
       setBuscaProgresso(null);
 
       // ── Processa resultados ──
