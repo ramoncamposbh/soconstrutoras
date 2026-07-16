@@ -16,7 +16,7 @@ import {
   MessageCircle, Brain, Target, CheckCircle,
   ChevronDown, LogIn, UserPlus, Send,
   SlidersHorizontal, Home, Rocket, X, Users,
-  BarChart2, Scale, Calculator,
+  BarChart2, Scale, Calculator, Info,
 } from 'lucide-react';
 
 const MapaEmpreendimentos = dynamic(
@@ -80,6 +80,7 @@ export default function HomePage() {
   const [vagas, setVagas] = useState('');
   const [quartos, setQuartos] = useState('');
   const [area, setArea] = useState('');
+  const [mensagemBusca, setMensagemBusca] = useState<{ texto: string; sugestoes: string[] } | null>(null);
 
   const buscar = useCallback(async (filtros: any = {}) => {
     setLoading(true);
@@ -95,49 +96,77 @@ export default function HomePage() {
 
   useEffect(() => { buscar(); }, [buscar]);
 
-  /**
-   * Bairros de cada região administrativa de BH.
-   * Usado para filtro client-side quando o usuário menciona uma região.
-   */
-  const REGIOES_BH: Record<string, string[]> = {
-    'centro sul': ['Funcionários', 'Lourdes', 'Santo Antônio', 'Savassi', 'Serra',
-                   'Sion', 'Anchieta', 'Carmo', 'Luxemburgo', 'Santa Efigênia',
-                   'São Pedro', 'Belvedere', 'Cidade Jardim', 'Barro Preto'],
-    'norte': ['Pampulha', 'Venda Nova', 'Norte', 'Lagoinha', 'Floresta'],
-    'oeste': ['Gutierrez', 'Buritis', 'Nova Granada', 'Gameleira', 'Caiçara'],
-    'noroeste': ['Caiçara', 'Padre Eustáquio', 'Carlos Prates'],
-    'leste': ['Horto', 'Santa Inês', 'Santa Tereza', 'Colégio Batista'],
-    'sul': ['Castelo', 'Mangabeiras', 'Nova Lima', 'Jardim América'],
-    'pampulha': ['Pampulha', 'Glória', 'Mantiqueira'],
+  /** Mapa de regiões de BH → bairros que pertencem a cada uma */
+  const REGIOES_BH: Record<string, { label: string; bairros: string[] }> = {
+    'centro sul': {
+      label: 'Centro-Sul',
+      bairros: ['Funcionários', 'Lourdes', 'Santo Antônio', 'Savassi', 'Serra',
+                'Sion', 'Anchieta', 'Carmo', 'Luxemburgo', 'Santa Efigênia',
+                'São Pedro', 'Belvedere', 'Cidade Jardim', 'Barro Preto'],
+    },
+    'leste': {
+      label: 'Leste',
+      bairros: ['Horto', 'Santa Inês', 'Santa Tereza', 'Colégio Batista',
+                'Floresta', 'Santa Efigênia', 'Sagrada Família', 'Ipiranga'],
+    },
+    'norte': {
+      label: 'Norte',
+      bairros: ['Lagoinha', 'Floresta', 'Concórdia', 'Cachoeirinha', 'Caiçara'],
+    },
+    'noroeste': {
+      label: 'Noroeste',
+      bairros: ['Padre Eustáquio', 'Carlos Prates', 'Coração Eucarístico', 'Caiçara'],
+    },
+    'oeste': {
+      label: 'Oeste',
+      bairros: ['Gutierrez', 'Buritis', 'Nova Granada', 'Gameleira', 'Estoril'],
+    },
+    'sul': {
+      label: 'Sul',
+      bairros: ['Castelo', 'Mangabeiras', 'Jardim América', 'Bandeirantes'],
+    },
+    'pampulha': {
+      label: 'Pampulha',
+      bairros: ['Pampulha', 'Glória', 'Mantiqueira', 'Caiçara', 'Planalto'],
+    },
+    'venda nova': {
+      label: 'Venda Nova',
+      bairros: ['Venda Nova', 'Ribeiro de Abreu', 'Jardim Leblon'],
+    },
   };
 
-  /**
-   * Parser de linguagem natural — extrai filtros do texto livre.
-   * Retorna { filtros } para o backend e { bairrosRegiao } para filtro client-side.
-   * Ex: "3 quartos centro sul bh" → filtros={quartos_min:3, cidade:'BH'} + bairrosRegiao=[...]
-   */
-  const parseAiQuery = (texto: string): { filtros: Record<string, any>; bairrosRegiao: string[] } => {
-    const t = texto.toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g, ''); // remove acentos
+  const normalizarTexto = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
+  /**
+   * Parser de linguagem natural.
+   * Retorna filtros para o backend + metadados de região para filtro client-side.
+   */
+  const parseAiQuery = (texto: string): {
+    filtros: Record<string, any>;
+    regiaoKey: string | null;
+    regiaoLabel: string | null;
+    bairrosRegiao: string[];
+  } => {
+    const t = normalizarTexto(texto);
     const filtros: Record<string, any> = {};
+    let regiaoKey: string | null = null;
+    let regiaoLabel: string | null = null;
     let bairrosRegiao: string[] = [];
 
     // Tipo de imóvel
-    if (/apart|apto/.test(t))             filtros.tipo = 'apartamento';
-    else if (/casa|sobrado/.test(t))      filtros.tipo = 'casa';
-    else if (/terreno|lote/.test(t))      filtros.tipo = 'terreno';
+    if (/apart|apto/.test(t))               filtros.tipo = 'apartamento';
+    else if (/casa|sobrado/.test(t))        filtros.tipo = 'casa';
+    else if (/terreno|lote/.test(t))        filtros.tipo = 'terreno';
     else if (/comercial|loja|sala/.test(t)) filtros.tipo = 'comercial';
-    else if (/studio|kitnet|kit/.test(t)) filtros.tipo = 'studio';
+    else if (/studio|kitnet|kit/.test(t))   filtros.tipo = 'studio';
 
-    // Quartos — extrai número seguido de "quarto(s)"
+    // Quartos
     const mQuartos = t.match(/(\d+)\s*quarto/);
     if (mQuartos) {
       const n = parseInt(mQuartos[1]);
       filtros.quartos_min = n > 10 ? Math.round(n / 10) : n;
-      if (n > 10) {
-        toast(`Interpretando "${n} quartos" como ${filtros.quartos_min} quartos.`, { icon: '💡' });
-      }
+      if (n > 10) toast(`Interpretando "${n} quartos" como ${filtros.quartos_min} quartos.`, { icon: '💡' });
     }
 
     // Vagas
@@ -151,10 +180,14 @@ export default function HomePage() {
       filtros.preco_max = /mil|k/.test(mPreco[2] ?? '') ? v * 1000 : v;
     }
 
-    // Regiões administrativas de BH — filtro client-side após busca
-    for (const [regiao, bairros] of Object.entries(REGIOES_BH)) {
-      if (t.includes(regiao)) {
-        bairrosRegiao = bairros;
+    // Regiões de BH (ordem importa: mais específico primeiro)
+    const ordemRegioes = ['noroeste', 'centro sul', 'venda nova', 'pampulha',
+                          'leste', 'norte', 'oeste', 'sul'];
+    for (const key of ordemRegioes) {
+      if (t.includes(key)) {
+        regiaoKey   = key;
+        regiaoLabel = REGIOES_BH[key].label;
+        bairrosRegiao = REGIOES_BH[key].bairros;
         filtros.cidade = 'Belo Horizonte';
         break;
       }
@@ -162,49 +195,79 @@ export default function HomePage() {
 
     // Cidade
     if (!filtros.cidade) {
-      if (/\bbh\b|belo horizonte/.test(t))  filtros.cidade = 'Belo Horizonte';
-      else if (/nova lima/.test(t))          filtros.cidade = 'Nova Lima';
-      else if (/contagem/.test(t))           filtros.cidade = 'Contagem';
-      else if (/betim/.test(t))              filtros.cidade = 'Betim';
+      if (/\bbh\b|belo horizonte/.test(t)) filtros.cidade = 'Belo Horizonte';
+      else if (/nova lima/.test(t))         filtros.cidade = 'Nova Lima';
+      else if (/contagem/.test(t))          filtros.cidade = 'Contagem';
+      else if (/betim/.test(t))             filtros.cidade = 'Betim';
     }
 
-    // Bairros específicos — sem filtro client-side, só cidade
+    // Bairros específicos
     if (!filtros.cidade) {
-      const bairrosCidade: Record<string, string> = {
+      const map: Record<string, string> = {
         savassi: 'Belo Horizonte', funcionarios: 'Belo Horizonte',
         lourdes: 'Belo Horizonte', 'santo antonio': 'Belo Horizonte',
         gutierrez: 'Belo Horizonte', pampulha: 'Belo Horizonte',
         buritis: 'Belo Horizonte', belvedere: 'Belo Horizonte',
-        'vale do sereno': 'Nova Lima', 'boa viagem': 'Belo Horizonte',
+        'vale do sereno': 'Nova Lima',
       };
-      for (const [chave, cid] of Object.entries(bairrosCidade)) {
-        if (t.includes(chave)) { filtros.cidade = cid; break; }
+      for (const [k, v] of Object.entries(map)) {
+        if (t.includes(k)) { filtros.cidade = v; break; }
       }
     }
 
-    return { filtros, bairrosRegiao };
+    return { filtros, regiaoKey, regiaoLabel, bairrosRegiao };
+  };
+
+  /** Identifica em quais regiões de BH os empreendimentos estão */
+  const detectarRegioes = (lista: any[]): string[] => {
+    const regioesCom: string[] = [];
+    for (const [, { label, bairros }] of Object.entries(REGIOES_BH)) {
+      const bairrosNorm = bairros.map(normalizarTexto);
+      const temNessa = lista.some((e) =>
+        e.bairro && bairrosNorm.some((b) => normalizarTexto(e.bairro).includes(b))
+      );
+      if (temNessa && !regioesCom.includes(label)) regioesCom.push(label);
+    }
+    return regioesCom;
   };
 
   const handleAiSearch = async () => {
     if (!aiText.trim()) return;
-    const { filtros, bairrosRegiao } = parseAiQuery(aiText);
+    setMensagemBusca(null);
+    const { filtros, regiaoLabel, bairrosRegiao } = parseAiQuery(aiText);
     setLoading(true);
     try {
       const { data } = await empreendimentosApi.buscarPublico(filtros);
-      // Filtro client-side por região (ex: centro sul) usando campo bairro retornado pelo backend
-      if (bairrosRegiao.length > 0) {
-        const normalizar = (s: string) =>
-          s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-        const bairrosNorm = bairrosRegiao.map(normalizar);
+
+      if (bairrosRegiao.length > 0 && data.length > 0) {
+        // Filtro client-side por região
+        const bairrosNorm = bairrosRegiao.map(normalizarTexto);
         const filtrado = data.filter((e: any) =>
-          e.bairro && bairrosNorm.some(b => normalizar(e.bairro).includes(b))
+          e.bairro && bairrosNorm.some((b) => normalizarTexto(e.bairro).includes(b))
         );
-        setEmpreendimentos(filtrado.length > 0 ? filtrado : data);
-        if (filtrado.length === 0 && data.length > 0) {
-          toast('Região específica não encontrada — mostrando todos de BH.', { icon: '📍' });
+
+        if (filtrado.length > 0) {
+          setEmpreendimentos(filtrado);
+          setMensagemBusca(null);
+        } else {
+          // Nenhum resultado na região — encontra alternativas
+          const regioesSugeridas = detectarRegioes(data);
+          setEmpreendimentos(data); // mostra todos disponíveis
+          setMensagemBusca({
+            texto: `Não encontramos imóveis com esse perfil na Região ${regiaoLabel}.`,
+            sugestoes: regioesSugeridas.length > 0
+              ? [`Mas temos opções próximas na${regioesSugeridas.length > 1 ? 's' : ''} Região ${regioesSugeridas.join(' e ')} — confira abaixo:`]
+              : ['Mostrando os imóveis disponíveis mais próximos do seu perfil:'],
+          });
         }
       } else {
         setEmpreendimentos(data);
+        if (data.length === 0) {
+          setMensagemBusca({
+            texto: 'Nenhum imóvel encontrado com esses critérios.',
+            sugestoes: ['Tente ampliar os filtros — menos quartos, outra região ou sem filtro de preço.'],
+          });
+        }
       }
     } catch {
       toast.error('Erro ao buscar imóveis.');
@@ -857,6 +920,64 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      {/* ══ MODAL: Sugestão de região quando sem resultados ══ */}
+      {mensagemBusca && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-2xl"
+            style={{ background: 'linear-gradient(160deg, #0D2B22 0%, #0A3D2C 100%)', border: '1px solid #1A5440' }}
+          >
+            {/* Ícone central */}
+            <div className="flex flex-col items-center gap-2 pt-2">
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center"
+                style={{ border: '4px solid #0E8F6E', background: 'rgba(14,143,110,0.12)' }}
+              >
+                <MapPin className="w-9 h-9" style={{ color: '#22D497' }} />
+              </div>
+              <h3 className="text-white text-lg font-bold text-center mt-1">
+                Região não disponível
+              </h3>
+            </div>
+
+            {/* Mensagem principal */}
+            <p className="text-sm text-center" style={{ color: '#A7C4BB', lineHeight: 1.6 }}>
+              {mensagemBusca.texto}
+            </p>
+
+            {/* Sugestões */}
+            {mensagemBusca.sugestoes.length > 0 && (
+              <div
+                className="rounded-2xl p-4 flex flex-col gap-2"
+                style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid #1A5440' }}
+              >
+                <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#22D497' }}>
+                  Sugestão
+                </p>
+                {mensagemBusca.sugestoes.map((s, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#22D497' }} />
+                    <span className="text-sm" style={{ color: '#CBD5E1', lineHeight: 1.5 }}>{s}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Botão OK */}
+            <button
+              onClick={() => setMensagemBusca(null)}
+              className="w-full py-3.5 rounded-2xl font-bold text-base transition-all active:scale-95"
+              style={{ background: 'linear-gradient(90deg, #0E8F6E, #22D497)', color: '#fff', letterSpacing: '0.02em' }}
+            >
+              Ok, entendi
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
