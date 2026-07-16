@@ -81,6 +81,11 @@ export default function HomePage() {
   const [quartos, setQuartos] = useState('');
   const [area, setArea] = useState('');
   const [mensagemBusca, setMensagemBusca] = useState<{ texto: string; sugestoes: string[] } | null>(null);
+  const [buscaProgresso, setBuscaProgresso] = useState<{
+    pais: string; estado: string; cidade: string; regiao: string;
+    totalConstrutoras: number | null; totalImoveis: number | null;
+    etapa: number; // 0=início 1=país✓ 2=estado✓ 3=cidade✓ 4=construtoras✓ 5=imóveis✓ 6=região✓=done
+  } | null>(null);
 
   const buscar = useCallback(async (filtros: any = {}) => {
     setLoading(true);
@@ -231,28 +236,58 @@ export default function HomePage() {
     return regioesCom;
   };
 
+  /** Aguarda N ms (helper para animação sequencial) */
+  const esperar = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
   const handleAiSearch = async () => {
     if (!aiText.trim()) return;
     setMensagemBusca(null);
     const { filtros, regiaoLabel, bairrosRegiao } = parseAiQuery(aiText);
+
+    // ── Inicia modal de progresso ──
+    setBuscaProgresso({
+      pais: 'Brasil',
+      estado: 'Minas Gerais',
+      cidade: filtros.cidade || 'Todas as cidades',
+      regiao: regiaoLabel || 'Todas as regiões',
+      totalConstrutoras: null,
+      totalImoveis: null,
+      etapa: 0,
+    });
     setLoading(true);
+
+    // Avança etapas 1-3 enquanto a API responde
+    const t1 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 1 } : null), 350);
+    const t2 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 2 } : null), 750);
+    const t3 = setTimeout(() => setBuscaProgresso((p) => p ? { ...p, etapa: 3 } : null), 1150);
+
     try {
       const { data } = await empreendimentosApi.buscarPublico(filtros);
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
 
+      const totalConstrutoras = new Set(data.map((e: any) => e.construtora)).size;
+      const totalImoveis = data.length;
+
+      // Completa animação com dados reais
+      setBuscaProgresso((p) => p ? { ...p, etapa: 4, totalConstrutoras } : null);
+      await esperar(450);
+      setBuscaProgresso((p) => p ? { ...p, etapa: 5, totalImoveis } : null);
+      await esperar(450);
+      setBuscaProgresso((p) => p ? { ...p, etapa: 6 } : null);
+      await esperar(700);
+      setBuscaProgresso(null);
+
+      // ── Processa resultados ──
       if (bairrosRegiao.length > 0 && data.length > 0) {
-        // Filtro client-side por região
         const bairrosNorm = bairrosRegiao.map(normalizarTexto);
         const filtrado = data.filter((e: any) =>
           e.bairro && bairrosNorm.some((b) => normalizarTexto(e.bairro).includes(b))
         );
-
         if (filtrado.length > 0) {
           setEmpreendimentos(filtrado);
-          setMensagemBusca(null);
         } else {
-          // Nenhum resultado na região — encontra alternativas
           const regioesSugeridas = detectarRegioes(data);
-          setEmpreendimentos(data); // mostra todos disponíveis
+          setEmpreendimentos(data);
           setMensagemBusca({
             texto: `Não encontramos imóveis com esse perfil na Região ${regiaoLabel}.`,
             sugestoes: regioesSugeridas.length > 0
@@ -270,6 +305,8 @@ export default function HomePage() {
         }
       }
     } catch {
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
+      setBuscaProgresso(null);
       toast.error('Erro ao buscar imóveis.');
     } finally {
       setLoading(false);
@@ -920,6 +957,107 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      {/* ══ MODAL: Progresso da busca IA ══ */}
+      {buscaProgresso && (() => {
+        const { pais, estado, cidade, regiao, totalConstrutoras, totalImoveis, etapa } = buscaProgresso;
+        const pct = Math.round((etapa / 6) * 100);
+        const R = 44; const C = 2 * Math.PI * R;
+        const offset = C - (pct / 100) * C;
+        const itens = [
+          { label: 'País',                  valor: pais,                                                     e: 1 },
+          { label: 'Estado',                valor: estado,                                                   e: 2 },
+          { label: 'Cidade',                valor: cidade,                                                   e: 3 },
+          { label: 'Construtoras consultadas', valor: totalConstrutoras !== null ? `${totalConstrutoras} encontradas` : 'Verificando...', e: 4 },
+          { label: 'Imóveis consultados',   valor: totalImoveis !== null ? `${totalImoveis} disponíveis` : 'Verificando...', e: 5 },
+          { label: 'Região / Bairro',       valor: regiao,                                                   e: 6 },
+        ];
+        return (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}>
+            <div className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-5 shadow-2xl"
+              style={{ background: 'linear-gradient(160deg, #0A2318 0%, #0C3525 100%)', border: '1px solid #1B5C3E' }}>
+
+              {/* Logo */}
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#0E8F6E' }}>
+                  <Building2 size={15} color="#fff" />
+                </div>
+                <div>
+                  <p className="font-bold text-white text-xs tracking-widest">SÓCONSTRUTORAS</p>
+                  <p className="text-[9px] tracking-wider" style={{ color: '#22D497' }}>PORTAL DAS CONSTRUTORAS</p>
+                </div>
+              </div>
+
+              {/* Título + círculo de progresso */}
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0">
+                  <svg width="96" height="96" style={{ transform: 'rotate(-90deg)' }}>
+                    <circle cx="48" cy="48" r={R} fill="none" stroke="#1B5C3E" strokeWidth="8" />
+                    <circle cx="48" cy="48" r={R} fill="none" stroke="#22D497" strokeWidth="8"
+                      strokeDasharray={C} strokeDashoffset={offset}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.45s ease' }} />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-white font-bold text-xl">{pct}%</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-white font-bold text-base">Busca em andamento</p>
+                  <p className="text-sm mt-0.5" style={{ color: '#A7C4BB' }}>
+                    {etapa < 6 ? 'Verificando sua solicitação...' : 'Concluído!'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Checklist */}
+              <div className="flex flex-col gap-2.5 py-1">
+                {itens.map(({ label, valor, e }) => {
+                  const done    = etapa >= e;
+                  const current = etapa === e - 1;
+                  return (
+                    <div key={label} className="flex items-center gap-3">
+                      {done ? (
+                        <CheckCircle size={18} style={{ color: '#22D497', flexShrink: 0 }} />
+                      ) : current ? (
+                        <div className="w-[18px] h-[18px] rounded-full border-2 border-t-transparent animate-spin flex-shrink-0"
+                          style={{ borderColor: '#22D497', borderTopColor: 'transparent' }} />
+                      ) : (
+                        <div className="w-[18px] h-[18px] rounded-full border-2 flex-shrink-0" style={{ borderColor: '#1B5C3E' }} />
+                      )}
+                      <div className="min-w-0">
+                        <span className="text-xs" style={{ color: '#718C84' }}>{label}  </span>
+                        {done && (
+                          <span className="text-sm font-semibold text-white">{valor}</span>
+                        )}
+                        {current && (
+                          <span className="text-xs italic" style={{ color: '#A7C4BB' }}>verificando...</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Barra de progresso */}
+              <div>
+                <p className="text-xs mb-1.5 font-semibold" style={{ color: '#718C84' }}>
+                  {etapa < 6 ? 'Verificando orçamento...' : 'Análise completa!'}
+                </p>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.4)' }}>
+                  <div className="h-full rounded-full"
+                    style={{
+                      background: 'linear-gradient(90deg, #0E8F6E, #22D497)',
+                      width: `${pct}%`,
+                      transition: 'width 0.45s ease',
+                    }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ══ MODAL: Sugestão de região quando sem resultados ══ */}
       {mensagemBusca && (
