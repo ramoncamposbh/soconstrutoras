@@ -93,8 +93,7 @@ export class UnidadesService {
         ) AS midias
        FROM unidades u
        LEFT JOIN unidade_midias m ON m.unidade_id = u.id
-       JOIN empreendimentos e ON e.id = u.empreendimento_id
-       WHERE u.empreendimento_id = $1 AND e.publicado = TRUE
+       WHERE u.empreendimento_id = $1
        GROUP BY u.id
        ORDER BY u.ordem, u.created_at`,
       [empreendimentoId],
