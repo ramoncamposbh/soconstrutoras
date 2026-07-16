@@ -99,32 +99,3 @@ export interface AuthResponse {
   access_token: string;
   user: User;
 }
-
-export type TipoUnidade = 'apartamento' | 'cobertura' | 'garden' | 'duplex' | 'studio' | 'loft' | 'comercial';
-
-export interface UnidadeMidia {
-  id: string;
-  url: string;
-  tipo: 'foto' | 'planta' | 'render';
-  legenda?: string;
-  ordem: number;
-}
-
-export interface Unidade {
-  id: string;
-  empreendimento_id: string;
-  tipo: TipoUnidade;
-  nome?: string;
-  metragem_privativa?: number;
-  metragem_total?: number;
-  quartos: number;
-  suites: number;
-  vagas: number;
-  preco?: number;
-  descricao?: string;
-  disponivel: boolean;
-  ordem: number;
-  midias: UnidadeMidia[];
-  created_at: string;
-  updated_at: string;
-}
