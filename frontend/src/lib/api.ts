@@ -46,6 +46,7 @@ export const empreendimentosApi = {
   criar:         (data: any) => api.post('/empreendimentos', data),
   atualizar:     (id: string, data: any) => api.patch(`/empreendimentos/${id}`, data),
   publicar:      (id: string) => api.patch(`/empreendimentos/${id}/publicar`),
+  remover:       (id: string) => api.delete(`/empreendimentos/${id}`),
 };
 
 export const parceirosApi = {
@@ -99,16 +100,12 @@ export const unidadesApi = {
 export const midiasApi = {
   listar: (empreendimentoId: string) =>
     api.get(`/empreendimentos/${empreendimentoId}/midias`),
-
   gerarUrlUpload: (empreendimentoId: string, tipo: string, contentType: string) =>
     api.post(`/empreendimentos/${empreendimentoId}/midias/url-upload`, { tipo, contentType }),
-
   confirmar: (empreendimentoId: string, url: string, tipo: string, legenda?: string) =>
     api.post(`/empreendimentos/${empreendimentoId}/midias/confirmar`, { url, tipo, legenda }),
-
   reordenar: (empreendimentoId: string, ordens: { id: string; ordem: number }[]) =>
     api.post(`/empreendimentos/${empreendimentoId}/midias/reordenar`, { ordens }),
-
   remover: (empreendimentoId: string, midiaId: string) =>
     api.delete(`/empreendimentos/${empreendimentoId}/midias/${midiaId}`),
 };

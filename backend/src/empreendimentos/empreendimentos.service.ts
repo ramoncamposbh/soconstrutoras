@@ -9,13 +9,12 @@ import { BuscarEmpreendimentosDto } from './dto/buscar-empreendimentos.dto';
 export class EmpreendimentosService {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  /** Resolve o construtoras.id a partir do users.id (sub do JWT) */
   private async resolverConstrutoraId(userId: string): Promise<string> {
     const { rows: [c] } = await this.pool.query(
       'SELECT id FROM construtoras WHERE user_id = $1',
       [userId],
     );
-    if (!c) throw new ForbiddenException('Construtora não encontrada para este usuário.');
+    if (!c) throw new ForbiddenException('Construtora nao encontrada para este usuario.');
     return c.id;
   }
 
@@ -61,40 +60,16 @@ export class EmpreendimentosService {
     const params: any[] = [];
     let i = 1;
 
-    if (filtros.cidade) {
-      conditions.push(`e.cidade ILIKE $${i++}`);
-      params.push(`%${filtros.cidade}%`);
-    }
-    if (filtros.estado) {
-      conditions.push(`e.estado = $${i++}`);
-      params.push(filtros.estado.toUpperCase());
-    }
-    if (filtros.tipo) {
-      conditions.push(`e.tipo = $${i++}`);
-      params.push(filtros.tipo);
-    }
-    if (filtros.preco_min) {
-      conditions.push(`e.preco_max >= $${i++}`);
-      params.push(filtros.preco_min);
-    }
-    if (filtros.preco_max) {
-      conditions.push(`e.preco_min <= $${i++}`);
-      params.push(filtros.preco_max);
-    }
-    if (filtros.quartos_min) {
-      conditions.push(`e.quartos_max >= $${i++}`);
-      params.push(filtros.quartos_min);
-    }
-    if (filtros.vagas) {
-      conditions.push(`e.vagas >= $${i++}`);
-      params.push(filtros.vagas);
-    }
-    if (filtros.area_min) {
-      conditions.push(`e.area_max >= $${i++}`);
-      params.push(filtros.area_min);
-    }
+    if (filtros.cidade) { conditions.push(`e.cidade ILIKE $${i++}`); params.push(`%${filtros.cidade}%`); }
+    if (filtros.estado) { conditions.push(`e.estado = $${i++}`); params.push(filtros.estado.toUpperCase()); }
+    if (filtros.tipo) { conditions.push(`e.tipo = $${i++}`); params.push(filtros.tipo); }
+    if (filtros.preco_min) { conditions.push(`e.preco_max >= $${i++}`); params.push(filtros.preco_min); }
+    if (filtros.preco_max) { conditions.push(`e.preco_min <= $${i++}`); params.push(filtros.preco_max); }
+    if (filtros.quartos_min) { conditions.push(`e.quartos_max >= $${i++}`); params.push(filtros.quartos_min); }
+    if (filtros.vagas) { conditions.push(`e.vagas >= $${i++}`); params.push(filtros.vagas); }
+    if (filtros.area_min) { conditions.push(`e.area_max >= $${i++}`); params.push(filtros.area_min); }
 
-    const where = conditions.join(' AND ');
+    const where  = conditions.join(' AND ');
     const limit  = Math.min(filtros.limite ?? 20, 50);
     const offset = (filtros.pagina ?? 0) * limit;
 
@@ -128,7 +103,7 @@ export class EmpreendimentosService {
        GROUP BY e.id, c.nome_fantasia, c.logo_url`,
       [slug],
     );
-    if (!emp) throw new NotFoundException('Empreendimento não encontrado.');
+    if (!emp) throw new NotFoundException('Empreendimento nao encontrado.');
     return emp;
   }
 
@@ -136,9 +111,7 @@ export class EmpreendimentosService {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedade(id, construtoraId);
     const { rows: [emp] } = await this.pool.query(
-      `UPDATE empreendimentos
-       SET publicado = TRUE, publicado_em = NOW()
-       WHERE id = $1 RETURNING *`,
+      `UPDATE empreendimentos SET publicado = TRUE, publicado_em = NOW() WHERE id = $1 RETURNING *`,
       [id],
     );
     return emp;
@@ -148,7 +121,6 @@ export class EmpreendimentosService {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedade(id, construtoraId);
 
-    // Remove campos undefined e NaN (hidden inputs vazios viram NaN)
     const entradas = Object.entries(dto).filter(([, v]) => v !== undefined && v === v);
     if (entradas.length === 0) return;
 
@@ -162,11 +134,18 @@ export class EmpreendimentosService {
     return emp;
   }
 
+  async remover(id: string, userId: string) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    await this.verificarPropriedade(id, construtoraId);
+    await this.pool.query('DELETE FROM empreendimentos WHERE id = $1', [id]);
+    return { ok: true };
+  }
+
   private async verificarPropriedade(id: string, construtoraId: string) {
     const { rows: [emp] } = await this.pool.query(
       'SELECT id FROM empreendimentos WHERE id = $1 AND construtora_id = $2',
       [id, construtoraId],
     );
-    if (!emp) throw new ForbiddenException('Empreendimento não encontrado ou sem permissão.');
+    if (!emp) throw new ForbiddenException('Empreendimento nao encontrado ou sem permissao.');
   }
 }

@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { empreendimentosApi } from '@/lib/api';
 import type { Empreendimento } from '@/types';
 import { formatCurrency } from '@/lib/utils';
-import { Plus, MapPin, Bell, Eye, EyeOff, Loader2, Building2 } from 'lucide-react';
+import { Plus, MapPin, Bell, Eye, Loader2, Building2, Trash2 } from 'lucide-react';
 
 const STATUS_COLOR: Record<string, string> = {
   lancamento: 'badge bg-blue-100 text-blue-700',
@@ -15,13 +16,15 @@ const STATUS_COLOR: Record<string, string> = {
   suspenso:   'badge bg-gray-100 text-gray-600',
 };
 const STATUS_LABEL: Record<string, string> = {
-  lancamento: 'Lançamento', em_obras: 'Em obras', pronto: 'Pronto', suspenso: 'Suspenso',
+  lancamento: 'Lancamento', em_obras: 'Em obras', pronto: 'Pronto', suspenso: 'Suspenso',
 };
 
 export default function EmpreendimentosPage() {
+  const router = useRouter();
   const [empreendimentos, setEmpreendimentos] = useState<Empreendimento[]>([]);
   const [loading, setLoading] = useState(true);
   const [publicando, setPublicando] = useState<string | null>(null);
+  const [excluindo, setExcluindo] = useState<string | null>(null);
 
   useEffect(() => {
     empreendimentosApi.listar()
@@ -39,6 +42,20 @@ export default function EmpreendimentosPage() {
       toast.error('Erro ao publicar.');
     } finally {
       setPublicando(null);
+    }
+  };
+
+  const excluir = async (id: string, nome: string) => {
+    if (!window.confirm(`Excluir "${nome}"? Esta acao nao pode ser desfeita.`)) return;
+    setExcluindo(id);
+    try {
+      await empreendimentosApi.remover(id);
+      setEmpreendimentos((prev) => prev.filter((e) => e.id !== id));
+      toast.success('Empreendimento excluido.');
+    } catch {
+      toast.error('Erro ao excluir.');
+    } finally {
+      setExcluindo(null);
     }
   };
 
@@ -67,14 +84,9 @@ export default function EmpreendimentosPage() {
         <div className="card divide-y divide-gray-100">
           {empreendimentos.map((emp) => (
             <div key={emp.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
-              {/* Thumbnail */}
               <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                 {emp.foto_capa ? (
-                  <img
-                    src={emp.foto_capa}
-                    alt={emp.nome}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={emp.foto_capa} alt={emp.nome} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <Building2 className="w-6 h-6 text-gray-300" />
@@ -123,6 +135,16 @@ export default function EmpreendimentosPage() {
                     <Eye className="w-3 h-3" /> Ver
                   </Link>
                 )}
+                <button
+                  onClick={() => excluir(emp.id, emp.nome)}
+                  disabled={excluindo === emp.id}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  title="Excluir empreendimento"
+                >
+                  {excluindo === emp.id
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : <Trash2 className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           ))}
