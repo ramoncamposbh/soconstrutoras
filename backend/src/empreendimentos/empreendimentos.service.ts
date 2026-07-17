@@ -44,7 +44,11 @@ export class EmpreendimentosService {
   async listar(userId: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     const { rows } = await this.pool.query(
-      `SELECT e.*, COUNT(l.id) AS total_leads
+      `SELECT e.*,
+              COUNT(l.id) AS total_leads,
+              (SELECT url FROM empreendimento_midias m
+               WHERE m.empreendimento_id = e.id AND m.tipo = 'foto'
+               ORDER BY m.ordem ASC LIMIT 1) AS foto_capa
        FROM empreendimentos e
        LEFT JOIN leads l ON l.empreendimento_id = e.id
        WHERE e.construtora_id = $1
