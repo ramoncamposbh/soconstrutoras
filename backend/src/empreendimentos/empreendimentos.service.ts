@@ -48,7 +48,11 @@ export class EmpreendimentosService {
               COUNT(l.id) AS total_leads,
               (SELECT url FROM empreendimento_midias m
                WHERE m.empreendimento_id = e.id AND m.tipo = 'foto'
-               ORDER BY m.ordem ASC LIMIT 1) AS foto_capa
+               ORDER BY m.ordem ASC LIMIT 1) AS foto_capa,
+              (SELECT MIN(preco) FROM unidades
+               WHERE empreendimento_id = e.id AND preco IS NOT NULL) AS preco_unidade_min,
+              (SELECT MAX(preco) FROM unidades
+               WHERE empreendimento_id = e.id AND preco IS NOT NULL) AS preco_unidade_max
        FROM empreendimentos e
        LEFT JOIN leads l ON l.empreendimento_id = e.id
        WHERE e.construtora_id = $1
