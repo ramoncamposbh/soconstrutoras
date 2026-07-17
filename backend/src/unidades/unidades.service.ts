@@ -85,20 +85,23 @@ export class UnidadesService {
 
   /** Listagem pública: sem auth, sem filtro de construtora */
   async listarPublico(empreendimentoId: string) {
-    const { rows } = await this.pool.query(
-      `SELECT u.*,
-        COALESCE(
-          json_agg(m ORDER BY m.ordem) FILTER (WHERE m.id IS NOT NULL),
-          '[]'
-        ) AS midias
-       FROM unidades u
-       LEFT JOIN unidade_midias m ON m.unidade_id = u.id
-       WHERE u.empreendimento_id = $1
-       GROUP BY u.id
-       ORDER BY u.ordem, u.created_at`,
+    // Busca unidades
+    const { rows: unidades } = await this.pool.query(
+      `SELECT * FROM unidades WHERE empreendimento_id = $1 ORDER BY ordem, created_at`,
       [empreendimentoId],
     );
-    return rows;
+    // Busca mídias de todas as unidades em uma query só
+    if (unidades.length === 0) return [];
+    const ids = unidades.map((u: any) => u.id);
+    const { rows: midias } = await this.pool.query(
+      `SELECT * FROM unidade_midias WHERE unidade_id = ANY($1) ORDER BY ordem, created_at`,
+      [ids],
+    );
+    // Agrupa mídias por unidade
+    return unidades.map((u: any) => ({
+      ...u,
+      midias: midias.filter((m: any) => m.unidade_id === u.id),
+    }));
   }
 
   async criar(empreendimentoId: string, userId: string, dto: CriarUnidadeDto) {
@@ -174,11 +177,4 @@ export class UnidadesService {
 
   async removerMidia(unidadeId: string, midiaId: string, userId: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
-    await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
-    await this.pool.query(
-      'DELETE FROM unidade_midias WHERE id = $1 AND unidade_id = $2',
-      [midiaId, unidadeId],
-    );
-    return { ok: true };
-  }
-}
+    await this.verificarPropriedadeUnidade(unidadeId, construtora
