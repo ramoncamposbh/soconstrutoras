@@ -91,6 +91,8 @@ export const unidadesApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+  reordenarFotos: (unidadeId: string, ordens: { id: string; ordem: number }[]) =>
+    api.post(`/unidades/${unidadeId}/midias/reordenar`, { ordens }),
   removerFoto: (unidadeId: string, midiaId: string) =>
     api.delete(`/unidades/${unidadeId}/midias/${midiaId}`),
   listarPublico: (empreendimentoId: string) =>

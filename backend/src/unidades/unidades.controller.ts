@@ -14,19 +14,13 @@ import * as multer from 'multer';
 export class UnidadesController {
   constructor(private readonly service: UnidadesService) {}
 
-  // -- CRUD Unidades ----------------------------------------------------
-
   @Get('empreendimentos/:empreendimentoId')
   listar(@Param('empreendimentoId') empId: string, @Request() req: any) {
     return this.service.listar(empId, req.user.sub);
   }
 
   @Post('empreendimentos/:empreendimentoId')
-  criar(
-    @Param('empreendimentoId') empId: string,
-    @Request() req: any,
-    @Body() dto: CriarUnidadeDto,
-  ) {
+  criar(@Param('empreendimentoId') empId: string, @Request() req: any, @Body() dto: CriarUnidadeDto) {
     return this.service.criar(empId, req.user.sub, dto);
   }
 
@@ -40,9 +34,6 @@ export class UnidadesController {
     return this.service.remover(id, req.user.sub);
   }
 
-  // -- Midias via R2 ----------------------------------------------------
-
-  /** Upload via proxy: arquivo passa pelo backend e vai para o R2 (sem CORS) */
   @Post(':id/midias/upload-proxy')
   @UseInterceptors(FileInterceptor('file', {
     storage: multer.memoryStorage(),
@@ -52,46 +43,35 @@ export class UnidadesController {
       cb(null, true);
     },
   }))
-  uploadProxy(
-    @Param('id') id: string,
-    @Request() req: any,
-    @UploadedFile() file: any,
-  ) {
+  uploadProxy(@Param('id') id: string, @Request() req: any, @UploadedFile() file: any) {
     return this.service.uploadViaProxy(id, req.user.sub, file);
   }
 
-  /** Passo 1: gera URL pre-assinada para upload direto ao R2 */
-  @Post(':id/midias/url-upload')
-  gerarUrlUpload(
+  @Post(':id/midias/reordenar')
+  reordenarMidias(
     @Param('id') id: string,
     @Request() req: any,
-    @Body() body: { contentType: string },
+    @Body() body: { ordens: { id: string; ordem: number }[] },
   ) {
+    return this.service.reordenarMidias(id, req.user.sub, body.ordens);
+  }
+
+  @Post(':id/midias/url-upload')
+  gerarUrlUpload(@Param('id') id: string, @Request() req: any, @Body() body: { contentType: string }) {
     return this.service.gerarUrlUploadMidia(id, req.user.sub, body.contentType);
   }
 
-  /** Passo 2: confirma o upload e registra a URL no banco */
   @Post(':id/midias/confirmar')
-  confirmarMidia(
-    @Param('id') id: string,
-    @Request() req: any,
-    @Body() body: { url: string; tipo?: string; legenda?: string },
-  ) {
+  confirmarMidia(@Param('id') id: string, @Request() req: any, @Body() body: { url: string; tipo?: string; legenda?: string }) {
     return this.service.adicionarMidia(id, req.user.sub, body);
   }
 
-  /** Remove foto da unidade (banco + R2) */
   @Delete(':id/midias/:midiaId')
-  removerMidia(
-    @Param('id') id: string,
-    @Param('midiaId') midiaId: string,
-    @Request() req: any,
-  ) {
+  removerMidia(@Param('id') id: string, @Param('midiaId') midiaId: string, @Request() req: any) {
     return this.service.removerMidia(id, midiaId, req.user.sub);
   }
 }
 
-// -- Rota publica (sem guard) -----------------------------------------------
 import { Controller as Ctrl, Get as GetP, Param as Par } from '@nestjs/common';
 
 @Ctrl('public/unidades')

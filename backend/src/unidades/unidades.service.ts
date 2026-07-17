@@ -15,8 +15,6 @@ export class UnidadesService {
     private readonly storage: StorageService,
   ) {}
 
-  // -- Helpers ----------------------------------------------------------
-
   private async resolverConstrutoraId(userId: string): Promise<string> {
     const { rows: [c] } = await this.pool.query(
       'SELECT id FROM construtoras WHERE user_id = $1', [userId],
@@ -25,9 +23,7 @@ export class UnidadesService {
     return c.id;
   }
 
-  private async verificarPropriedadeEmpreendimento(
-    empreendimentoId: string, construtoraId: string,
-  ) {
+  private async verificarPropriedadeEmpreendimento(empreendimentoId: string, construtoraId: string) {
     const { rows: [e] } = await this.pool.query(
       'SELECT id FROM empreendimentos WHERE id = $1 AND construtora_id = $2',
       [empreendimentoId, construtoraId],
@@ -35,9 +31,7 @@ export class UnidadesService {
     if (!e) throw new ForbiddenException('Empreendimento nao encontrado ou sem permissao.');
   }
 
-  private async verificarPropriedadeUnidade(
-    unidadeId: string, construtoraId: string,
-  ): Promise<string> {
+  private async verificarPropriedadeUnidade(unidadeId: string, construtoraId: string): Promise<string> {
     const { rows: [u] } = await this.pool.query(
       `SELECT u.id, u.empreendimento_id
        FROM unidades u
@@ -59,18 +53,13 @@ export class UnidadesService {
       [empreendimentoId],
     );
     if (cnt.total >= limite) {
-      throw new BadRequestException(
-        `Limite de ${limite} unidades atingido. Faca upgrade do seu plano.`,
-      );
+      throw new BadRequestException(`Limite de ${limite} unidades atingido. Faca upgrade do seu plano.`);
     }
   }
-
-  // -- CRUD Unidades ----------------------------------------------------
 
   async listar(empreendimentoId: string, userId: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeEmpreendimento(empreendimentoId, construtoraId);
-
     const { rows: unidades } = await this.pool.query(
       `SELECT * FROM unidades WHERE empreendimento_id = $1 ORDER BY ordem, created_at`,
       [empreendimentoId],
@@ -87,7 +76,6 @@ export class UnidadesService {
     }));
   }
 
-  /** Listagem publica: sem auth */
   async listarPublico(empreendimentoId: string) {
     const { rows: unidades } = await this.pool.query(
       `SELECT * FROM unidades WHERE empreendimento_id = $1 ORDER BY ordem, created_at`,
@@ -109,13 +97,11 @@ export class UnidadesService {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeEmpreendimento(empreendimentoId, construtoraId);
     await this.verificarLimite(empreendimentoId, construtoraId);
-
     const { rows: [u] } = await this.pool.query(
       `INSERT INTO unidades
          (empreendimento_id, tipo, nome, metragem_privativa, metragem_total,
           quartos, suites, vagas, preco, descricao, disponivel, ordem)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-       RETURNING *`,
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
       [
         empreendimentoId, dto.tipo, dto.nome ?? null,
         dto.metragem_privativa ?? null, dto.metragem_total ?? null,
@@ -130,13 +116,10 @@ export class UnidadesService {
   async atualizar(unidadeId: string, userId: string, dto: Partial<CriarUnidadeDto>) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
-
     const campos  = Object.entries(dto).filter(([, v]) => v !== undefined);
     if (campos.length === 0) return;
-
     const sets    = campos.map(([k], i) => `${k} = $${i + 2}`).join(', ');
     const valores = campos.map(([, v]) => v);
-
     const { rows: [u] } = await this.pool.query(
       `UPDATE unidades SET ${sets}, updated_at = NOW() WHERE id = $1 RETURNING *`,
       [unidadeId, ...valores],
@@ -147,69 +130,77 @@ export class UnidadesService {
   async remover(unidadeId: string, userId: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
-
     const { rows: midias } = await this.pool.query(
       'SELECT url FROM unidade_midias WHERE unidade_id = $1', [unidadeId],
     );
     await Promise.all(midias.map((m: any) => this.storage.deletar(m.url)));
-
     await this.pool.query('DELETE FROM unidades WHERE id = $1', [unidadeId]);
     return { ok: true };
   }
 
-  // -- Midias da Unidade (R2) -------------------------------------------
-
-  /** Upload via proxy: arquivo passa pelo backend, sem CORS */
   async uploadViaProxy(
-    unidadeId: string,
-    userId: string,
+    unidadeId: string, userId: string,
     file: { buffer: Buffer; mimetype: string; originalname: string },
   ) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     const empId = await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
-
     const ext = (file.mimetype.split('/')[1] ?? 'jpg').replace('jpeg', 'jpg');
     const key = `unidades/${empId}/${unidadeId}/${uuidv4()}.${ext}`;
     const url = await this.storage.uploadBuffer(key, file.buffer, file.mimetype);
-
     const { rows: [m] } = await this.pool.query(
-      `INSERT INTO unidade_midias (unidade_id, url, tipo)
-       VALUES ($1, $2, 'foto') RETURNING *`,
+      `INSERT INTO unidade_midias (unidade_id, url, tipo) VALUES ($1, $2, 'foto') RETURNING *`,
       [unidadeId, url],
     );
     return m;
   }
 
-  /** Gera URL pre-assinada para upload direto ao R2 */
   async gerarUrlUploadMidia(unidadeId: string, userId: string, contentType: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     const empId = await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
-    return this.storage.gerarPresignedPost(
-      `unidades/${empId}/${unidadeId}`,
-      contentType,
-    );
+    return this.storage.gerarPresignedPost(`unidades/${empId}/${unidadeId}`, contentType);
   }
 
-  /** Confirma upload: registra URL no banco apos upload direto ao R2 */
   async adicionarMidia(
     unidadeId: string, userId: string,
     body: { url: string; tipo?: string; legenda?: string },
   ) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
-
     const { rows: [m] } = await this.pool.query(
-      `INSERT INTO unidade_midias (unidade_id, url, tipo, legenda)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
+      `INSERT INTO unidade_midias (unidade_id, url, tipo, legenda) VALUES ($1, $2, $3, $4) RETURNING *`,
       [unidadeId, body.url, body.tipo ?? 'foto', body.legenda ?? null],
     );
     return m;
   }
 
+  async reordenarMidias(
+    unidadeId: string, userId: string,
+    ordens: { id: string; ordem: number }[],
+  ) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      for (const { id, ordem } of ordens) {
+        await client.query(
+          'UPDATE unidade_midias SET ordem = $1 WHERE id = $2 AND unidade_id = $3',
+          [ordem, id, unidadeId],
+        );
+      }
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+    return { ok: true };
+  }
+
   async removerMidia(unidadeId: string, midiaId: string, userId: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
-
     const { rows: [m] } = await this.pool.query(
       'DELETE FROM unidade_midias WHERE id = $1 AND unidade_id = $2 RETURNING url',
       [midiaId, unidadeId],
