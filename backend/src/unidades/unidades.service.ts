@@ -3,6 +3,7 @@ import {
   ForbiddenException, BadRequestException,
 } from '@nestjs/common';
 import { Pool } from 'pg';
+import { v4 as uuidv4 } from 'uuid';
 import { PG_POOL } from '../database/database.module';
 import { StorageService } from '../storage/storage.service';
 import { CriarUnidadeDto } from './dto/criar-unidade.dto';
@@ -14,13 +15,13 @@ export class UnidadesService {
     private readonly storage: StorageService,
   ) {}
 
-  // ── Helpers ──────────────────────────────────────────────────────
+  // -- Helpers ----------------------------------------------------------
 
   private async resolverConstrutoraId(userId: string): Promise<string> {
     const { rows: [c] } = await this.pool.query(
       'SELECT id FROM construtoras WHERE user_id = $1', [userId],
     );
-    if (!c) throw new ForbiddenException('Construtora não encontrada.');
+    if (!c) throw new ForbiddenException('Construtora nao encontrada.');
     return c.id;
   }
 
@@ -31,7 +32,7 @@ export class UnidadesService {
       'SELECT id FROM empreendimentos WHERE id = $1 AND construtora_id = $2',
       [empreendimentoId, construtoraId],
     );
-    if (!e) throw new ForbiddenException('Empreendimento não encontrado ou sem permissão.');
+    if (!e) throw new ForbiddenException('Empreendimento nao encontrado ou sem permissao.');
   }
 
   private async verificarPropriedadeUnidade(
@@ -44,7 +45,7 @@ export class UnidadesService {
        WHERE u.id = $1 AND e.construtora_id = $2`,
       [unidadeId, construtoraId],
     );
-    if (!u) throw new ForbiddenException('Unidade não encontrada ou sem permissão.');
+    if (!u) throw new ForbiddenException('Unidade nao encontrada ou sem permissao.');
     return u.empreendimento_id;
   }
 
@@ -59,12 +60,12 @@ export class UnidadesService {
     );
     if (cnt.total >= limite) {
       throw new BadRequestException(
-        `Limite de ${limite} unidades atingido. Faça upgrade do seu plano.`,
+        `Limite de ${limite} unidades atingido. Faca upgrade do seu plano.`,
       );
     }
   }
 
-  // ── CRUD Unidades ─────────────────────────────────────────────────
+  // -- CRUD Unidades ----------------------------------------------------
 
   async listar(empreendimentoId: string, userId: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
@@ -86,7 +87,7 @@ export class UnidadesService {
     }));
   }
 
-  /** Listagem pública: sem auth */
+  /** Listagem publica: sem auth */
   async listarPublico(empreendimentoId: string) {
     const { rows: unidades } = await this.pool.query(
       `SELECT * FROM unidades WHERE empreendimento_id = $1 ORDER BY ordem, created_at`,
@@ -147,7 +148,6 @@ export class UnidadesService {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
 
-    // Remove mídias do R2 antes de deletar do banco
     const { rows: midias } = await this.pool.query(
       'SELECT url FROM unidade_midias WHERE unidade_id = $1', [unidadeId],
     );
@@ -157,9 +157,30 @@ export class UnidadesService {
     return { ok: true };
   }
 
-  // ── Mídias da Unidade (R2) ────────────────────────────────────────
+  // -- Midias da Unidade (R2) -------------------------------------------
 
-  /** Gera URL pré-assinada para upload direto ao R2 */
+  /** Upload via proxy: arquivo passa pelo backend, sem CORS */
+  async uploadViaProxy(
+    unidadeId: string,
+    userId: string,
+    file: { buffer: Buffer; mimetype: string; originalname: string },
+  ) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    const empId = await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
+
+    const ext = (file.mimetype.split('/')[1] ?? 'jpg').replace('jpeg', 'jpg');
+    const key = `unidades/${empId}/${unidadeId}/${uuidv4()}.${ext}`;
+    const url = await this.storage.uploadBuffer(key, file.buffer, file.mimetype);
+
+    const { rows: [m] } = await this.pool.query(
+      `INSERT INTO unidade_midias (unidade_id, url, tipo)
+       VALUES ($1, $2, 'foto') RETURNING *`,
+      [unidadeId, url],
+    );
+    return m;
+  }
+
+  /** Gera URL pre-assinada para upload direto ao R2 */
   async gerarUrlUploadMidia(unidadeId: string, userId: string, contentType: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     const empId = await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
@@ -169,7 +190,7 @@ export class UnidadesService {
     );
   }
 
-  /** Confirma upload: registra URL no banco após upload direto ao R2 */
+  /** Confirma upload: registra URL no banco apos upload direto ao R2 */
   async adicionarMidia(
     unidadeId: string, userId: string,
     body: { url: string; tipo?: string; legenda?: string },

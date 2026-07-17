@@ -68,14 +68,9 @@ export const leadsApi = {
 };
 
 export const billingApi = {
-  // Inicia checkout para assinar um plano — retorna { checkoutUrl }
   checkout: (plano: 'starter' | 'profissional' | 'enterprise') =>
     api.post<{ checkoutUrl: string }>('/billing/checkout', { plano }),
-
-  // Abre portal Stripe — retorna { portalUrl }
   portal: () => api.post<{ portalUrl: string }>('/billing/portal'),
-
-  // Status da assinatura atual
   status: () => api.get('/billing/status'),
 };
 
@@ -89,20 +84,10 @@ export const unidadesApi = {
   remover:   (id: string) =>
     api.delete(`/unidades/${id}`),
   uploadFoto: async (unidadeId: string, file: File) => {
-    // Passo 1: pede URL pré-assinada ao backend
-    const { data: presign } = await api.post(`/unidades/${unidadeId}/midias/url-upload`, {
-      contentType: file.type,
-    });
-    // Passo 2: faz upload direto ao R2 (sem passar pelo servidor)
-    const fd = new FormData();
-    Object.entries(presign.fields as Record<string, string>).forEach(([k, v]) => fd.append(k, v));
-    fd.append('file', file);
-    const r2Res = await fetch(presign.uploadUrl, { method: 'POST', body: fd });
-    if (!r2Res.ok) throw new Error('Falha no upload para o storage.');
-    // Passo 3: confirma URL no banco
-    return api.post(`/unidades/${unidadeId}/midias/confirmar`, {
-      url: presign.urlPublica,
-      tipo: 'foto',
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post(`/unidades/${unidadeId}/midias/upload-proxy`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
   removerFoto: (unidadeId: string, midiaId: string) =>
