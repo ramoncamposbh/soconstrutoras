@@ -12,12 +12,14 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { HealthModule } from './health/health.module';
 import { BillingModule } from './billing/billing.module';
 import { UnidadesModule } from './unidades/unidades.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     DatabaseModule,
+    StorageModule,
     AuthModule,
     ConstutorasModule,
     EmpreendimentosModule,
@@ -25,9 +27,4 @@ import { UnidadesModule } from './unidades/unidades.module';
     LeadsModule,
     MidiasModule,
     NotificationsModule,
-    HealthModule,
-    BillingModule,
-    UnidadesModule,
-  ],
-})
-export class AppModule {}
+    HealthModu

@@ -88,11 +88,21 @@ export const unidadesApi = {
     api.patch(`/unidades/${id}`, data),
   remover:   (id: string) =>
     api.delete(`/unidades/${id}`),
-  uploadFoto: (unidadeId: string, file: File) => {
+  uploadFoto: async (unidadeId: string, file: File) => {
+    // Passo 1: pede URL pré-assinada ao backend
+    const { data: presign } = await api.post(`/unidades/${unidadeId}/midias/url-upload`, {
+      contentType: file.type,
+    });
+    // Passo 2: faz upload direto ao R2 (sem passar pelo servidor)
     const fd = new FormData();
+    Object.entries(presign.fields as Record<string, string>).forEach(([k, v]) => fd.append(k, v));
     fd.append('file', file);
-    return api.post(`/unidades/${unidadeId}/midias/upload-local`, fd, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    const r2Res = await fetch(presign.uploadUrl, { method: 'POST', body: fd });
+    if (!r2Res.ok) throw new Error('Falha no upload para o storage.');
+    // Passo 3: confirma URL no banco
+    return api.post(`/unidades/${unidadeId}/midias/confirmar`, {
+      url: presign.urlPublica,
+      tipo: 'foto',
     });
   },
   removerFoto: (unidadeId: string, midiaId: string) =>
@@ -106,14 +116,4 @@ export const midiasApi = {
     api.get(`/empreendimentos/${empreendimentoId}/midias`),
 
   gerarUrlUpload: (empreendimentoId: string, tipo: string, contentType: string) =>
-    api.post(`/empreendimentos/${empreendimentoId}/midias/url-upload`, { tipo, contentType }),
-
-  confirmar: (empreendimentoId: string, url: string, tipo: string, legenda?: string) =>
-    api.post(`/empreendimentos/${empreendimentoId}/midias/confirmar`, { url, tipo, legenda }),
-
-  reordenar: (empreendimentoId: string, ordens: { id: string; ordem: number }[]) =>
-    api.post(`/empreendimentos/${empreendimentoId}/midias/reordenar`, { ordens }),
-
-  remover: (empreendimentoId: string, midiaId: string) =>
-    api.delete(`/empreendimentos/${empreendimentoId}/midias/${midiaId}`),
-};
+    api.post(`/empreendimentos/${empreendimentoId}/midias

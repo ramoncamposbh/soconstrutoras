@@ -4,11 +4,15 @@ import {
 } from '@nestjs/common';
 import { Pool } from 'pg';
 import { PG_POOL } from '../database/database.module';
+import { StorageService } from '../storage/storage.service';
 import { CriarUnidadeDto } from './dto/criar-unidade.dto';
 
 @Injectable()
 export class UnidadesService {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(
+    @Inject(PG_POOL) private readonly pool: Pool,
+    private readonly storage: StorageService,
+  ) {}
 
   // ── Helpers ──────────────────────────────────────────────────────
 
@@ -49,14 +53,13 @@ export class UnidadesService {
       'SELECT limite_unidades FROM construtoras WHERE id = $1', [construtoraId],
     );
     const limite = c?.limite_unidades ?? 10;
-
     const { rows: [cnt] } = await this.pool.query(
       'SELECT COUNT(*)::int AS total FROM unidades WHERE empreendimento_id = $1',
       [empreendimentoId],
     );
     if (cnt.total >= limite) {
       throw new BadRequestException(
-        `Limite de ${limite} unidades atingido. Faça upgrade do seu plano para adicionar mais.`,
+        `Limite de ${limite} unidades atingido. Faça upgrade do seu plano.`,
       );
     }
   }
@@ -67,37 +70,34 @@ export class UnidadesService {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeEmpreendimento(empreendimentoId, construtoraId);
 
-    const { rows } = await this.pool.query(
-      `SELECT u.*,
-        COALESCE(
-          json_agg(m ORDER BY m.ordem) FILTER (WHERE m.id IS NOT NULL),
-          '[]'
-        ) AS midias
-       FROM unidades u
-       LEFT JOIN unidade_midias m ON m.unidade_id = u.id
-       WHERE u.empreendimento_id = $1
-       GROUP BY u.id
-       ORDER BY u.ordem, u.created_at`,
-      [empreendimentoId],
-    );
-    return rows;
-  }
-
-  /** Listagem pública: sem auth, sem filtro de construtora */
-  async listarPublico(empreendimentoId: string) {
-    // Busca unidades
     const { rows: unidades } = await this.pool.query(
       `SELECT * FROM unidades WHERE empreendimento_id = $1 ORDER BY ordem, created_at`,
       [empreendimentoId],
     );
-    // Busca mídias de todas as unidades em uma query só
     if (unidades.length === 0) return [];
     const ids = unidades.map((u: any) => u.id);
     const { rows: midias } = await this.pool.query(
       `SELECT * FROM unidade_midias WHERE unidade_id = ANY($1) ORDER BY ordem, created_at`,
       [ids],
     );
-    // Agrupa mídias por unidade
+    return unidades.map((u: any) => ({
+      ...u,
+      midias: midias.filter((m: any) => m.unidade_id === u.id),
+    }));
+  }
+
+  /** Listagem pública: sem auth */
+  async listarPublico(empreendimentoId: string) {
+    const { rows: unidades } = await this.pool.query(
+      `SELECT * FROM unidades WHERE empreendimento_id = $1 ORDER BY ordem, created_at`,
+      [empreendimentoId],
+    );
+    if (unidades.length === 0) return [];
+    const ids = unidades.map((u: any) => u.id);
+    const { rows: midias } = await this.pool.query(
+      `SELECT * FROM unidade_midias WHERE unidade_id = ANY($1) ORDER BY ordem, created_at`,
+      [ids],
+    );
     return unidades.map((u: any) => ({
       ...u,
       midias: midias.filter((m: any) => m.unidade_id === u.id),
@@ -130,10 +130,10 @@ export class UnidadesService {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
 
-    const campos = Object.entries(dto).filter(([, v]) => v !== undefined);
+    const campos  = Object.entries(dto).filter(([, v]) => v !== undefined);
     if (campos.length === 0) return;
 
-    const sets   = campos.map(([k], i) => `${k} = $${i + 2}`).join(', ');
+    const sets    = campos.map(([k], i) => `${k} = $${i + 2}`).join(', ');
     const valores = campos.map(([, v]) => v);
 
     const { rows: [u] } = await this.pool.query(
@@ -146,35 +146,31 @@ export class UnidadesService {
   async remover(unidadeId: string, userId: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
+
+    // Remove mídias do R2 antes de deletar do banco
+    const { rows: midias } = await this.pool.query(
+      'SELECT url FROM unidade_midias WHERE unidade_id = $1', [unidadeId],
+    );
+    await Promise.all(midias.map((m: any) => this.storage.deletar(m.url)));
+
     await this.pool.query('DELETE FROM unidades WHERE id = $1', [unidadeId]);
     return { ok: true };
   }
 
-  // ── Mídias da Unidade ─────────────────────────────────────────────
+  // ── Mídias da Unidade (R2) ────────────────────────────────────────
 
-  async listarMidias(unidadeId: string) {
-    const { rows } = await this.pool.query(
-      'SELECT * FROM unidade_midias WHERE unidade_id = $1 ORDER BY ordem, created_at',
-      [unidadeId],
+  /** Gera URL pré-assinada para upload direto ao R2 */
+  async gerarUrlUploadMidia(unidadeId: string, userId: string, contentType: string) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    const empId = await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
+    return this.storage.gerarPresignedPost(
+      `unidades/${empId}/${unidadeId}`,
+      contentType,
     );
-    return rows;
   }
 
+  /** Confirma upload: registra URL no banco após upload direto ao R2 */
   async adicionarMidia(
     unidadeId: string, userId: string,
     body: { url: string; tipo?: string; legenda?: string },
-  ) {
-    const construtoraId = await this.resolverConstrutoraId(userId);
-    await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
-
-    const { rows: [m] } = await this.pool.query(
-      `INSERT INTO unidade_midias (unidade_id, url, tipo, legenda)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [unidadeId, body.url, body.tipo ?? 'foto', body.legenda ?? null],
-    );
-    return m;
-  }
-
-  async removerMidia(unidadeId: string, midiaId: string, userId: string) {
-    const construtoraId = await this.resolverConstrutoraId(userId);
-    await this.verificarPropriedadeUnidade(unidadeId, construtora
+  
