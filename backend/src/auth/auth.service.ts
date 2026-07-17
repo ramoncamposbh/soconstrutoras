@@ -1,6 +1,6 @@
 import {
   Injectable, Inject, UnauthorizedException,
-  ConflictException, OnModuleInit,
+  ConflictException, OnModuleInit, InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Pool } from 'pg';
@@ -18,35 +18,28 @@ export class AuthService implements OnModuleInit {
 
   // ── Migração automática: adiciona colunas OAuth se não existirem ────────────
   async onModuleInit() {
-    try {
-      await this.pool.query(`
-        ALTER TABLE users
-          ADD COLUMN IF NOT EXISTS google_id  VARCHAR(255),
-          ADD COLUMN IF NOT EXISTS apple_id   VARCHAR(255),
-          ADD COLUMN IF NOT EXISTS avatar_url TEXT;
-      `);
-      // Permite password_hash nulo (contas criadas via OAuth)
-      await this.pool.query(
-        `ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`
-      ).catch(() => {/* já nullable */});
-      // Índices únicos
-      await this.pool.query(`
-        DO $$ BEGIN
-          IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename='users' AND indexname='users_google_id_idx')
-          THEN CREATE UNIQUE INDEX users_google_id_idx ON users(google_id) WHERE google_id IS NOT NULL;
-          END IF;
-        END $$;
-      `);
-      await this.pool.query(`
-        DO $$ BEGIN
-          IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename='users' AND indexname='users_apple_id_idx')
-          THEN CREATE UNIQUE INDEX users_apple_id_idx ON users(apple_id) WHERE apple_id IS NOT NULL;
-          END IF;
-        END $$;
-      `);
-    } catch (err: any) {
-      console.warn('[Auth] Migração OAuth ignorada:', err.message);
+    // Cada coluna em query separada para garantir idempotência
+    for (const sql of [
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id  VARCHAR(255)`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS apple_id   VARCHAR(255)`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`,
+      `ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`,
+      `DO $$ BEGIN
+         IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename='users' AND indexname='users_google_id_idx')
+         THEN CREATE UNIQUE INDEX users_google_id_idx ON users(google_id) WHERE google_id IS NOT NULL;
+         END IF;
+       END $$`,
+      `DO $$ BEGIN
+         IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename='users' AND indexname='users_apple_id_idx')
+         THEN CREATE UNIQUE INDEX users_apple_id_idx ON users(apple_id) WHERE apple_id IS NOT NULL;
+         END IF;
+       END $$`,
+    ]) {
+      await this.pool.query(sql).catch((err: any) =>
+        console.warn('[Auth] Migração ignorada:', sql.trim().slice(0, 60), '—', err.message),
+      );
     }
+    console.log('[Auth] Migração OAuth concluída.');
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -172,23 +165,37 @@ export class AuthService implements OnModuleInit {
 
   // ── OAuth: Google ───────────────────────────────────────────────────────────
   async loginComGoogle(credential: string) {
-    const res = await fetch(
-      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`,
-    );
-    if (!res.ok) throw new UnauthorizedException('Token Google inválido.');
-    const p: any = await res.json();
+    try {
+      const res = await fetch(
+        `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`,
+      );
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        console.error('[Google] tokeninfo falhou:', res.status, body);
+        throw new UnauthorizedException('Token Google inválido.');
+      }
+      const p: any = await res.json();
+      console.log('[Google] tokeninfo ok — sub:', p.sub, 'email:', p.email, 'aud:', p.aud);
 
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    if (clientId && p.aud !== clientId)
-      throw new UnauthorizedException('Token Google não autorizado para esta aplicação.');
+      const clientId = process.env.GOOGLE_CLIENT_ID;
+      if (clientId && p.aud !== clientId) {
+        console.error('[Google] aud mismatch — esperado:', clientId, 'recebido:', p.aud);
+        throw new UnauthorizedException('Token Google não autorizado para esta aplicação.');
+      }
 
-    const user = await this.verificarOuCriarOAuth({
-      googleId:  p.sub,
-      email:     p.email,
-      nome:      p.name ?? p.email?.split('@')[0] ?? 'Usuário',
-      avatarUrl: p.picture,
-    });
-    return this.gerarToken(user);
+      const user = await this.verificarOuCriarOAuth({
+        googleId:  p.sub,
+        email:     p.email,
+        nome:      p.name ?? p.email?.split('@')[0] ?? 'Usuário',
+        avatarUrl: p.picture,
+      });
+      console.log('[Google] login ok — userId:', user.id, 'role:', user.role);
+      return this.gerarToken(user);
+    } catch (err: any) {
+      if (err.status) throw err; // já é HttpException
+      console.error('[Google] erro inesperado:', err.message, err.stack);
+      throw new InternalServerErrorException('Erro ao processar login com Google: ' + err.message);
+    }
   }
 
   // ── OAuth: Apple ────────────────────────────────────────────────────────────
