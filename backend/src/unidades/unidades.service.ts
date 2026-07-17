@@ -173,4 +173,27 @@ export class UnidadesService {
   async adicionarMidia(
     unidadeId: string, userId: string,
     body: { url: string; tipo?: string; legenda?: string },
-  
+  ) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
+
+    const { rows: [m] } = await this.pool.query(
+      `INSERT INTO unidade_midias (unidade_id, url, tipo, legenda)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [unidadeId, body.url, body.tipo ?? 'foto', body.legenda ?? null],
+    );
+    return m;
+  }
+
+  async removerMidia(unidadeId: string, midiaId: string, userId: string) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
+
+    const { rows: [m] } = await this.pool.query(
+      'DELETE FROM unidade_midias WHERE id = $1 AND unidade_id = $2 RETURNING url',
+      [midiaId, unidadeId],
+    );
+    if (m?.url) await this.storage.deletar(m.url);
+    return { ok: true };
+  }
+}
