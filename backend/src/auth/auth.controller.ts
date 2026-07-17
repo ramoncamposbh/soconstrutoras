@@ -8,22 +8,31 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // POST /api/v1/auth/register
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
-  // POST /api/v1/auth/login
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
-  // GET /api/v1/auth/me
   @UseGuards(JwtAuthGuard)
   @Get('me')
   perfil(@Request() req: any) {
     return this.authService.perfil(req.user.sub);
+  }
+
+  /** POST /auth/google/token — verifica Google ID token e retorna JWT */
+  @Post('google/token')
+  loginComGoogle(@Body() body: { credential: string }) {
+    return this.authService.loginComGoogle(body.credential);
+  }
+
+  /** POST /auth/apple/token — verifica Apple ID token e retorna JWT */
+  @Post('apple/token')
+  loginComApple(@Body() body: { id_token: string; user?: any }) {
+    return this.authService.loginComApple(body.id_token, body.user);
   }
 }
