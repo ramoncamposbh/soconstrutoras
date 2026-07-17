@@ -54,11 +54,27 @@ export class StorageService {
 
   /**
    * Faz upload de um buffer diretamente ao R2 (sem presigned URL).
-   * Útil para uploads via backend (proxy), sem precisar de CORS no bucket.
+   * Util para uploads via backend (proxy), sem precisar de CORS no bucket.
    */
   async uploadBuffer(key: string, buffer: Buffer, contentType: string): Promise<string> {
     await this.s3.send(new PutObjectCommand({
       Bucket: this.bucket,
       Key:    key,
       Body:   buffer,
-      ContentType: conten
+      ContentType: contentType,
+    }));
+    return `${this.publicUrl}/${key}`;
+  }
+
+  /** Remove um objeto do bucket pela URL publica ou pela key direta. */
+  async deletar(urlOuKey: string) {
+    const key = urlOuKey.startsWith(this.publicUrl)
+      ? urlOuKey.slice(this.publicUrl.length + 1)
+      : urlOuKey;
+    try {
+      await this.s3.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+    } catch {
+      // nao bloqueia o fluxo se falhar no storage
+    }
+  }
+}

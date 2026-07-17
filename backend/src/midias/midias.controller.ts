@@ -43,7 +43,7 @@ export class MidiasController {
     return this.service.gerarUrlUpload(empreendimentoId, req.user.sub, body.tipo, body.contentType);
   }
 
-    @Post('confirmar')
+  @Post('confirmar')
   confirmar(
     @Param('empreendimentoId') empreendimentoId: string,
     @Request() req: any,

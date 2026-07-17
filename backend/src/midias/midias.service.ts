@@ -1,11 +1,11 @@
 /**
- * MidiasService — empreendimentos
+ * MidiasService - empreendimentos
  *
  * Fluxo de upload sem trafegar o arquivo pelo servidor:
- *  1. Frontend solicita URL pré-assinada → gerarUrlUpload()
+ *  1. Frontend solicita URL pre-assinada -> gerarUrlUpload()
  *  2. Frontend faz POST diretamente no R2 com a URL + fields
  *  3. Frontend chama confirmarUpload() passando a urlPublica retornada
- *  4. Serviço registra a mídia em empreendimento_midias
+ *  4. Servico registra a midia em empreendimento_midias
  */
 
 import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
@@ -21,13 +21,13 @@ export class MidiasService {
     private readonly storage: StorageService,
   ) {}
 
-  // ── helpers ───────────────────────────────────────────────────────
+  // -- helpers -----------------------------------------------------------
 
   private async resolverConstrutoraId(userId: string): Promise<string> {
     const { rows: [c] } = await this.pool.query(
       'SELECT id FROM construtoras WHERE user_id = $1', [userId],
     );
-    if (!c) throw new ForbiddenException('Construtora não encontrada para este usuário.');
+    if (!c) throw new ForbiddenException('Construtora nao encontrada para este usuario.');
     return c.id;
   }
 
@@ -36,14 +36,14 @@ export class MidiasService {
       'SELECT id FROM empreendimentos WHERE id = $1 AND construtora_id = $2',
       [empreendimentoId, construtoraId],
     );
-    if (!emp) throw new ForbiddenException('Empreendimento não encontrado ou sem permissão.');
+    if (!emp) throw new ForbiddenException('Empreendimento nao encontrado ou sem permissao.');
   }
 
-  // ── upload ────────────────────────────────────────────────────────
+  // -- upload ------------------------------------------------------------
 
   /**
    * Upload via proxy: o arquivo passa pelo backend e vai direto ao R2.
-   * Não exige CORS no bucket. Usado pelo endpoint /upload-local.
+   * Nao exige CORS no bucket. Usado pelo endpoint /upload-local.
    */
   async uploadViaProxy(
     empreendimentoId: string,
@@ -107,7 +107,7 @@ export class MidiasService {
     return midia;
   }
 
-  // ── listagem e reordenação ────────────────────────────────────────
+  // -- listagem e reordenacao --------------------------------------------
 
   async listar(empreendimentoId: string) {
     const { rows } = await this.pool.query(
@@ -119,4 +119,45 @@ export class MidiasService {
   }
 
   async reordenar(
-    empreend
+    empreendimentoId: string,
+    userId: string,
+    ordens: { id: string; ordem: number }[],
+  ) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    await this.verificarPropriedade(empreendimentoId, construtoraId);
+
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      for (const { id, ordem } of ordens) {
+        await client.query(
+          `UPDATE empreendimento_midias SET ordem = $1
+           WHERE id = $2 AND empreendimento_id = $3`,
+          [ordem, id, empreendimentoId],
+        );
+      }
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+    return { ok: true };
+  }
+
+  async remover(id: string, empreendimentoId: string, userId: string) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    await this.verificarPropriedade(empreendimentoId, construtoraId);
+
+    const { rows: [midia] } = await this.pool.query(
+      'DELETE FROM empreendimento_midias WHERE id = $1 AND empreendimento_id = $2 RETURNING *',
+      [id, empreendimentoId],
+    );
+
+    if (midia?.url) {
+      await this.storage.deletar(midia.url);
+    }
+    return { ok: true };
+  }
+}
