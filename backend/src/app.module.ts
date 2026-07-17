@@ -27,4 +27,9 @@ import { StorageModule } from './storage/storage.module';
     LeadsModule,
     MidiasModule,
     NotificationsModule,
-    HealthModu
+    HealthModule,
+    BillingModule,
+    UnidadesModule,
+  ],
+})
+export class AppModule {}
