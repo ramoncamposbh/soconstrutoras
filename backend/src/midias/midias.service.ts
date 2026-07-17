@@ -10,6 +10,7 @@
 
 import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
 import { Pool } from 'pg';
+import { v4 as uuidv4 } from 'uuid';
 import { PG_POOL } from '../database/database.module';
 import { StorageService } from '../storage/storage.service';
 
@@ -39,6 +40,36 @@ export class MidiasService {
   }
 
   // ── upload ────────────────────────────────────────────────────────
+
+  /**
+   * Upload via proxy: o arquivo passa pelo backend e vai direto ao R2.
+   * Não exige CORS no bucket. Usado pelo endpoint /upload-local.
+   */
+  async uploadViaProxy(
+    empreendimentoId: string,
+    userId: string,
+    tipo: 'foto' | 'video' | 'planta' | 'tour_virtual',
+    file: { buffer: Buffer; mimetype: string; originalname: string },
+  ) {
+    const construtoraId = await this.resolverConstrutoraId(userId);
+    await this.verificarPropriedade(empreendimentoId, construtoraId);
+
+    const ext = (file.mimetype.split('/')[1] ?? 'jpg').replace('jpeg', 'jpg');
+    const key = `empreendimentos/${empreendimentoId}/${tipo}/${uuidv4()}.${ext}`;
+    const url = await this.storage.uploadBuffer(key, file.buffer, file.mimetype);
+
+    const { rows: [{ prox_ordem }] } = await this.pool.query(
+      `SELECT COALESCE(MAX(ordem) + 1, 0) AS prox_ordem
+       FROM empreendimento_midias WHERE empreendimento_id = $1`,
+      [empreendimentoId],
+    );
+    const { rows: [midia] } = await this.pool.query(
+      `INSERT INTO empreendimento_midias (empreendimento_id, url, tipo, ordem)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [empreendimentoId, url, tipo, prox_ordem],
+    );
+    return midia;
+  }
 
   async gerarUrlUpload(
     empreendimentoId: string,
@@ -88,45 +119,4 @@ export class MidiasService {
   }
 
   async reordenar(
-    empreendimentoId: string,
-    userId: string,
-    ordens: { id: string; ordem: number }[],
-  ) {
-    const construtoraId = await this.resolverConstrutoraId(userId);
-    await this.verificarPropriedade(empreendimentoId, construtoraId);
-
-    const client = await this.pool.connect();
-    try {
-      await client.query('BEGIN');
-      for (const { id, ordem } of ordens) {
-        await client.query(
-          `UPDATE empreendimento_midias SET ordem = $1
-           WHERE id = $2 AND empreendimento_id = $3`,
-          [ordem, id, empreendimentoId],
-        );
-      }
-      await client.query('COMMIT');
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
-    }
-    return { ok: true };
-  }
-
-  async remover(id: string, empreendimentoId: string, userId: string) {
-    const construtoraId = await this.resolverConstrutoraId(userId);
-    await this.verificarPropriedade(empreendimentoId, construtoraId);
-
-    const { rows: [midia] } = await this.pool.query(
-      'DELETE FROM empreendimento_midias WHERE id = $1 AND empreendimento_id = $2 RETURNING *',
-      [id, empreendimentoId],
-    );
-
-    if (midia?.url) {
-      await this.storage.deletar(midia.url);
-    }
-    return { ok: true };
-  }
-}
+    empreend

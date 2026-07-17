@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -52,15 +52,13 @@ export class StorageService {
     };
   }
 
-  /** Remove um objeto do bucket pela URL pública ou pela key direta. */
-  async deletar(urlOuKey: string) {
-    const key = urlOuKey.startsWith(this.publicUrl)
-      ? urlOuKey.slice(this.publicUrl.length + 1)
-      : urlOuKey;
-    try {
-      await this.s3.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
-    } catch {
-      // não bloqueia o fluxo se falhar no storage
-    }
-  }
-}
+  /**
+   * Faz upload de um buffer diretamente ao R2 (sem presigned URL).
+   * Útil para uploads via backend (proxy), sem precisar de CORS no bucket.
+   */
+  async uploadBuffer(key: string, buffer: Buffer, contentType: string): Promise<string> {
+    await this.s3.send(new PutObjectCommand({
+      Bucket: this.bucket,
+      Key:    key,
+      Body:   buffer,
+      ContentType: conten
