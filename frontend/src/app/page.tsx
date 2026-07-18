@@ -486,11 +486,46 @@ export default function HomePage() {
           </Link>
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
-              <button onClick={() => setUserMenuOpen((v) => !v)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                style={{ background: '#D1FAE5', color: '#0A6A52' }}>
-                {user?.nome?.[0]?.toUpperCase()}
-              </button>
+              <div className="relative">
+                <button onClick={() => setUserMenuOpen((v) => !v)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                  style={{ background: '#D1FAE5', color: '#0A6A52' }}>
+                  {user?.nome?.[0]?.toUpperCase()}
+                </button>
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    <div
+                      className="absolute right-0 mt-2 w-48 rounded-xl shadow-lg z-50 overflow-hidden"
+                      style={{ background: '#fff', border: '1px solid #E5E7EB' }}
+                    >
+                      {(user?.role === 'construtora' || user?.role === 'admin') && (
+                        <Link href="/dashboard" onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                          <LayoutDashboard className="w-4 h-4 text-primary-500" /> Painel
+                        </Link>
+                      )}
+                      {user?.role === 'parceiro' && (
+                        <Link href="/dashboard/leads" onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                          <Bell className="w-4 h-4 text-primary-500" /> Meus Leads
+                        </Link>
+                      )}
+                      {user?.role === 'cliente' && (
+                        <Link href="/favoritos" onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                          <Heart className="w-4 h-4 text-primary-500" /> Favoritos
+                        </Link>
+                      )}
+                      <div style={{ borderTop: '1px solid #F3F4F6' }} />
+                      <button onClick={() => { setUserMenuOpen(false); logout(); }}
+                        className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">
+                        <LogOut className="w-4 h-4" /> Sair
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
               <Link href="/auth/login"
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
