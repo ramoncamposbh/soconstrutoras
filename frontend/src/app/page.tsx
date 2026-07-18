@@ -432,46 +432,63 @@ export default function HomePage() {
           <ChevronDown className="w-3 h-3 ml-1" style={{ color: '#9CA3AF' }} />
         </button>
 
-        {userMenuOpen && (
-          <>
-            {/* overlay para fechar ao clicar fora */}
-            <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-            <div
-              className="absolute right-0 mt-2 w-48 rounded-xl shadow-lg z-50 overflow-hidden"
-              style={{ background: '#fff', border: '1px solid #E5E7EB' }}
-            >
-              {(user?.role === 'construtora' || user?.role === 'admin') && (
-                <Link href="/dashboard" onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <LayoutDashboard className="w-4 h-4 text-primary-500" /> Painel
-                </Link>
-              )}
-              {user?.role === 'parceiro' && (
-                <Link href="/dashboard/leads" onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <Bell className="w-4 h-4 text-primary-500" /> Meus Leads
-                </Link>
-              )}
-              {user?.role === 'cliente' && (
-                <Link href="/favoritos" onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <Heart className="w-4 h-4 text-primary-500" /> Favoritos
-                </Link>
-              )}
-              <div style={{ borderTop: '1px solid #F3F4F6' }} />
-              <button onClick={() => { setUserMenuOpen(false); logout(); }}
-                className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">
-                <LogOut className="w-4 h-4" /> Sair
-              </button>
-            </div>
-          </>
-        )}
+
       </div>
     );
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+
+      {/* ══ MENU GLOBAL DO USUÁRIO — fixed, z altíssimo, fora de qualquer stacking context ══ */}
+      {userMenuOpen && isAuthenticated && (
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 9000 }}
+            onClick={() => setUserMenuOpen(false)}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              top: 70,
+              right: 16,
+              zIndex: 9001,
+              background: '#fff',
+              border: '1px solid #E5E7EB',
+              borderRadius: 12,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+              minWidth: 192,
+              overflow: 'hidden',
+            }}
+          >
+            {(user?.role === 'construtora' || user?.role === 'admin') && (
+              <Link href="/dashboard" onClick={() => setUserMenuOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <LayoutDashboard className="w-4 h-4 text-primary-500" /> Painel
+              </Link>
+            )}
+            {user?.role === 'parceiro' && (
+              <Link href="/dashboard/leads" onClick={() => setUserMenuOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <Bell className="w-4 h-4 text-primary-500" /> Meus Leads
+              </Link>
+            )}
+            {user?.role === 'cliente' && (
+              <Link href="/favoritos" onClick={() => setUserMenuOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <Heart className="w-4 h-4 text-primary-500" /> Favoritos
+              </Link>
+            )}
+            <div style={{ borderTop: '1px solid #F3F4F6' }} />
+            <button
+              onClick={() => { setUserMenuOpen(false); logout(); }}
+              className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
+            >
+              <LogOut className="w-4 h-4" /> Sair
+            </button>
+          </div>
+        </>
+      )}
 
       {/* ══ MOBILE HEADER (apenas mobile) ══ */}
       <div className="md:hidden sticky top-0 z-50 bg-white" style={{ boxShadow: '0 1px 0 #E5E7EB' }}>
@@ -492,39 +509,7 @@ export default function HomePage() {
                   style={{ background: '#D1FAE5', color: '#0A6A52' }}>
                   {user?.nome?.[0]?.toUpperCase()}
                 </button>
-                {userMenuOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-                    <div
-                      className="absolute right-0 mt-2 w-48 rounded-xl shadow-lg z-50 overflow-hidden"
-                      style={{ background: '#fff', border: '1px solid #E5E7EB' }}
-                    >
-                      {(user?.role === 'construtora' || user?.role === 'admin') && (
-                        <Link href="/dashboard" onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <LayoutDashboard className="w-4 h-4 text-primary-500" /> Painel
-                        </Link>
-                      )}
-                      {user?.role === 'parceiro' && (
-                        <Link href="/dashboard/leads" onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <Bell className="w-4 h-4 text-primary-500" /> Meus Leads
-                        </Link>
-                      )}
-                      {user?.role === 'cliente' && (
-                        <Link href="/favoritos" onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <Heart className="w-4 h-4 text-primary-500" /> Favoritos
-                        </Link>
-                      )}
-                      <div style={{ borderTop: '1px solid #F3F4F6' }} />
-                      <button onClick={() => { setUserMenuOpen(false); logout(); }}
-                        className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">
-                        <LogOut className="w-4 h-4" /> Sair
-                      </button>
-                    </div>
-                  </>
-                )}
+
               </div>
             ) : (
               <Link href="/auth/login"
