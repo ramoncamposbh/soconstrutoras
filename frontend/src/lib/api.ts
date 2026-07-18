@@ -15,9 +15,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
+    // Só redireciona para login se for o endpoint de verificação do token
     if (err.response?.status === 401 && typeof window !== 'undefined') {
-      Cookies.remove('token');
-      window.location.href = '/auth/login';
+      const url: string = err.config?.url ?? '';
+      if (url.includes('/auth/me') || url.includes('/auth/perfil')) {
+        Cookies.remove('token');
+        window.location.href = '/auth/login';
+      }
     }
     return Promise.reject(err);
   },
@@ -114,4 +118,32 @@ export const midiasApi = {
     api.post(`/empreendimentos/${empreendimentoId}/midias/reordenar`, { ordens }),
   remover: (empreendimentoId: string, midiaId: string) =>
     api.delete(`/empreendimentos/${empreendimentoId}/midias/${midiaId}`),
+};
+
+export const favoritosApi = {
+  listar:     () => api.get('/favoritos'),
+  listarIds:  () => api.get<string[]>('/favoritos/ids'),
+  adicionar:  (empreendimentoId: string) => api.post(`/favoritos/${empreendimentoId}`, {}),
+  remover:    (empreendimentoId: string) => api.delete(`/favoritos/${empreendimentoId}`),
+};
+
+export const lojasApi = {
+  listarPublico:   () => api.get('/lojas'),
+  categorias:      () => api.get('/lojas/categorias'),
+  buscarPorSlug:   (slug: string) => api.get(`/lojas/${slug}`),
+  listarAdmin:     () => api.get('/lojas/admin/todas'),
+  criar:           (dto: any) => api.post('/lojas', dto),
+  atualizar:       (id: string, dto: any) => api.patch(`/lojas/${id}`, dto),
+  remover:         (id: string) => api.delete(`/lojas/${id}`),
+  criarCategoria:  (dto: any) => api.post('/lojas/categorias', dto),
+  removerCategoria:(id: string) => api.delete(`/lojas/categorias/${id}`),
+  uploadLogo:      (id: string, file: File) => {
+    const fd = new FormData(); fd.append('file', file);
+    return api.post(`/lojas/${id}/logo`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
+  uploadFoto:      (id: string, file: File) => {
+    const fd = new FormData(); fd.append('file', file);
+    return api.post(`/lojas/${id}/midias`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
+  removerFoto:     (id: string, midiaId: string) => api.delete(`/lojas/${id}/midias/${midiaId}`),
 };

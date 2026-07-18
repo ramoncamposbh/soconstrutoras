@@ -3,12 +3,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
-import { LogIn, LayoutDashboard, Bell, Heart, UserPlus } from 'lucide-react';
+import { LogIn, LayoutDashboard, Bell, Heart, UserPlus, Handshake } from 'lucide-react';
 
 export default function Header() {
   const { user, isAuthenticated } = useAuth();
 
-  // Botão de ação baseado no perfil
   const renderNavAction = () => {
     if (!isAuthenticated) {
       return (
@@ -95,6 +94,13 @@ export default function Header() {
         <nav className="flex items-center gap-5">
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition-colors hidden sm:block">
             Imóveis
+          </Link>
+          <Link
+            href="/parceiros"
+            className="text-sm text-gray-500 hover:text-gray-800 transition-colors hidden sm:flex items-center gap-1.5"
+          >
+            <Handshake className="w-4 h-4" />
+            Parceiros
           </Link>
           {renderNavAction()}
         </nav>
