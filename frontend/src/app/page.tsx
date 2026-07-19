@@ -17,7 +17,7 @@ import {
   ChevronDown, LogIn, UserPlus, Send,
   SlidersHorizontal, Home, Rocket, X, Users,
   BarChart2, Scale, Calculator, Info,
-  LogOut, LayoutDashboard, Bell,
+  LogOut, LayoutDashboard, Bell, Handshake,
 } from 'lucide-react';
 
 const MapaEmpreendimentos = dynamic(
@@ -60,7 +60,7 @@ const AREAS = [
 const NAV_LINKS = [
   { href: '/',             label: 'Lançamentos',    icon: Rocket },
   { href: '/',             label: 'Empreendimentos',icon: Building2 },
-  { href: '/auth/register',label: 'Construtoras',   icon: Building2 },
+  { href: '/parceiros',    label: 'Parceiros',       icon: Handshake },
   { href: '/favoritos',    label: 'Favoritos',      icon: Heart },
   { href: '/',             label: 'Simuladores',    icon: Calculator },
   { href: '/',             label: 'Comparar',       icon: Scale },
