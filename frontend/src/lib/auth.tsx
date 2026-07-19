@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -38,6 +39,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   };
 
+  const loginWithGoogle = async (credential: string) => {
+    const { data } = await authApi.loginComGoogle(credential);
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    Cookies.set('token', data.access_token, { expires: 7, secure: isHttps, sameSite: 'lax' });
+    setUser(data.user);
+  };
+
   const logout = () => {
     Cookies.remove('token');
     setUser(null);
@@ -45,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

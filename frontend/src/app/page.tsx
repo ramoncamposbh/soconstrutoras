@@ -405,62 +405,46 @@ export default function HomePage() {
       </div>
     );
     return (
-      <div className="relative">
-        <button
-          onClick={() => setUserMenuOpen((v) => !v)}
-          className="flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
-          style={{
-            background: '#FFFFFF',
-            border: '1px solid #E8ECEB',
-            borderRadius: 10,
-            padding: '6px 14px 6px 8px',
-            transition: 'border-color 0.15s',
-          }}
+      <button
+        onClick={() => setUserMenuOpen((v) => !v)}
+        className="flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
+        style={{
+          background: '#FFFFFF',
+          border: '1px solid #E8ECEB',
+          borderRadius: 10,
+          padding: '6px 14px 6px 8px',
+          transition: 'border-color 0.15s',
+        }}
+      >
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-extrabold shrink-0"
+          style={{ background: '#D1FAE5', color: '#0A6A52' }}
         >
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-extrabold shrink-0"
-            style={{ background: '#D1FAE5', color: '#0A6A52' }}
-          >
-            {user?.nome?.[0]?.toUpperCase()}
-          </div>
-          <div className="leading-tight">
-            <span className="block text-[9.5px]" style={{ color: '#9CA3AF' }}>Olá,</span>
-            <span className="block text-[13px] font-bold" style={{ color: '#1F2937' }}>
-              {user?.nome?.split(' ')[0]}
-            </span>
-          </div>
-          <ChevronDown className="w-3 h-3 ml-1" style={{ color: '#9CA3AF' }} />
-        </button>
-
-
-      </div>
+          {user?.nome?.[0]?.toUpperCase()}
+        </div>
+        <div className="leading-tight">
+          <span className="block text-[9.5px]" style={{ color: '#9CA3AF' }}>Olá,</span>
+          <span className="block text-[13px] font-bold" style={{ color: '#1F2937' }}>
+            {user?.nome?.split(' ')[0]}
+          </span>
+        </div>
+        <ChevronDown className="w-3 h-3 ml-1" style={{ color: '#9CA3AF' }} />
+      </button>
     );
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
 
-      {/* ══ MENU GLOBAL DO USUÁRIO — fixed, z altíssimo, fora de qualquer stacking context ══ */}
+      {/* ══ MENU GLOBAL DO USUÁRIO ══ */}
       {userMenuOpen && isAuthenticated && (
         <>
-          <div
-            style={{ position: 'fixed', inset: 0, zIndex: 9000 }}
-            onClick={() => setUserMenuOpen(false)}
-          />
-          <div
-            style={{
-              position: 'fixed',
-              top: 70,
-              right: 16,
-              zIndex: 9001,
-              background: '#fff',
-              border: '1px solid #E5E7EB',
-              borderRadius: 12,
-              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-              minWidth: 192,
-              overflow: 'hidden',
-            }}
-          >
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9000 }} onClick={() => setUserMenuOpen(false)} />
+          <div style={{
+            position: 'fixed', top: 70, right: 16, zIndex: 9001,
+            background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)', minWidth: 192, overflow: 'hidden',
+          }}>
             {(user?.role === 'construtora' || user?.role === 'admin') && (
               <Link href="/dashboard" onClick={() => setUserMenuOpen(false)}
                 className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
@@ -480,10 +464,8 @@ export default function HomePage() {
               </Link>
             )}
             <div style={{ borderTop: '1px solid #F3F4F6' }} />
-            <button
-              onClick={() => { setUserMenuOpen(false); logout(); }}
-              className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
-            >
+            <button onClick={() => { setUserMenuOpen(false); logout(); }}
+              className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">
               <LogOut className="w-4 h-4" /> Sair
             </button>
           </div>
@@ -503,14 +485,12 @@ export default function HomePage() {
           </Link>
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
-              <div className="relative">
-                <button onClick={() => setUserMenuOpen((v) => !v)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                  style={{ background: '#D1FAE5', color: '#0A6A52' }}>
-                  {user?.nome?.[0]?.toUpperCase()}
-                </button>
-
-              </div>
+              <button
+                onClick={() => setUserMenuOpen((v) => !v)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{ background: '#D1FAE5', color: '#0A6A52' }}>
+                {user?.nome?.[0]?.toUpperCase()}
+              </button>
             ) : (
               <Link href="/auth/login"
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
@@ -1027,11 +1007,7 @@ export default function HomePage() {
             { href: '/favoritos',     icon: Heart,     label: 'Favoritos' },
             {
               href: isAuthenticated
-                ? (user?.role === 'construtora' || user?.role === 'admin'
-                    ? '/dashboard'
-                    : user?.role === 'parceiro'
-                    ? '/dashboard/leads'
-                    : '/favoritos')
+                ? (user?.role === 'construtora' || user?.role === 'admin' ? '/dashboard' : '/')
                 : '/auth/login',
               icon: isAuthenticated ? Users : LogIn,
               label: isAuthenticated ? 'Painel' : 'Entrar',
@@ -1158,4 +1134,56 @@ export default function HomePage() {
         >
           <div
             className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-2xl"
-            style={{ bac
+            style={{ background: 'linear-gradient(160deg, #0D2B22 0%, #0A3D2C 100%)', border: '1px solid #1A5440' }}
+          >
+            {/* Ícone central */}
+            <div className="flex flex-col items-center gap-2 pt-2">
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center"
+                style={{ border: '4px solid #0E8F6E', background: 'rgba(14,143,110,0.12)' }}
+              >
+                <MapPin className="w-9 h-9" style={{ color: '#22D497' }} />
+              </div>
+              <h3 className="text-white text-lg font-bold text-center mt-1">
+                Região não disponível
+              </h3>
+            </div>
+
+            {/* Mensagem principal */}
+            <p className="text-sm text-center" style={{ color: '#A7C4BB', lineHeight: 1.6 }}>
+              {mensagemBusca.texto}
+            </p>
+
+            {/* Sugestões */}
+            {mensagemBusca.sugestoes.length > 0 && (
+              <div
+                className="rounded-2xl p-4 flex flex-col gap-2"
+                style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid #1A5440' }}
+              >
+                <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#22D497' }}>
+                  Sugestão
+                </p>
+                {mensagemBusca.sugestoes.map((s, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#22D497' }} />
+                    <span className="text-sm" style={{ color: '#CBD5E1', lineHeight: 1.5 }}>{s}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Botão OK */}
+            <button
+              onClick={() => setMensagemBusca(null)}
+              className="w-full py-3.5 rounded-2xl font-bold text-base transition-all active:scale-95"
+              style={{ background: 'linear-gradient(90deg, #0E8F6E, #22D497)', color: '#fff', letterSpacing: '0.02em' }}
+            >
+              Ok, entendi
+            </button>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
