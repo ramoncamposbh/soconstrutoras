@@ -7,6 +7,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { PG_POOL } from '../database/database.module';
 import { StorageService } from '../storage/storage.service';
 
+interface UploadFile {
+  buffer: Buffer;
+  mimetype: string;
+  originalname?: string;
+}
+
 @Injectable()
 export class LojasService {
   constructor(
@@ -14,13 +20,11 @@ export class LojasService {
     private readonly storage: StorageService,
   ) {}
 
-  // ── Guards ────────────────────────────────────────────────────────────────
   private assertAdmin(role: string) {
     if (role !== 'admin')
       throw new ForbiddenException('Apenas administradores podem realizar esta ação.');
   }
 
-  // ── Categorias ────────────────────────────────────────────────────────────
   async listarCategorias() {
     const { rows } = await this.pool.query(
       `SELECT c.*, COUNT(l.id)::int AS total_lojas
@@ -54,7 +58,6 @@ export class LojasService {
     return { ok: true };
   }
 
-  // ── Lojas — público ───────────────────────────────────────────────────────
   async listarPublico() {
     const { rows } = await this.pool.query(
       `SELECT l.*,
@@ -85,7 +88,6 @@ export class LojasService {
     return { ...loja, midias };
   }
 
-  // ── Lojas — admin ─────────────────────────────────────────────────────────
   async listarAdmin(role: string) {
     this.assertAdmin(role);
     const { rows } = await this.pool.query(
@@ -147,8 +149,7 @@ export class LojasService {
     return { ok: true };
   }
 
-  // ── Mídias ────────────────────────────────────────────────────────────────
-  async uploadLogo(role: string, lojaId: string, file: Express.Multer.File) {
+  async uploadLogo(role: string, lojaId: string, file: UploadFile) {
     this.assertAdmin(role);
     const ext = (file.mimetype.split('/')[1] ?? 'png').replace('jpeg', 'jpg');
     const key = `lojas/logos/${lojaId}-${uuidv4()}.${ext}`;
@@ -157,7 +158,7 @@ export class LojasService {
     return { url };
   }
 
-  async uploadFoto(role: string, lojaId: string, file: Express.Multer.File) {
+  async uploadFoto(role: string, lojaId: string, file: UploadFile) {
     this.assertAdmin(role);
     const { rows: [{ total }] } = await this.pool.query(
       `SELECT COUNT(*)::int AS total FROM lojas_midias WHERE loja_id = $1`,
@@ -190,7 +191,6 @@ export class LojasService {
     return { ok: true };
   }
 
-  // ── Utils ─────────────────────────────────────────────────────────────────
   private gerarSlug(nome: string): string {
     return nome
       .toLowerCase()

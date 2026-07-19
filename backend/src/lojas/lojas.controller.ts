@@ -11,7 +11,6 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class LojasController {
   constructor(private readonly service: LojasService) {}
 
-  // ── Rotas públicas ────────────────────────────────────────────────────────
   @Get()
   listarPublico() {
     return this.service.listarPublico();
@@ -22,7 +21,6 @@ export class LojasController {
     return this.service.listarCategorias();
   }
 
-  // ── Rotas admin — declaradas ANTES de :slug ────────────────────────────────
   @UseGuards(JwtAuthGuard)
   @Get('admin/todas')
   listarAdmin(@Request() req: any) {
@@ -65,7 +63,7 @@ export class LojasController {
   uploadLogo(
     @Request() req: any,
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
   ) {
     return this.service.uploadLogo(req.user.role, id, file);
   }
@@ -76,7 +74,7 @@ export class LojasController {
   uploadFoto(
     @Request() req: any,
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
   ) {
     return this.service.uploadFoto(req.user.role, id, file);
   }
@@ -91,7 +89,6 @@ export class LojasController {
     return this.service.removerMidia(req.user.role, id, midiaId);
   }
 
-  // ── Rota pública com :slug — declarada POR ÚLTIMO ─────────────────────────
   @Get(':slug')
   buscarPorSlug(@Param('slug') slug: string) {
     return this.service.buscarPorSlug(slug);
