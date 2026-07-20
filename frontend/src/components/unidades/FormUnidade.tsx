@@ -6,22 +6,24 @@ import { unidadesApi } from '@/lib/api';
 import type { Unidade, UnidadeMidia, TipoUnidade } from '@/types';
 import {
   X, Trash2, Plus, Upload, Loader2, Check,
-  Home, Building2, Leaf, Layers, Square, Store, GripVertical,
+  Home, Building2, Leaf, Layers, Square, Store,
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
+// ── Tipos de unidade ────────────────────────────────────────────────
 const TIPOS_UNIDADE: { value: TipoUnidade; label: string; icon: React.ElementType; desc: string }[] = [
-  { value: 'apartamento', label: 'Apartamento', icon: Home,      desc: 'Unidade padrao' },
-  { value: 'cobertura',   label: 'Cobertura',   icon: Building2, desc: 'Ultimo andar' },
-  { value: 'garden',      label: 'Garden',      icon: Leaf,      desc: 'Area privativa externa' },
+  { value: 'apartamento', label: 'Apartamento', icon: Home,      desc: 'Unidade padrão' },
+  { value: 'cobertura',   label: 'Cobertura',   icon: Building2, desc: 'Último andar' },
+  { value: 'garden',      label: 'Garden',      icon: Leaf,      desc: 'Área privativa externa' },
   { value: 'duplex',      label: 'Duplex',      icon: Layers,    desc: 'Dois pavimentos' },
-  { value: 'studio',      label: 'Studio',      icon: Square,    desc: 'Espaco integrado' },
+  { value: 'studio',      label: 'Studio',      icon: Square,    desc: 'Espaço integrado' },
   { value: 'comercial',   label: 'Comercial',   icon: Store,     desc: 'Sala / loja' },
 ];
 
+// ── Props ────────────────────────────────────────────────────────────
 interface Props {
   empreendimentoId: string;
-  unidade?: Unidade | null;
+  unidade?: Unidade | null;   // null = novo
   limiteAtingido?: boolean;
   onSave: (u: Unidade) => void;
   onDelete?: (id: string) => void;
@@ -32,32 +34,32 @@ export default function FormUnidade({
   empreendimentoId, unidade, limiteAtingido, onSave, onDelete, onClose,
 }: Props) {
   const isNovo = !unidade;
-  const [tab, setTab]             = useState<'info' | 'fotos'>('info');
-  const [saving, setSaving]       = useState(false);
-  const [deleting, setDeleting]   = useState(false);
-  const [uploadingIdx, setUpIdx]  = useState<number | null>(null);
-  const [savingOrder, setSavingOrder] = useState(false);
-  const [dragIdx, setDragIdx]     = useState<number | null>(null);
-  const [overIdx, setOverIdx]     = useState<number | null>(null);
+  const [tab, setTab] = useState<'info' | 'fotos'>('info');
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [tipo, setTipo]       = useState<TipoUnidade>(unidade?.tipo ?? 'apartamento');
-  const [nome, setNome]       = useState(unidade?.nome ?? '');
-  const [mprivativa, setMp]   = useState(unidade?.metragem_privativa?.toString() ?? '');
-  const [mtotal, setMt]       = useState(unidade?.metragem_total?.toString() ?? '');
-  const [quartos, setQ]       = useState(unidade?.quartos?.toString() ?? '0');
-  const [suites, setSu]       = useState(unidade?.suites?.toString() ?? '0');
-  const [vagas, setVg]        = useState(unidade?.vagas?.toString() ?? '0');
-  const [preco, setPr]        = useState(unidade?.preco?.toString() ?? '');
-  const [descricao, setDsc]   = useState(unidade?.descricao ?? '');
-  const [disponivel, setDis]  = useState(unidade?.disponivel ?? true);
-  const [midias, setMidias]   = useState<UnidadeMidia[]>(unidade?.midias ?? []);
+  // Form state
+  const [tipo, setTipo]     = useState<TipoUnidade>(unidade?.tipo ?? 'apartamento');
+  const [nome, setNome]     = useState(unidade?.nome ?? '');
+  const [mprivativa, setMp] = useState(unidade?.metragem_privativa?.toString() ?? '');
+  const [mtotal, setMt]     = useState(unidade?.metragem_total?.toString() ?? '');
+  const [quartos, setQ]     = useState(unidade?.quartos?.toString() ?? '0');
+  const [suites, setSu]     = useState(unidade?.suites?.toString() ?? '0');
+  const [vagas, setVg]      = useState(unidade?.vagas?.toString() ?? '0');
+  const [preco, setPr]      = useState(unidade?.preco?.toString() ?? '');
+  const [descricao, setDsc] = useState(unidade?.descricao ?? '');
+  const [disponivel, setDis] = useState(unidade?.disponivel ?? true);
+  const [midias, setMidias] = useState<UnidadeMidia[]>(unidade?.midias ?? []);
 
+  // ── Salvar ──────────────────────────────────────────────────────
   const handleSalvar = async () => {
     if (!tipo) return toast.error('Selecione o tipo.');
     setSaving(true);
     const payload = {
-      tipo, nome: nome || undefined,
+      tipo,
+      nome: nome || undefined,
       metragem_privativa: mprivativa ? parseFloat(mprivativa) : undefined,
       metragem_total:     mtotal     ? parseFloat(mtotal)     : undefined,
       quartos:   parseInt(quartos)   || 0,
@@ -86,6 +88,7 @@ export default function FormUnidade({
     }
   };
 
+  // ── Excluir ─────────────────────────────────────────────────────
   const handleExcluir = async () => {
     if (!unidade || !onDelete) return;
     if (!confirm('Excluir esta unidade e todas as suas fotos?')) return;
@@ -101,9 +104,12 @@ export default function FormUnidade({
     }
   };
 
+  // ── Upload de foto ───────────────────────────────────────────────
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
+
+    // Para unidade nova, precisamos salvar primeiro
     let unidadeId = unidade?.id;
     if (!unidadeId) {
       setSaving(true);
@@ -115,7 +121,7 @@ export default function FormUnidade({
           preco: preco ? parseFloat(preco) : undefined, disponivel };
         const { data } = await unidadesApi.criar(empreendimentoId, payload);
         unidadeId = data.id;
-        onSave({ ...data, midias: [] });
+        onSave({ ...data, midias: [] }); // atualiza lista com novo id
       } catch {
         toast.error('Salve a unidade antes de adicionar fotos.');
         setSaving(false);
@@ -124,8 +130,9 @@ export default function FormUnidade({
         setSaving(false);
       }
     }
+
     for (let i = 0; i < files.length; i++) {
-      setUpIdx(i);
+      setUploadingIdx(i);
       try {
         const { data } = await unidadesApi.uploadFoto(unidadeId!, files[i]);
         setMidias((prev) => [...prev, data]);
@@ -133,7 +140,7 @@ export default function FormUnidade({
         toast.error(`Erro ao enviar ${files[i].name}`);
       }
     }
-    setUpIdx(null);
+    setUploadingIdx(null);
     if (fileRef.current) fileRef.current.value = '';
   };
 
@@ -147,49 +154,26 @@ export default function FormUnidade({
     }
   };
 
-  // ── Drag-and-drop ───────────────────────────────────────────────────
-  const onDragStart = (idx: number) => setDragIdx(idx);
-  const onDragOver  = (e: React.DragEvent, idx: number) => {
-    e.preventDefault();
-    if (overIdx !== idx) setOverIdx(idx);
-  };
-  const onDrop = async (idx: number) => {
-    if (dragIdx === null || dragIdx === idx) {
-      setDragIdx(null); setOverIdx(null); return;
-    }
-    const reordenadas = [...midias];
-    const [moved] = reordenadas.splice(dragIdx, 1);
-    reordenadas.splice(idx, 0, moved);
-    setMidias(reordenadas);
-    setDragIdx(null); setOverIdx(null);
-
-    if (!unidade?.id) return;
-    setSavingOrder(true);
-    try {
-      await unidadesApi.reordenarFotos(
-        unidade.id,
-        reordenadas.map((m, i) => ({ id: m.id, ordem: i })),
-      );
-    } catch {
-      toast.error('Erro ao salvar ordem.');
-    } finally {
-      setSavingOrder(false);
-    }
-  };
-  const onDragEnd = () => { setDragIdx(null); setOverIdx(null); };
-
+  // ── Render ───────────────────────────────────────────────────────
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Drawer */}
       <div className="fixed right-0 top-0 h-full z-50 w-full max-w-lg bg-white shadow-2xl flex flex-col">
 
+        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div>
             <h2 className="font-bold text-gray-900 text-base">
-              {isNovo ? 'Nova Unidade' : (unidade?.nome || `Unidade - ${TIPOS_UNIDADE.find(t => t.value === tipo)?.label}`)}
+              {isNovo ? 'Nova Unidade' : (unidade?.nome || `Unidade — ${TIPOS_UNIDADE.find(t => t.value === tipo)?.label}`)}
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">
-              {isNovo ? 'Preencha as informacoes da unidade' : `ID: ${unidade?.id.slice(0, 8)}...`}
+              {isNovo ? 'Preencha as informações da unidade' : `ID: ${unidade?.id.slice(0, 8)}…`}
             </p>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
@@ -197,6 +181,7 @@ export default function FormUnidade({
           </button>
         </div>
 
+        {/* Tabs */}
         <div className="flex border-b border-gray-100 px-5">
           {(['info', 'fotos'] as const).map((t) => (
             <button
@@ -208,21 +193,26 @@ export default function FormUnidade({
                   : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
-              {t === 'info' ? 'Informacoes' : `Fotos ${midias.length > 0 ? `(${midias.length})` : ''}`}
+              {t === 'info' ? 'Informações' : `Fotos ${midias.length > 0 ? `(${midias.length})` : ''}`}
             </button>
           ))}
         </div>
 
+        {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
 
+          {/* ── ABA: INFORMAÇÕES ── */}
           {tab === 'info' && (
             <>
+              {/* Seletor de tipo */}
               <div>
                 <label className="label mb-2">Tipo da unidade</label>
                 <div className="grid grid-cols-3 gap-2">
                   {TIPOS_UNIDADE.map(({ value, label, icon: Icon, desc }) => (
                     <button
-                      key={value} type="button" onClick={() => setTipo(value)}
+                      key={value}
+                      type="button"
+                      onClick={() => setTipo(value)}
                       className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all text-center ${
                         tipo === value
                           ? 'border-primary-500 bg-primary-50 text-primary-700'
@@ -237,25 +227,32 @@ export default function FormUnidade({
                 </div>
               </div>
 
+              {/* Nome */}
               <div>
                 <label className="label">Nome / Tipologia <span className="text-gray-400">(opcional)</span></label>
-                <input className="input" placeholder="ex: Tipo A, Cobertura Norte..."
-                  value={nome} onChange={(e) => setNome(e.target.value)} />
+                <input
+                  className="input"
+                  placeholder="ex: Tipo A, Cobertura Norte..."
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                />
               </div>
 
+              {/* Metragens */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Area privativa (m²)</label>
+                  <label className="label">Área privativa (m²)</label>
                   <input className="input" type="number" min="0" step="0.01"
                     value={mprivativa} onChange={(e) => setMp(e.target.value)} />
                 </div>
                 <div>
-                  <label className="label">Area total (m²)</label>
+                  <label className="label">Área total (m²)</label>
                   <input className="input" type="number" min="0" step="0.01"
                     value={mtotal} onChange={(e) => setMt(e.target.value)} />
                 </div>
               </div>
 
+              {/* Dormitórios */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="label">Quartos</label>
@@ -263,7 +260,7 @@ export default function FormUnidade({
                     value={quartos} onChange={(e) => setQ(e.target.value)} />
                 </div>
                 <div>
-                  <label className="label">Suites</label>
+                  <label className="label">Suítes</label>
                   <input className="input" type="number" min="0"
                     value={suites} onChange={(e) => setSu(e.target.value)} />
                 </div>
@@ -274,29 +271,38 @@ export default function FormUnidade({
                 </div>
               </div>
 
+              {/* Preço */}
               <div>
-                <label className="label">Preco (R$)</label>
-                <input className="input" type="number" min="0" step="1000" placeholder="0"
+                <label className="label">Preço (R$)</label>
+                <input className="input" type="number" min="0" step="1000"
+                  placeholder="0"
                   value={preco} onChange={(e) => setPr(e.target.value)} />
                 {preco && (
-                  <p className="text-xs text-gray-400 mt-1">{formatCurrency(parseFloat(preco))}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {formatCurrency(parseFloat(preco))}
+                  </p>
                 )}
               </div>
 
+              {/* Descrição */}
               <div>
-                <label className="label">Descricao <span className="text-gray-400">(opcional)</span></label>
-                <textarea className="input resize-none" rows={3}
+                <label className="label">Descrição <span className="text-gray-400">(opcional)</span></label>
+                <textarea
+                  className="input resize-none" rows={3}
                   placeholder="Destaques desta tipologia..."
-                  value={descricao} onChange={(e) => setDsc(e.target.value)} />
+                  value={descricao} onChange={(e) => setDsc(e.target.value)}
+                />
               </div>
 
+              {/* Disponível */}
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                 <div>
-                  <p className="text-sm font-medium text-gray-800">Disponivel para venda</p>
-                  <p className="text-xs text-gray-400">Clientes poderao ver esta unidade</p>
+                  <p className="text-sm font-medium text-gray-800">Disponível para venda</p>
+                  <p className="text-xs text-gray-400">Clientes poderão ver esta unidade</p>
                 </div>
                 <button
-                  type="button" onClick={() => setDis(!disponivel)}
+                  type="button"
+                  onClick={() => setDis(!disponivel)}
                   className={`w-12 h-6 rounded-full transition-colors relative ${disponivel ? 'bg-primary-500' : 'bg-gray-300'}`}
                 >
                   <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-all shadow ${disponivel ? 'left-6' : 'left-0.5'}`} />
@@ -305,71 +311,55 @@ export default function FormUnidade({
             </>
           )}
 
+          {/* ── ABA: FOTOS ── */}
           {tab === 'fotos' && (
             <>
               <p className="text-sm text-gray-500">
-                Adicione fotos desta unidade. Arraste para reordenar.
+                Adicione fotos, plantas e renders desta unidade. Essas imagens são exibidas separadamente das fotos do empreendimento.
               </p>
 
-              <input ref={fileRef} type="file" multiple accept="image/*"
-                className="hidden" onChange={handleUpload} />
+              {/* Botão de upload */}
+              <input
+                ref={fileRef} type="file" multiple accept="image/*"
+                className="hidden"
+                onChange={handleUpload}
+              />
               <button
-                type="button" onClick={() => fileRef.current?.click()}
+                type="button"
+                onClick={() => fileRef.current?.click()}
                 disabled={uploadingIdx !== null}
-                className="w-full border-2 border-dashed border-primary-200 rounded-xl py-4 flex flex-col items-center gap-2 text-primary-600 hover:bg-primary-50 transition-colors"
+                className="w-full border-2 border-dashed border-primary-200 rounded-xl py-5 flex flex-col items-center gap-2 text-primary-600 hover:bg-primary-50 transition-colors"
               >
-                {uploadingIdx !== null ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
+                {uploadingIdx !== null ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                  <Upload className="w-6 h-6" />
+                )}
                 <span className="text-sm font-medium">
                   {uploadingIdx !== null ? 'Enviando...' : 'Selecionar fotos'}
                 </span>
-                <span className="text-xs text-gray-400">JPG, PNG, WEBP - ate 20 MB</span>
+                <span className="text-xs text-gray-400">JPG, PNG, WEBP — até 20 MB</span>
               </button>
 
-              {savingOrder && (
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <Loader2 className="w-3 h-3 animate-spin" /> Salvando ordem...
-                </p>
-              )}
-
+              {/* Grid de fotos */}
               {midias.length > 0 && (
                 <div className="grid grid-cols-2 gap-3">
-                  {midias.map((m, idx) => (
-                    <div
-                      key={m.id}
-                      draggable
-                      onDragStart={() => onDragStart(idx)}
-                      onDragOver={(e) => onDragOver(e, idx)}
-                      onDrop={() => onDrop(idx)}
-                      onDragEnd={onDragEnd}
-                      className={[
-                        'relative group rounded-xl overflow-hidden aspect-video bg-gray-100 select-none transition-all',
-                        dragIdx === idx
-                          ? 'opacity-40 scale-95 border-2 border-dashed border-primary-300'
-                          : overIdx === idx
-                          ? 'ring-2 ring-primary-400 scale-[1.02]'
-                          : 'cursor-grab active:cursor-grabbing',
-                      ].join(' ')}
-                    >
-                      <img src={m.url} alt={m.legenda ?? ''} className="w-full h-full object-cover pointer-events-none" />
-                      {idx === 0 && (
-                        <span className="absolute top-1 left-1 bg-primary-500 text-white text-[10px] px-1.5 py-0.5 rounded z-10">
-                          Principal
-                        </span>
-                      )}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-opacity flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                        <div className="bg-white/90 rounded-full p-1.5">
-                          <GripVertical className="w-4 h-4 text-gray-700" />
-                        </div>
+                  {midias.map((m) => (
+                    <div key={m.id} className="relative group rounded-xl overflow-hidden aspect-video bg-gray-100">
+                      <img src={m.url} alt={m.legenda ?? ''} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <button
                           onClick={() => handleRemoverFoto(m)}
-                          className="bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600"
+                          className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <div className="absolute bottom-1 right-1 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded">
-                        {idx + 1}
-                      </div>
+                      {m.legenda && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
+                          <p className="text-white text-xs truncate">{m.legenda}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -382,9 +372,12 @@ export default function FormUnidade({
           )}
         </div>
 
+        {/* Footer com ações */}
         <div className="border-t border-gray-100 p-4 flex gap-3">
           {!isNovo && onDelete && (
-            <button onClick={handleExcluir} disabled={deleting}
+            <button
+              onClick={handleExcluir}
+              disabled={deleting}
               className="btn-secondary text-red-600 hover:bg-red-50 flex items-center gap-1.5 text-sm"
             >
               {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
@@ -401,9 +394,10 @@ export default function FormUnidade({
             {isNovo ? 'Criar unidade' : 'Salvar'}
           </button>
         </div>
+
         {isNovo && limiteAtingido && (
           <p className="text-xs text-red-500 text-center pb-3">
-            Limite do plano atingido. Faca upgrade para adicionar mais unidades.
+            Limite do plano atingido. Faça upgrade para adicionar mais unidades.
           </p>
         )}
       </div>

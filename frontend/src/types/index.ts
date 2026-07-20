@@ -128,37 +128,3 @@ export interface Unidade {
   created_at: string;
   updated_at: string;
 }
-
-export interface LojaCategoria {
-  id: string;
-  nome: string;
-  icone?: string;
-  ordem: number;
-  total_lojas?: number;
-}
-
-export interface LojaMidia {
-  id: string;
-  url: string;
-  legenda?: string;
-  ordem: number;
-}
-
-export interface Loja {
-  id: string;
-  categoria_id: string;
-  nome: string;
-  slug: string;
-  descricao?: string;
-  logo_url?: string;
-  site_url?: string;
-  whatsapp?: string;
-  codigo_desconto?: string;
-  descricao_desconto?: string;
-  ativo: boolean;
-  categoria_nome?: string;
-  categoria_icone?: string;
-  primeira_midia?: string;
-  midias?: LojaMidia[];
-  criado_em: string;
-}

@@ -3,6 +3,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { MidiasService } from './midias.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import * as multer from 'multer';
+import * as path from 'path';
+import * as fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+
+const uploadsDir = path.join(process.cwd(), 'uploads');
+fs.mkdirSync(uploadsDir, { recursive: true });
 
 @UseGuards(JwtAuthGuard)
 @Controller('empreendimentos/:empreendimentoId/midias')
@@ -14,10 +20,16 @@ export class MidiasController {
     return this.service.listar(empreendimentoId);
   }
 
-  // Upload via proxy: arquivo passa pelo backend e vai para o R2 (sem CORS)
+  // Upload local (desenvolvimento sem R2/S3)
   @Post('upload-local')
   @UseInterceptors(FileInterceptor('file', {
-    storage: multer.memoryStorage(),
+    storage: multer.diskStorage({
+      destination: uploadsDir,
+      filename: (req: any, file: any, cb: any) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `${uuidv4()}${ext}`);
+      },
+    }),
     limits: { fileSize: 20 * 1024 * 1024 },
     fileFilter: (req: any, file: any, cb: any) => {
       if (!file.mimetype.startsWith('image/')) return cb(new Error('Apenas imagens'), false);
@@ -28,10 +40,9 @@ export class MidiasController {
     @Param('empreendimentoId') empreendimentoId: string,
     @Request() req: any,
     @UploadedFile() file: any,
-    @Body() body: { tipo?: string },
   ) {
-    const tipo = (body?.tipo ?? 'foto') as 'foto' | 'video' | 'planta' | 'tour_virtual';
-    return this.service.uploadViaProxy(empreendimentoId, req.user.sub, tipo, file);
+    const url = `http://localhost:3000/uploads/${file.filename}`;
+    return this.service.confirmarUpload(empreendimentoId, req.user.sub, { url, tipo: 'foto' });
   }
 
   @Post('url-upload')
@@ -43,7 +54,7 @@ export class MidiasController {
     return this.service.gerarUrlUpload(empreendimentoId, req.user.sub, body.tipo, body.contentType);
   }
 
-  @Post('confirmar')
+    @Post('confirmar')
   confirmar(
     @Param('empreendimentoId') empreendimentoId: string,
     @Request() req: any,
