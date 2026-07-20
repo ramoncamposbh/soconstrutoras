@@ -798,9 +798,8 @@ export default function HomePage() {
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
                   placeholder="Ex: Savassi, Nova Lima..."
-              style={{ fontSize: 16 }}
                   className="px-3 py-2 text-xs rounded-lg outline-none"
-                  style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}
+                  style={{ fontSize: 16, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}
                 />
               </div>
 
@@ -862,7 +861,7 @@ export default function HomePage() {
           </div>
 
           {/* ── Coluna direita: Perfil (oculto mobile) ── */}
-          <div className="hidden md:block" className="hidden md:flex flex-col rounded-2xl border p-4"
+          <div className="hidden md:flex flex-col rounded-2xl border p-4"
             style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-semibold text-white">Seu perfil imobiliário</h3>
