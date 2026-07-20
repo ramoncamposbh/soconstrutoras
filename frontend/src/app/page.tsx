@@ -543,41 +543,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Barra de busca */}
-        <div className="px-4 pb-2">
-          <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 border"
-            style={{ background: '#F9FAF9', borderColor: '#E5E7EB' }}>
-            <Search className="w-4 h-4 shrink-0" style={{ color: '#9CA3AF' }} />
-            <input
-              value={aiText}
-              onChange={(e) => setAiText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAiSearch(); }}
-              placeholder="Cidade, bairro ou tipo de imóvel..."
-              className="flex-1 text-sm bg-transparent outline-none placeholder:text-gray-400"
-              style={{ color: '#1F2937' }}
-            />
-            <button onClick={handleAiSearch}
-              className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: '#0E8F6E' }}>
-              <Send className="w-3.5 h-3.5 text-white" />
-            </button>
-          </div>
-        </div>
-
-        {/* Chips de pesquisa rápida */}
-        <div className="flex gap-2 px-4 pb-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-          {PESQUISAS_RAPIDAS.map(({ label, icon: Icon, query }) => (
-            <button key={label}
-              onClick={() => handlePesquisaRapida({ label, icon: Icon, query })}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-all"
-              style={pesquisaAtiva === label
-                ? { background: '#0E8F6E', color: '#fff' }
-                : { background: '#F0FAF7', color: '#0E8F6E', border: '1px solid #C6EDE1' }
-              }>
-              <Icon className="w-3 h-3" /> {label}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* ══ NAVBAR DESKTOP (oculto no mobile) ══ */}
@@ -647,7 +612,7 @@ export default function HomePage() {
       {/* ══ HERO — Skyline Premium (Opção B aprovada) — apenas desktop ══ */}
       <section
         ref={heroRef}
-        className="hidden md:block relative px-4 md:px-8 pt-7 pb-6 shrink-0 overflow-hidden"
+        className="block relative px-4 md:px-8 pt-5 pb-6 shrink-0 overflow-hidden"
       >
         {/* Foto de fundo com parallax */}
         <div
@@ -823,8 +788,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* ── Coluna direita: Perfil ── */}
-          <div className="hidden md:flex flex-col rounded-2xl border p-4"
+          {/* ── Coluna direita: Perfil (oculto mobile) ── */}
+          <div className="hidden md:block" className="hidden md:flex flex-col rounded-2xl border p-4"
             style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-semibold text-white">Seu perfil imobiliário</h3>
