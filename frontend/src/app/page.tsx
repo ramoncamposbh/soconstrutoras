@@ -74,11 +74,22 @@ export default function HomePage() {
   const [isListening, setIsListening] = useState(false);
 
   const startVoiceSearch = () => {
+    // iOS Safari não suporta Web Speech API — usa input de voz nativo
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) {
-      toast.error('Seu navegador não suporta reconhecimento de voz.');
+
+    if (isIOS || !SR) {
+      // No iOS, ativa o teclado de voz nativo via input
+      const input = document.querySelector('textarea[placeholder*="imóvel"]') as HTMLTextAreaElement;
+      if (input) {
+        input.focus();
+        toast('🎤 Toque no microfone do teclado para falar', { duration: 4000 });
+      } else {
+        toast('🎤 Toque no campo de texto e use o microfone do teclado', { duration: 4000 });
+      }
       return;
     }
+
     const recognition = new SR();
     recognition.lang = 'pt-BR';
     recognition.interimResults = false;
@@ -91,9 +102,13 @@ export default function HomePage() {
       setIsListening(false);
       setTimeout(() => handleAiSearch(), 400);
     };
-    recognition.onerror = () => {
+    recognition.onerror = (e: any) => {
       setIsListening(false);
-      toast.error('Não foi possível reconhecer. Tente novamente.');
+      if (e.error === 'not-allowed') {
+        toast.error('Permita o acesso ao microfone nas configurações do navegador.');
+      } else {
+        toast.error('Não foi possível reconhecer. Tente novamente.');
+      }
     };
     recognition.onend = () => setIsListening(false);
     recognition.start();
