@@ -80,14 +80,19 @@ export default function HomePage() {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (isIOS || !SR) {
-      // iOS: foca o campo e o teclado abre com microfone nativo no canto inferior direito
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        // Pequeno delay para o teclado abrir antes de mostrar o toast
-        setTimeout(() => {
-          toast('Toque no 🎤 no canto inferior direito do teclado', { duration: 4000, icon: '👇' });
-        }, 600);
-      }
+      // iOS Safari não suporta Web Speech API.
+      // NÃO abrimos o teclado — apenas instruímos o usuário a tocar no campo e usar o 🎤 do teclado.
+      toast(
+        (t) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>🎤 Voz no iPhone</span>
+            <span style={{ fontSize: 13, color: '#555' }}>
+              Toque no campo de texto e depois no ícone do microfone no canto inferior direito do teclado.
+            </span>
+          </div>
+        ),
+        { duration: 6000 }
+      );
       return;
     }
 
