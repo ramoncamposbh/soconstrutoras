@@ -79,14 +79,18 @@ export default function HomePage() {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (isIOS || !SR) {
-      // No iOS, ativa o teclado de voz nativo via input
-      const input = document.querySelector('textarea[placeholder*="imóvel"]') as HTMLTextAreaElement;
-      if (input) {
-        input.focus();
-        toast('🎤 Toque no microfone do teclado para falar', { duration: 4000 });
-      } else {
-        toast('🎤 Toque no campo de texto e use o microfone do teclado', { duration: 4000 });
-      }
+      // iOS não suporta Web Speech API — mostra instrução sem abrir teclado
+      toast(
+        (t) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>🎤 Voz no iPhone</span>
+            <span style={{ fontSize: 13, color: '#555' }}>
+              Toque no campo de texto e depois no ícone do microfone no teclado.
+            </span>
+          </div>
+        ),
+        { duration: 5000 }
+      );
       return;
     }
 
@@ -721,7 +725,8 @@ export default function HomePage() {
                   }}
                   placeholder="Conte como é o imóvel que você procura..."
                   rows={2}
-                  className="flex-1 text-sm text-gray-800 placeholder:text-gray-400 resize-none outline-none leading-relaxed"
+                  className="flex-1 text-gray-800 placeholder:text-gray-400 resize-none outline-none leading-relaxed"
+                  style={{ fontSize: 16, lineHeight: 1.5 }}
                 />
                 <button onClick={handleAiSearch}
                   className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors mt-0.5"
@@ -795,6 +800,7 @@ export default function HomePage() {
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
                   placeholder="Ex: Savassi, Nova Lima..."
+              style={{ fontSize: 16 }}
                   className="px-3 py-2 text-xs rounded-lg outline-none"
                   style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}
                 />
