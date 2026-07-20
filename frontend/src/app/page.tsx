@@ -71,6 +71,33 @@ export default function HomePage() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [isListening, setIsListening] = useState(false);
+
+  const startVoiceSearch = () => {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) {
+      toast.error('Seu navegador não suporta reconhecimento de voz.');
+      return;
+    }
+    const recognition = new SR();
+    recognition.lang = 'pt-BR';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    setIsListening(true);
+    toast('🎤 Fale agora...', { duration: 3000 });
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setAiText(transcript);
+      setIsListening(false);
+      setTimeout(() => handleAiSearch(), 400);
+    };
+    recognition.onerror = () => {
+      setIsListening(false);
+      toast.error('Não foi possível reconhecer. Tente novamente.');
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
 
   const [empreendimentos, setEmpreendimentos] = useState<Empreendimento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -694,17 +721,44 @@ export default function HomePage() {
 
             {/* Botões de ação */}
             <div className="flex gap-2 flex-wrap">
-              {[
-                { icon: Mic,        label: 'Falar' },
-                { icon: Navigation, label: 'Usar minha localização' },
-                { icon: MapPin,     label: 'Adicionar localização' },
-              ].map(({ icon: Icon, label }) => (
-                <button key={label}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
-                  style={{ background: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.18)', color: '#bbf7d0' }}>
-                  <Icon className="w-3.5 h-3.5" /> {label}
-                </button>
-              ))}
+              <button
+                onClick={startVoiceSearch}
+                disabled={isListening}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
+                style={{
+                  background: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.08)',
+                  borderColor: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.18)',
+                  color: '#bbf7d0',
+                  animation: isListening ? 'pulse 1s infinite' : 'none',
+                }}>
+                <Mic className="w-3.5 h-3.5" />
+                {isListening ? 'Ouvindo...' : 'Falar'}
+              </button>
+              <button
+                onClick={() => {
+                  if (!navigator.geolocation) { toast.error('Geolocalização não disponível.'); return; }
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                      const { latitude, longitude } = pos.coords;
+                      setAiText(`Imóveis perto de mim (lat ${latitude.toFixed(4)}, lng ${longitude.toFixed(4)})`);
+                      toast.success('Localização obtida!');
+                    },
+                    () => toast.error('Não foi possível obter sua localização.')
+                  );
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
+                style={{ background: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.18)', color: '#bbf7d0' }}>
+                <Navigation className="w-3.5 h-3.5" /> Usar minha localização
+              </button>
+              <button
+                onClick={() => {
+                  const cidade = prompt('Digite a cidade ou bairro:');
+                  if (cidade) setAiText(`Imóveis em ${cidade}`);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
+                style={{ background: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.18)', color: '#bbf7d0' }}>
+                <MapPin className="w-3.5 h-3.5" /> Adicionar localização
+              </button>
             </div>
 
             {/* Divisor "ou use os filtros tradicionais" */}
