@@ -73,24 +73,21 @@ export default function HomePage() {
   const menuRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const startVoiceSearch = () => {
-    // iOS Safari não suporta Web Speech API — usa input de voz nativo
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (isIOS || !SR) {
-      // iOS não suporta Web Speech API — mostra instrução sem abrir teclado
-      toast(
-        (t) => (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontWeight: 700, fontSize: 14 }}>🎤 Voz no iPhone</span>
-            <span style={{ fontSize: 13, color: '#555' }}>
-              Toque no campo de texto e depois no ícone do microfone no teclado.
-            </span>
-          </div>
-        ),
-        { duration: 5000 }
-      );
+      // iOS: foca o campo e o teclado abre com microfone nativo no canto inferior direito
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        // Pequeno delay para o teclado abrir antes de mostrar o toast
+        setTimeout(() => {
+          toast('Toque no 🎤 no canto inferior direito do teclado', { duration: 4000, icon: '👇' });
+        }, 600);
+      }
       return;
     }
 
@@ -109,7 +106,7 @@ export default function HomePage() {
     recognition.onerror = (e: any) => {
       setIsListening(false);
       if (e.error === 'not-allowed') {
-        toast.error('Permita o acesso ao microfone nas configurações do navegador.');
+        toast.error('Permita o acesso ao microfone nas configurações.');
       } else {
         toast.error('Não foi possível reconhecer. Tente novamente.');
       }
@@ -718,6 +715,7 @@ export default function HomePage() {
               <div className="flex gap-2.5 items-start">
                 <MessageCircle className="w-5 h-5 mt-1 shrink-0" style={{ color: '#22c55e' }} />
                 <textarea
+                  ref={textareaRef}
                   value={aiText}
                   onChange={(e) => setAiText(e.target.value)}
                   onKeyDown={(e) => {
