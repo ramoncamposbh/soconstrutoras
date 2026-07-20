@@ -12,12 +12,16 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { HealthModule } from './health/health.module';
 import { BillingModule } from './billing/billing.module';
 import { UnidadesModule } from './unidades/unidades.module';
+import { FavoritosModule } from './favoritos/favoritos.module';
+import { StorageModule } from './storage/storage.module';
+import { LojasModule } from './lojas/lojas.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     DatabaseModule,
+    StorageModule,
     AuthModule,
     ConstutorasModule,
     EmpreendimentosModule,
@@ -28,6 +32,8 @@ import { UnidadesModule } from './unidades/unidades.module';
     HealthModule,
     BillingModule,
     UnidadesModule,
+    FavoritosModule,
+    LojasModule,
   ],
 })
 export class AppModule {}

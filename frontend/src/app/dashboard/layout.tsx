@@ -7,16 +7,17 @@ import { useAuth } from '@/lib/auth';
 import Image from 'next/image';
 import {
   LayoutDashboard, Building2, Users, Bell, LogOut,
-  ChevronRight, Loader2, CreditCard, Menu, X,
+  ChevronRight, Loader2, CreditCard, Menu, X, Store,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/dashboard',                label: 'Visão geral',      icon: LayoutDashboard },
-  { href: '/dashboard/empreendimentos', label: 'Empreendimentos',  icon: Building2 },
-  { href: '/dashboard/parceiros',       label: 'Parceiros',        icon: Users },
-  { href: '/dashboard/leads',           label: 'Leads',            icon: Bell },
-  { href: '/dashboard/assinatura',      label: 'Assinatura',       icon: CreditCard },
+  { href: '/dashboard',                 label: 'Visão geral',      icon: LayoutDashboard, roles: null },
+  { href: '/dashboard/empreendimentos', label: 'Empreendimentos',  icon: Building2,       roles: null },
+  { href: '/dashboard/parceiros',       label: 'Parceiros',        icon: Users,           roles: ['construtora', 'admin'] },
+  { href: '/dashboard/leads',           label: 'Leads',            icon: Bell,            roles: null },
+  { href: '/dashboard/lojas',           label: 'Lojas Parceiras',  icon: Store,           roles: ['admin'] },
+  { href: '/dashboard/assinatura',      label: 'Assinatura',       icon: CreditCard,      roles: null },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -30,13 +31,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (!isAuthenticated) {
         router.push('/auth/login');
       } else if (user?.role === 'cliente') {
-        // Clientes não têm dashboard — vão para favoritos
         router.push('/favoritos');
       }
     }
   }, [loading, isAuthenticated, user, router]);
 
-  // Fecha sidebar ao navegar
   useEffect(() => { setSidebarAberto(false); }, [pathname]);
 
   if (loading) {
@@ -46,6 +45,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
     );
   }
+
+  const itemsVisiveis = navItems.filter(
+    (item) => item.roles === null || (user?.role && item.roles.includes(user.role)),
+  );
 
   const SidebarContent = () => (
     <>
@@ -68,7 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {itemsVisiveis.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
           return (
             <Link
@@ -112,21 +115,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-
-      {/* Sidebar desktop — fixo, sempre visível */}
       <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col fixed h-full z-30">
         <SidebarContent />
       </aside>
 
-      {/* Overlay mobile */}
       {sidebarAberto && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
-          onClick={() => setSidebarAberto(false)}
-        />
+        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setSidebarAberto(false)} />
       )}
 
-      {/* Sidebar mobile — drawer lateral */}
       <aside className={cn(
         'fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 flex flex-col z-50 transition-transform duration-300 md:hidden',
         sidebarAberto ? 'translate-x-0' : '-translate-x-full',
@@ -134,15 +130,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SidebarContent />
       </aside>
 
-      {/* Área principal */}
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
-
-        {/* Topbar mobile */}
         <div className="md:hidden bg-white border-b border-gray-100 px-4 h-14 flex items-center justify-between sticky top-0 z-20">
-          <button
-            onClick={() => setSidebarAberto(true)}
-            className="p-2 -ml-2 text-gray-500 hover:text-gray-900"
-          >
+          <button onClick={() => setSidebarAberto(true)} className="p-2 -ml-2 text-gray-500 hover:text-gray-900">
             <Menu className="w-5 h-5" />
           </button>
           <Link href="/" className="flex items-center gap-2">

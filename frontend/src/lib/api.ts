@@ -15,9 +15,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
+    // Só redireciona para login se for o endpoint de verificação do token
     if (err.response?.status === 401 && typeof window !== 'undefined') {
-      Cookies.remove('token');
-      window.location.href = '/auth/login';
+      const url: string = err.config?.url ?? '';
+      if (url.includes('/auth/me') || url.includes('/auth/perfil')) {
+        Cookies.remove('token');
+        window.location.href = '/auth/login';
+      }
     }
     return Promise.reject(err);
   },
@@ -26,9 +30,13 @@ api.interceptors.response.use(
 export default api;
 
 export const authApi = {
-  login:    (data: { email: string; password: string }) => api.post('/auth/login', data),
-  register: (data: any) => api.post('/auth/register', data),
-  me:       () => api.get('/auth/me'),
+  login:          (data: { email: string; password: string }) => api.post('/auth/login', data),
+  register:       (data: any) => api.post('/auth/register', data),
+  me:             () => api.get('/auth/me'),
+  loginComGoogle: (credential: string) =>
+    api.post('/auth/google/token', { credential }),
+  loginComApple:  (idToken: string, user?: any) =>
+    api.post('/auth/apple/token', { id_token: idToken, user }),
 };
 
 export const construtoraApi = {
@@ -46,6 +54,7 @@ export const empreendimentosApi = {
   criar:         (data: any) => api.post('/empreendimentos', data),
   atualizar:     (id: string, data: any) => api.patch(`/empreendimentos/${id}`, data),
   publicar:      (id: string) => api.patch(`/empreendimentos/${id}/publicar`),
+  remover:       (id: string) => api.delete(`/empreendimentos/${id}`),
 };
 
 export const parceirosApi = {
@@ -68,14 +77,9 @@ export const leadsApi = {
 };
 
 export const billingApi = {
-  // Inicia checkout para assinar um plano — retorna { checkoutUrl }
   checkout: (plano: 'starter' | 'profissional' | 'enterprise') =>
     api.post<{ checkoutUrl: string }>('/billing/checkout', { plano }),
-
-  // Abre portal Stripe — retorna { portalUrl }
   portal: () => api.post<{ portalUrl: string }>('/billing/portal'),
-
-  // Status da assinatura atual
   status: () => api.get('/billing/status'),
 };
 
@@ -88,13 +92,15 @@ export const unidadesApi = {
     api.patch(`/unidades/${id}`, data),
   remover:   (id: string) =>
     api.delete(`/unidades/${id}`),
-  uploadFoto: (unidadeId: string, file: File) => {
-    const fd = new FormData();
-    fd.append('file', file);
-    return api.post(`/unidades/${unidadeId}/midias/upload-local`, fd, {
+  uploadFoto: async (unidadeId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post(`/unidades/${unidadeId}/midias/upload-proxy`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+  reordenarFotos: (unidadeId: string, ordens: { id: string; ordem: number }[]) =>
+    api.post(`/unidades/${unidadeId}/midias/reordenar`, { ordens }),
   removerFoto: (unidadeId: string, midiaId: string) =>
     api.delete(`/unidades/${unidadeId}/midias/${midiaId}`),
   listarPublico: (empreendimentoId: string) =>
@@ -104,16 +110,40 @@ export const unidadesApi = {
 export const midiasApi = {
   listar: (empreendimentoId: string) =>
     api.get(`/empreendimentos/${empreendimentoId}/midias`),
-
   gerarUrlUpload: (empreendimentoId: string, tipo: string, contentType: string) =>
     api.post(`/empreendimentos/${empreendimentoId}/midias/url-upload`, { tipo, contentType }),
-
   confirmar: (empreendimentoId: string, url: string, tipo: string, legenda?: string) =>
     api.post(`/empreendimentos/${empreendimentoId}/midias/confirmar`, { url, tipo, legenda }),
-
   reordenar: (empreendimentoId: string, ordens: { id: string; ordem: number }[]) =>
     api.post(`/empreendimentos/${empreendimentoId}/midias/reordenar`, { ordens }),
-
   remover: (empreendimentoId: string, midiaId: string) =>
     api.delete(`/empreendimentos/${empreendimentoId}/midias/${midiaId}`),
+};
+
+export const favoritosApi = {
+  listar:     () => api.get('/favoritos'),
+  listarIds:  () => api.get<string[]>('/favoritos/ids'),
+  adicionar:  (empreendimentoId: string) => api.post(`/favoritos/${empreendimentoId}`, {}),
+  remover:    (empreendimentoId: string) => api.delete(`/favoritos/${empreendimentoId}`),
+};
+
+export const lojasApi = {
+  listarPublico:   () => api.get('/lojas'),
+  categorias:      () => api.get('/lojas/categorias'),
+  buscarPorSlug:   (slug: string) => api.get(`/lojas/${slug}`),
+  listarAdmin:     () => api.get('/lojas/admin/todas'),
+  criar:           (dto: any) => api.post('/lojas', dto),
+  atualizar:       (id: string, dto: any) => api.patch(`/lojas/${id}`, dto),
+  remover:         (id: string) => api.delete(`/lojas/${id}`),
+  criarCategoria:  (dto: any) => api.post('/lojas/categorias', dto),
+  removerCategoria:(id: string) => api.delete(`/lojas/categorias/${id}`),
+  uploadLogo:      (id: string, file: File) => {
+    const fd = new FormData(); fd.append('file', file);
+    return api.post(`/lojas/${id}/logo`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
+  uploadFoto:      (id: string, file: File) => {
+    const fd = new FormData(); fd.append('file', file);
+    return api.post(`/lojas/${id}/midias`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
+  removerFoto:     (id: string, midiaId: string) => api.delete(`/lojas/${id}/midias/${midiaId}`),
 };

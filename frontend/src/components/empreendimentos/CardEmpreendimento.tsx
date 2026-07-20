@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toggleFavorito, useEhFavorito } from '@/lib/favoritos';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -59,8 +60,8 @@ interface Props {
 }
 
 export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
-  const [favorito, setFavorito] = useState(false);
   const [hover, setHover] = useState(false);
+  const favorito = useEhFavorito(emp.id);
 
   const s = STATUS_LABEL[emp.status] ?? STATUS_LABEL.lancamento;
   const motivos = getMotivos(emp.id);
@@ -141,7 +142,7 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
 
           {/* Favorito */}
           <button
-            onClick={(e) => { e.preventDefault(); setFavorito(f => !f); }}
+            onClick={(e) => { e.preventDefault(); toggleFavorito(emp); }}
             style={{
               position: 'absolute', top: 10, right: 10,
               width: 32, height: 32, borderRadius: '50%',

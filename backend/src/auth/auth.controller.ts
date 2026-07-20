@@ -26,4 +26,10 @@ export class AuthController {
   perfil(@Request() req: any) {
     return this.authService.perfil(req.user.sub);
   }
+
+  // POST /api/v1/auth/google/token
+  @Post('google/token')
+  loginComGoogle(@Body() body: { credential: string }) {
+    return this.authService.loginComGoogle(body.credential);
+  }
 }
