@@ -17,7 +17,7 @@ import {
   ChevronDown, LogIn, UserPlus, Send,
   SlidersHorizontal, Home, Rocket, X, Users,
   BarChart2, Scale, Calculator, Info,
-  LogOut, LayoutDashboard, Bell, Handshake,
+  LogOut, LayoutDashboard, Bell, Handshake, Menu,
 } from 'lucide-react';
 
 const MapaEmpreendimentos = dynamic(
@@ -69,6 +69,8 @@ const NAV_LINKS = [
 export default function HomePage() {
   const { user, isAuthenticated, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const [empreendimentos, setEmpreendimentos] = useState<Empreendimento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -475,14 +477,54 @@ export default function HomePage() {
       {/* ══ MOBILE HEADER (apenas mobile) ══ */}
       <div className="md:hidden sticky top-0 z-50 bg-white" style={{ boxShadow: '0 1px 0 #E5E7EB' }}>
         {/* Linha logo + entrar */}
-        <div className="flex items-center justify-between px-4 pt-3 pb-2">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="SóConstrutoras" width={34} height={34} className="object-contain" priority />
+        <div className="flex items-center justify-between px-4 pt-3 pb-2 relative">
+
+          {/* Hamburguer esquerda */}
+          <div ref={menuRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: '#F0FAF7', color: '#0E8F6E' }}
+              aria-label="Menu"
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            {menuOpen && (
+              <div style={{
+                position: 'absolute', left: 0, top: 44, width: 210,
+                background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                border: '1px solid #E5E7EB', padding: '6px 0', zIndex: 9999,
+              }}>
+                {NAV_LINKS.map(({ href, label, icon: Icon }) => (
+                  <Link
+                    key={label}
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '11px 16px', fontSize: 14, color: '#1F2937',
+                      textDecoration: 'none', transition: 'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#F0FAF7')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <Icon style={{ width: 16, height: 16, color: '#0E8F6E', flexShrink: 0 }} />
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Logo centralizada */}
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+            <Image src="/logo.png" alt="SóConstrutoras" width={30} height={30} className="object-contain" priority />
             <div className="leading-tight">
               <span className="block font-extrabold text-[12px]" style={{ color: '#04241D' }}>SÓCONSTRUTORAS</span>
               <span className="block text-[9px]" style={{ color: '#9CA3AF' }}>Portal das Construtoras</span>
             </div>
           </Link>
+
+          {/* Ação direita */}
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
               <button
