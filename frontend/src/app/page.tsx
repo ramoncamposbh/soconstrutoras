@@ -740,19 +740,28 @@ export default function HomePage() {
 
             {/* Botões de ação */}
             <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={startVoiceSearch}
-                disabled={isListening}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
-                style={{
-                  background: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.08)',
-                  borderColor: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.18)',
-                  color: '#bbf7d0',
-                  animation: isListening ? 'pulse 1s infinite' : 'none',
-                }}>
-                <Mic className="w-3.5 h-3.5" />
-                {isListening ? 'Ouvindo...' : 'Falar'}
-              </button>
+              {isIOSDevice ? (
+                <span
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border"
+                  style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)', color: 'rgba(187,247,208,0.35)' }}>
+                  <Mic className="w-3.5 h-3.5" />
+                  Use 🎤 do teclado
+                </span>
+              ) : (
+                <button
+                  onClick={startVoiceSearch}
+                  disabled={isListening}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
+                  style={{
+                    background: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.08)',
+                    borderColor: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.18)',
+                    color: '#bbf7d0',
+                    animation: isListening ? 'pulse 1s infinite' : 'none',
+                  }}>
+                  <Mic className="w-3.5 h-3.5" />
+                  {isListening ? 'Ouvindo...' : 'Falar'}
+                </button>
+              )}
               <button
                 onClick={() => {
                   if (!navigator.geolocation) { toast.error('Geolocalização não disponível.'); return; }
