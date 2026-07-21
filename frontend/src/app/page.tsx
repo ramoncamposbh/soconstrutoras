@@ -130,25 +130,40 @@ export default function HomePage() {
       recorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
         setIsListening(false);
+        // Pequeno delay: iOS às vezes dispara onstop antes do último ondataavailable
+        await new Promise(r => setTimeout(r, 300));
         const blob = new Blob(audioChunksRef.current, { type: mimeType });
+        console.log('[Speech iOS] chunks:', audioChunksRef.current.length, 'blob.size:', blob.size, 'mime:', mimeType);
+        if (blob.size === 0) {
+          toast.error('Nenhum áudio capturado. Segure o botão e fale.');
+          return;
+        }
         const tid = toast.loading('🔄 Transcrevendo...');
         try {
           const fd = new FormData();
           fd.append('audio', blob, mimeType.includes('webm') ? 'audio.webm' : 'audio.mp4');
           const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'https://soconstrutoras-production.up.railway.app/api/v1';
-          const res = await fetch(`${apiBase}/speech/transcribe`, { method: 'POST', body: fd });
-          if (!res.ok) throw new Error('Erro na transcrição');
+          const url = `${apiBase}/speech/transcribe`;
+          console.log('[Speech iOS] POST', url, 'blob:', blob.size, 'bytes');
+          const res = await fetch(url, { method: 'POST', body: fd });
+          console.log('[Speech iOS] status:', res.status);
+          if (!res.ok) {
+            const errText = await res.text();
+            console.error('[Speech iOS] backend error:', errText);
+            throw new Error(`HTTP ${res.status}`);
+          }
           const { text } = await res.json();
           toast.dismiss(tid);
           if (text) { setAiText(text); toast.success('✓ Pronto!'); setTimeout(() => handleAiSearch(), 400); }
           else toast.error('Não foi possível entender. Tente novamente.');
-        } catch {
+        } catch (err: any) {
           toast.dismiss(tid);
-          toast.error('Erro ao transcrever. Tente novamente.');
+          console.error('[Speech iOS] catch:', err?.name, err?.message);
+          toast.error(`Erro: ${err?.message || err?.name || 'desconhecido'}`);
         }
       };
 
-      recorder.start();
+      recorder.start(250); // timeslice: iOS precisa para coletar dados parciais
       setIsListening(true);
       toast('🎤 Gravando... toque em Parar para enviar', { duration: 20000 });
       setTimeout(() => { if (mediaRecRef.current?.state === 'recording') mediaRecRef.current.stop(); }, 30000);
