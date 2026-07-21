@@ -259,7 +259,14 @@ export default function HomePage() {
     regiaoLabel: string | null;
     bairrosRegiao: string[];
   } => {
-    const t = normalizarTexto(texto);
+    // Converte números por extenso (PT-BR) para algarismos antes de normalizar
+    const textoNorm = texto
+      .replace(/\bum\b/gi, '1').replace(/\bdois\b/gi, '2')
+      .replace(/\btr[eê]s\b/gi, '3').replace(/\bquatro\b/gi, '4')
+      .replace(/\bcinco\b/gi, '5').replace(/\bseis\b/gi, '6')
+      .replace(/\bsete\b/gi, '7').replace(/\boito\b/gi, '8')
+      .replace(/\bnove\b/gi, '9').replace(/\bdez\b/gi, '10');
+    const t = normalizarTexto(textoNorm);
     const filtros: Record<string, any> = {};
     let regiaoKey: string | null = null;
     let regiaoLabel: string | null = null;
