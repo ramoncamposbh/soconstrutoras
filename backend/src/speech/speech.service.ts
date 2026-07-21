@@ -1,5 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as https from 'https';
+import * as fs from 'fs';
 
 @Injectable()
 export class SpeechService {
@@ -7,19 +8,35 @@ export class SpeechService {
   private callWhisper(apiKey: string, buffer: Buffer, mimeType: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const boundary = 'WhisperBoundary' + Date.now().toString();
-      const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+      const ext = mimeType.includes('mp4') || mimeType.includes('m4a') ? 'm4a' : 'webm';
 
       const head1 = Buffer.from(
-        `--${boundary}\r\nContent-Disposition: form-data; name="model"\r\n\r\nwhisper-1\r\n`
+        `--${boundary}
+Content-Disposition: form-data; name="model"
+
+whisper-1
+`
       );
       const head2 = Buffer.from(
-        `--${boundary}\r\nContent-Disposition: form-data; name="language"\r\n\r\npt\r\n`
+        `--${boundary}
+Content-Disposition: form-data; name="language"
+
+pt
+`
       );
       const head3 = Buffer.from(
-        `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="audio.${ext}"\r\nContent-Type: ${mimeType}\r\n\r\n`
+        `--${boundary}
+Content-Disposition: form-data; name="file"; filename="audio.${ext}"
+Content-Type: ${mimeType}
+
+`
       );
-      const tail = Buffer.from(`\r\n--${boundary}--\r\n`);
+      const tail = Buffer.from(`
+--${boundary}--
+`);
       const body = Buffer.concat([head1, head2, head3, buffer, tail]);
+
+      console.log(`[Speech] callWhisper ext=${ext} mime=${mimeType} bufferBytes=${buffer.length} bodyBytes=${body.length}`);
 
       const req = https.request(
         {
@@ -37,6 +54,7 @@ export class SpeechService {
           res.on('data', (c: Buffer) => chunks.push(c));
           res.on('end', () => {
             const raw = Buffer.concat(chunks).toString('utf8');
+            console.log(`[Speech] Whisper status=${res.statusCode} body=${raw.substring(0, 300)}`);
             if (res.statusCode !== 200) {
               return reject(new Error(`Whisper ${res.statusCode}: ${raw}`));
             }
@@ -61,15 +79,28 @@ export class SpeechService {
     if (!apiKey) {
       throw new HttpException('OPENAI_API_KEY nao configurada', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // Suporte a memoryStorage (buffer) e diskStorage (path)
+    let buffer: Buffer;
+    if (file.buffer && file.buffer.length > 0) {
+      buffer = file.buffer as Buffer;
+    } else if (file.path) {
+      console.log(`[Speech] Lendo arquivo do disco: ${file.path}`);
+      buffer = fs.readFileSync(file.path as string);
+      try { fs.unlinkSync(file.path as string); } catch { /* ok */ }
+    } else {
+      throw new HttpException('Buffer de audio vazio', HttpStatus.BAD_REQUEST);
+    }
+
     try {
       const text = await this.callWhisper(
         apiKey,
-        file.buffer as Buffer,
-        (file.mimetype as string) || 'audio/webm',
+        buffer,
+        (file.mimetype as string) || 'audio/mp4',
       );
       return { text };
     } catch (err: any) {
-      console.error('[Speech]', err?.message);
+      console.error('[Speech] Erro:', err?.message);
       throw new HttpException('Erro ao transcrever audio', HttpStatus.BAD_GATEWAY);
     }
   }
