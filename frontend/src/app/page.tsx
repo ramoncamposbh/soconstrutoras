@@ -72,24 +72,21 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Detecta iOS no cliente (SSR-safe)
+  useEffect(() => {
+    setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
+  }, []);
 
   const startVoiceSearch = () => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (isIOS || !SR) {
-      // iOS Safari não suporta Web Speech API.
-      // Abre o teclado e exibe instrução inline (não como toast, para não confundir).
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        textareaRef.current.placeholder = 'Toque em 🎤 no canto inferior direito do teclado e fale...';
-        setTimeout(() => {
-          if (textareaRef.current)
-            textareaRef.current.placeholder = 'Conte como é o imóvel que você procura...';
-        }, 8000);
-      }
+      // iOS Safari não suporta Web Speech API — botão escondido no iOS, não chega aqui.
       return;
     }
 
@@ -150,25 +147,6 @@ export default function HomePage() {
 
   useEffect(() => { buscar(); }, [buscar]);
 
-  // Listener nativo para capturar ditado iOS (bypass do sistema sintético do React)
-  useEffect(() => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const sync = () => {
-      // Força sincronização do valor DOM → estado React
-      const nativeInput = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value');
-      if (nativeInput && nativeInput.get) {
-        const val = nativeInput.get.call(ta);
-        setAiText(val);
-      }
-    };
-    ta.addEventListener('input', sync);
-    ta.addEventListener('compositionend', sync);
-    return () => {
-      ta.removeEventListener('input', sync);
-      ta.removeEventListener('compositionend', sync);
-    };
-  }, []);
 
   /** Mapa de regiões de BH → bairros que pertencem a cada uma */
   const REGIOES_BH: Record<string, { label: string; bairros: string[] }> = {
