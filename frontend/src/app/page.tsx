@@ -81,18 +81,15 @@ export default function HomePage() {
 
     if (isIOS || !SR) {
       // iOS Safari não suporta Web Speech API.
-      // NÃO abrimos o teclado — apenas instruímos o usuário a tocar no campo e usar o 🎤 do teclado.
-      toast(
-        (t) => (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontWeight: 700, fontSize: 14 }}>🎤 Voz no iPhone</span>
-            <span style={{ fontSize: 13, color: '#555' }}>
-              Toque no campo de texto e depois no ícone do microfone no canto inferior direito do teclado.
-            </span>
-          </div>
-        ),
-        { duration: 6000 }
-      );
+      // Abre o teclado e exibe instrução inline (não como toast, para não confundir).
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.placeholder = 'Toque em 🎤 no canto inferior direito do teclado e fale...';
+        setTimeout(() => {
+          if (textareaRef.current)
+            textareaRef.current.placeholder = 'Conte como é o imóvel que você procura...';
+        }, 8000);
+      }
       return;
     }
 
@@ -152,6 +149,26 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => { buscar(); }, [buscar]);
+
+  // Listener nativo para capturar ditado iOS (bypass do sistema sintético do React)
+  useEffect(() => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const sync = () => {
+      // Força sincronização do valor DOM → estado React
+      const nativeInput = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value');
+      if (nativeInput && nativeInput.get) {
+        const val = nativeInput.get.call(ta);
+        setAiText(val);
+      }
+    };
+    ta.addEventListener('input', sync);
+    ta.addEventListener('compositionend', sync);
+    return () => {
+      ta.removeEventListener('input', sync);
+      ta.removeEventListener('compositionend', sync);
+    };
+  }, []);
 
   /** Mapa de regiões de BH → bairros que pertencem a cada uma */
   const REGIOES_BH: Record<string, { label: string; bairros: string[] }> = {
@@ -723,6 +740,7 @@ export default function HomePage() {
                   ref={textareaRef}
                   value={aiText}
                   onChange={(e) => setAiText(e.target.value)}
+                  onInput={(e) => setAiText((e.target as HTMLTextAreaElement).value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiSearch(); }
                   }}
