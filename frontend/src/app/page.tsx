@@ -74,44 +74,88 @@ export default function HomePage() {
   const [isListening, setIsListening] = useState(false);
   const [isIOSDevice, setIsIOSDevice] = useState(false);
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef    = useRef<HTMLTextAreaElement>(null);
+  const mediaRecRef    = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<BlobPart[]>([]);
 
   // Detecta iOS no cliente (SSR-safe)
   useEffect(() => {
     setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
   }, []);
 
-  const startVoiceSearch = () => {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (isIOS || !SR) {
-      // iOS Safari não suporta Web Speech API — botão escondido no iOS, não chega aqui.
+  const startVoiceSearch = async () => {
+    // Se MediaRecorder estiver gravando, para e transcreve
+    if (mediaRecRef.current && mediaRecRef.current.state === 'recording') {
+      mediaRecRef.current.stop();
       return;
     }
 
-    const recognition = new SR();
-    recognition.lang = 'pt-BR';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    setIsListening(true);
-    toast('🎤 Fale agora...', { duration: 3000 });
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setAiText(transcript);
-      setIsListening(false);
-      setTimeout(() => handleAiSearch(), 400);
-    };
-    recognition.onerror = (e: any) => {
-      setIsListening(false);
-      if (e.error === 'not-allowed') {
-        toast.error('Permita o acesso ao microfone nas configurações.');
-      } else {
-        toast.error('Não foi possível reconhecer. Tente novamente.');
-      }
-    };
-    recognition.onend = () => setIsListening(false);
-    recognition.start();
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
+    // Chrome desktop / Android: Web Speech API (tempo real)
+    if (!isIOS && SR) {
+      const recognition = new SR();
+      recognition.lang = 'pt-BR';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      setIsListening(true);
+      toast('🎤 Fale agora...', { duration: 3000 });
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setAiText(transcript);
+        setIsListening(false);
+        setTimeout(() => handleAiSearch(), 400);
+      };
+      recognition.onerror = (e: any) => {
+        setIsListening(false);
+        if (e.error === 'not-allowed') toast.error('Permita o acesso ao microfone nas configurações.');
+        else toast.error('Não foi possível reconhecer. Tente novamente.');
+      };
+      recognition.onend = () => setIsListening(false);
+      recognition.start();
+      return;
+    }
+
+    // iOS / outros: MediaRecorder + Whisper
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+      const recorder = new MediaRecorder(stream, { mimeType });
+      mediaRecRef.current = recorder;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        setIsListening(false);
+        const blob = new Blob(audioChunksRef.current, { type: mimeType });
+        const tid = toast.loading('🔄 Transcrevendo...');
+        try {
+          const fd = new FormData();
+          fd.append('audio', blob, mimeType.includes('webm') ? 'audio.webm' : 'audio.mp4');
+          const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'https://soconstrutoras-production.up.railway.app/api/v1';
+          const res = await fetch(`${apiBase}/speech/transcribe`, { method: 'POST', body: fd });
+          if (!res.ok) throw new Error('Erro na transcrição');
+          const { text } = await res.json();
+          toast.dismiss(tid);
+          if (text) { setAiText(text); toast.success('✓ Pronto!'); setTimeout(() => handleAiSearch(), 400); }
+          else toast.error('Não foi possível entender. Tente novamente.');
+        } catch {
+          toast.dismiss(tid);
+          toast.error('Erro ao transcrever. Tente novamente.');
+        }
+      };
+
+      recorder.start();
+      setIsListening(true);
+      toast('🎤 Gravando... toque em Parar para enviar', { duration: 20000 });
+      setTimeout(() => { if (mediaRecRef.current?.state === 'recording') mediaRecRef.current.stop(); }, 30000);
+    } catch (err: any) {
+      if (err?.name === 'NotAllowedError') toast.error('Permita o acesso ao microfone nas configurações.');
+      else toast.error('Microfone não disponível neste dispositivo.');
+    }
   };
 
   const [empreendimentos, setEmpreendimentos] = useState<Empreendimento[]>([]);
@@ -740,28 +784,18 @@ export default function HomePage() {
 
             {/* Botões de ação */}
             <div className="flex gap-2 flex-wrap">
-              {isIOSDevice ? (
-                <span
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border"
-                  style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)', color: 'rgba(187,247,208,0.35)' }}>
-                  <Mic className="w-3.5 h-3.5" />
-                  Use 🎤 do teclado
-                </span>
-              ) : (
-                <button
-                  onClick={startVoiceSearch}
-                  disabled={isListening}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
-                  style={{
-                    background: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.08)',
-                    borderColor: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.18)',
-                    color: '#bbf7d0',
-                    animation: isListening ? 'pulse 1s infinite' : 'none',
-                  }}>
-                  <Mic className="w-3.5 h-3.5" />
-                  {isListening ? 'Ouvindo...' : 'Falar'}
-                </button>
-              )}
+              <button
+                onClick={startVoiceSearch}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
+                style={{
+                  background: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.08)',
+                  borderColor: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.18)',
+                  color: '#bbf7d0',
+                  animation: isListening ? 'pulse 1s infinite' : 'none',
+                }}>
+                <Mic className="w-3.5 h-3.5" />
+                {isListening ? 'Parar 🔴' : 'Falar'}
+              </button>
               <button
                 onClick={() => {
                   if (!navigator.geolocation) { toast.error('Geolocalização não disponível.'); return; }

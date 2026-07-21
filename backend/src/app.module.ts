@@ -15,6 +15,7 @@ import { UnidadesModule } from './unidades/unidades.module';
 import { FavoritosModule } from './favoritos/favoritos.module';
 import { StorageModule } from './storage/storage.module';
 import { LojasModule } from './lojas/lojas.module';
+import { SpeechModule } from './speech/speech.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LojasModule } from './lojas/lojas.module';
     UnidadesModule,
     FavoritosModule,
     LojasModule,
+    SpeechModule,
   ],
 })
 export class AppModule {}
