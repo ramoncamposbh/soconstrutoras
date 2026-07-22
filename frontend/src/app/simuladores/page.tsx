@@ -25,11 +25,16 @@ interface SimulacaoResultado {
 const parseBRL = (s: string) =>
   parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
 
-/** Formata enquanto digita: "18000" → "18.000" */
+/** Formata enquanto digita: "18000" → "18.000"
+ *  Ignora vírgula e centavos (ex: "15.000,00" → "15.000")
+ *  Limita a 9 dígitos (até R$ 999.999.999) */
 function maskBRL(raw: string): string {
-  const digits = raw.replace(/\D/g, '');
+  // Para na vírgula — descarta centavos que o usuário possa digitar
+  const semCentavos = raw.split(',')[0];
+  const digits = semCentavos.replace(/\D/g, '');
   if (!digits) return '';
-  return parseInt(digits, 10).toLocaleString('pt-BR');
+  const limited = digits.slice(0, 9); // máx 9 dígitos
+  return parseInt(limited, 10).toLocaleString('pt-BR');
 }
 
 /** Exibe resultado: 18000 → "R$ 18.000" */
@@ -44,11 +49,12 @@ const STEPS = ['Renda', 'Entrada', 'Perfil', 'Contato'];
 
 // ── Input de moeda reutilizável ───────────────────────────────────────────────
 function MoneyInput({
-  label, value, onChange, placeholder = 'R$ 0', hint, required,
+  label, value, onChange, placeholder = '0', hint, required,
 }: {
   label: string; value: string; onChange: (v: string) => void;
   placeholder?: string; hint?: string; required?: boolean;
 }) {
+  const numerico = parseBRL(value);
   return (
     <label className="block">
       <span className="text-sm font-semibold text-gray-700">
@@ -68,7 +74,13 @@ function MoneyInput({
                      focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-colors"
         />
       </div>
-      {hint && <p className="text-xs text-gray-400 mt-1">{hint}</p>}
+      {/* Confirmação do valor em verde */}
+      {numerico > 0 && (
+        <p className="text-xs text-primary-700 font-semibold mt-1">
+          ✓ {fmt(numerico)}
+        </p>
+      )}
+      {hint && <p className="text-xs text-gray-400 mt-0.5">{hint}</p>}
     </label>
   );
 }
