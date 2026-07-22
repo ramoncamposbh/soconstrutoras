@@ -13,7 +13,7 @@ const MENU_LINKS = [
   { href: '/',          label: 'Lançamentos',    icon: Home },
   { href: '/parceiros', label: 'Parceiros',       icon: HandshakeIcon },
   { href: '/favoritos', label: 'Favoritos',       icon: Heart },
-  { href: '/',          label: 'Simuladores',     icon: Calculator },
+  { href: '/simuladores', label: 'Simuladores',     icon: Calculator },
 ];
 
 export default function Header() {

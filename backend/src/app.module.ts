@@ -16,6 +16,7 @@ import { FavoritosModule } from './favoritos/favoritos.module';
 import { StorageModule } from './storage/storage.module';
 import { LojasModule } from './lojas/lojas.module';
 import { SpeechModule } from './speech/speech.module';
+import { SimuladorModule } from './simulador/simulador.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SpeechModule } from './speech/speech.module';
     FavoritosModule,
     LojasModule,
     SpeechModule,
+    SimuladorModule,
   ],
 })
 export class AppModule {}

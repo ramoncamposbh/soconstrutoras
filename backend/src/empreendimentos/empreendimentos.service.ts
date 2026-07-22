@@ -70,7 +70,7 @@ export class EmpreendimentosService {
       params.push(filtros.estado.toUpperCase());
     }
     if (filtros.tipo) {
-      conditions.push(`LOWER(e.tipo) = LOWER($${i++})`);
+      conditions.push(`e.tipo = $${i++}`);
       params.push(filtros.tipo);
     }
     if (filtros.preco_min) {
@@ -82,7 +82,7 @@ export class EmpreendimentosService {
       params.push(filtros.preco_max);
     }
     if (filtros.quartos_min) {
-      conditions.push(`COALESCE(e.quartos_max, e.quartos_min, 0) >= $${i++}`);
+      conditions.push(`e.quartos_max >= $${i++}`);
       params.push(filtros.quartos_min);
     }
     if (filtros.vagas) {

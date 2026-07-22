@@ -130,40 +130,25 @@ export default function HomePage() {
       recorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
         setIsListening(false);
-        // Pequeno delay: iOS às vezes dispara onstop antes do último ondataavailable
-        await new Promise(r => setTimeout(r, 300));
         const blob = new Blob(audioChunksRef.current, { type: mimeType });
-        console.log('[Speech iOS] chunks:', audioChunksRef.current.length, 'blob.size:', blob.size, 'mime:', mimeType);
-        if (blob.size === 0) {
-          toast.error('Nenhum áudio capturado. Segure o botão e fale.');
-          return;
-        }
         const tid = toast.loading('🔄 Transcrevendo...');
         try {
           const fd = new FormData();
           fd.append('audio', blob, mimeType.includes('webm') ? 'audio.webm' : 'audio.mp4');
           const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'https://soconstrutoras-production.up.railway.app/api/v1';
-          const url = `${apiBase}/speech/transcribe`;
-          console.log('[Speech iOS] POST', url, 'blob:', blob.size, 'bytes');
-          const res = await fetch(url, { method: 'POST', body: fd });
-          console.log('[Speech iOS] status:', res.status);
-          if (!res.ok) {
-            const errText = await res.text();
-            console.error('[Speech iOS] backend error:', errText);
-            throw new Error(`HTTP ${res.status}`);
-          }
+          const res = await fetch(`${apiBase}/speech/transcribe`, { method: 'POST', body: fd });
+          if (!res.ok) throw new Error('Erro na transcrição');
           const { text } = await res.json();
           toast.dismiss(tid);
           if (text) { setAiText(text); toast.success('✓ Pronto!'); setTimeout(() => handleAiSearch(), 400); }
           else toast.error('Não foi possível entender. Tente novamente.');
-        } catch (err: any) {
+        } catch {
           toast.dismiss(tid);
-          console.error('[Speech iOS] catch:', err?.name, err?.message);
-          toast.error(`Erro: ${err?.message || err?.name || 'desconhecido'}`);
+          toast.error('Erro ao transcrever. Tente novamente.');
         }
       };
 
-      recorder.start(250); // timeslice: iOS precisa para coletar dados parciais
+      recorder.start();
       setIsListening(true);
       toast('🎤 Gravando... toque em Parar para enviar', { duration: 20000 });
       setTimeout(() => { if (mediaRecRef.current?.state === 'recording') mediaRecRef.current.stop(); }, 30000);
@@ -259,14 +244,7 @@ export default function HomePage() {
     regiaoLabel: string | null;
     bairrosRegiao: string[];
   } => {
-    // Converte números por extenso (PT-BR) para algarismos antes de normalizar
-    const textoNorm = texto
-      .replace(/\bum\b/gi, '1').replace(/\bdois\b/gi, '2')
-      .replace(/\btr[eê]s\b/gi, '3').replace(/\bquatro\b/gi, '4')
-      .replace(/\bcinco\b/gi, '5').replace(/\bseis\b/gi, '6')
-      .replace(/\bsete\b/gi, '7').replace(/\boito\b/gi, '8')
-      .replace(/\bnove\b/gi, '9').replace(/\bdez\b/gi, '10');
-    const t = normalizarTexto(textoNorm);
+    const t = normalizarTexto(texto);
     const filtros: Record<string, any> = {};
     let regiaoKey: string | null = null;
     let regiaoLabel: string | null = null;
