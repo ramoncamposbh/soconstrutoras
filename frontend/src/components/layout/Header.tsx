@@ -166,6 +166,10 @@ export default function Header() {
             <Handshake className="w-4 h-4" />
             Parceiros
           </Link>
+          <Link href="/simuladores" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
+            <Calculator className="w-4 h-4" />
+            Simuladores
+          </Link>
           {renderNavAction()}
         </nav>
       </div>
