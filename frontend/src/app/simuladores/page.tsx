@@ -299,6 +299,7 @@ export default function SimuladoresPage() {
                   value={form.renda_liquida}
                   onChange={v => set('renda_liquida', v)}
                   placeholder="0"
+                  hint="Digite apenas números. Ex: 15000 para R$ 15.000"
                   required
                 />
                 <MoneyInput
@@ -306,14 +307,14 @@ export default function SimuladoresPage() {
                   value={form.renda_extra}
                   onChange={v => set('renda_extra', v)}
                   placeholder="0"
-                  hint="Aluguel, freela, pensão, 13º, etc."
+                  hint="Aluguel, freela, pensão, 13º, etc. Ex: 2000 para R$ 2.000"
                 />
                 <MoneyInput
                   label="Valor do imóvel que busca (opcional)"
                   value={form.valor_imovel_desejado}
                   onChange={v => set('valor_imovel_desejado', v)}
                   placeholder="0"
-                  hint="Deixe em branco para calcular o seu limite máximo"
+                  hint="Ex: 800000 para R$ 800.000. Deixe vazio para calcular seu limite."
                 />
               </>
             )}
@@ -330,6 +331,7 @@ export default function SimuladoresPage() {
                   value={form.entrada}
                   onChange={v => set('entrada', v)}
                   placeholder="0"
+                  hint="Ex: 200000 para R$ 200.000"
                   required
                 />
                 <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 space-y-3">
@@ -529,32 +531,55 @@ function ResultadoView({
             <TrendingUp className="w-4 h-4 text-white" />
             <span className="text-white font-bold text-sm">Sua capacidade de compra</span>
           </div>
-          <div className="p-5 divide-y divide-gray-50">
-            {[
-              ['Renda total considerada', fmt(resultado.renda_total)],
-              ['Prestação máxima (30% da renda)', `${fmt(resultado.pmt_max)}/mês`],
-              ['Valor máximo financiável', fmt(resultado.max_financiamento)],
-              ['Entrada disponível', fmt(resultado.entrada_total)],
-            ].map(([l, v]) => (
-              <div key={l} className="flex justify-between items-center py-2.5">
-                <span className="text-sm text-gray-500">{l}</span>
-                <span className="font-bold text-gray-900 text-sm">{v}</span>
-              </div>
-            ))}
-            <div className="flex justify-between items-center py-3 bg-primary-50 -mx-5 px-5 rounded-b-2xl">
-              <span className="font-bold text-gray-800">Poder de compra total</span>
-              <span className="text-xl font-black text-primary-600">{fmt(resultado.capacidade_total)}</span>
+          <div className="p-5">
+            {/* Linha renda + prestação */}
+            <div className="divide-y divide-gray-50 mb-4">
+              {[
+                ['Renda total considerada', fmt(resultado.renda_total)],
+                ['Prestação máxima (30% da renda)', `${fmt(resultado.pmt_max)}/mês`],
+              ].map(([l, v]) => (
+                <div key={l} className="flex justify-between items-center py-2.5">
+                  <span className="text-sm text-gray-500">{l}</span>
+                  <span className="font-bold text-gray-900 text-sm">{v}</span>
+                </div>
+              ))}
             </div>
-          </div>
 
-          {resultado.prestacao_estimada && parseBRL(form.valor_imovel_desejado as string) > 0 && (
-            <div className="mx-5 mb-5 bg-amber-50 border border-amber-200 rounded-xl p-3">
-              <p className="text-sm text-amber-800">
-                Para o imóvel de <strong>{fmt(parseBRL(form.valor_imovel_desejado as string))}</strong>,
-                a prestação estimada é <strong>{fmt(resultado.prestacao_estimada)}/mês</strong> pela Caixa em {resultado.prazo_anos} anos.
-              </p>
+            {/* Fórmula visual: banco + entrada = total */}
+            <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Como é calculado seu poder de compra</p>
+
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
+                  <span className="text-sm text-gray-600">O banco financia até</span>
+                </div>
+                <span className="font-bold text-gray-900">{fmt(resultado.max_financiamento)}</span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary-300" />
+                  <span className="text-sm text-gray-600">+ Sua entrada</span>
+                </div>
+                <span className="font-bold text-gray-900">{fmt(resultado.entrada_total)}</span>
+              </div>
+
+              <div className="border-t-2 border-primary-200 pt-3 flex justify-between items-center">
+                <span className="font-bold text-gray-800">= Valor do imóvel que pode comprar</span>
+                <span className="text-xl font-black text-primary-600">{fmt(resultado.capacidade_total)}</span>
+              </div>
             </div>
-          )}
+
+            {resultado.prestacao_estimada && parseBRL(form.valor_imovel_desejado as string) > 0 && (
+              <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                <p className="text-sm text-amber-800">
+                  Para o imóvel de <strong>{fmt(parseBRL(form.valor_imovel_desejado as string))}</strong>,
+                  a prestação estimada é <strong>{fmt(resultado.prestacao_estimada)}/mês</strong> pela Caixa em {resultado.prazo_anos} anos.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bancos */}
