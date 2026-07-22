@@ -253,18 +253,25 @@ export default function SimuladoresPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ── Hero verde ────────────────────────────────────────────────────── */}
-      <div className="bg-primary-700 text-white py-8 px-4">
+      <div className="text-white py-8 px-4" style={{ background: '#04241D' }}>
         <div className="max-w-lg mx-auto">
-          <Link href="/" className="inline-flex items-center gap-1.5 text-primary-200 hover:text-white text-sm mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Voltar ao início
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80" style={{ color: '#4ade80' }}>
+              <ArrowLeft className="w-4 h-4" /> Voltar ao início
+            </Link>
+            <Link href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+              style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
+              <Home className="w-3.5 h-3.5" /> Tela Inicial
+            </Link>
+          </div>
           <div className="flex items-center gap-3">
-            <div className="bg-primary-600 rounded-xl p-2.5">
-              <Calculator className="w-6 h-6" />
+            <div className="rounded-xl p-2.5" style={{ background: 'rgba(74,222,128,0.15)' }}>
+              <Calculator className="w-6 h-6" style={{ color: '#4ade80' }} />
             </div>
             <div>
               <h1 className="text-xl font-bold">Simulador Imobiliário</h1>
-              <p className="text-primary-200 text-sm">Descubra seu poder de compra em segundos</p>
+              <p className="text-sm" style={{ color: '#86efac' }}>Descubra seu poder de compra em segundos</p>
             </div>
           </div>
         </div>
@@ -513,12 +520,20 @@ function ResultadoView({
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       {/* Hero resultado */}
-      <div className="bg-primary-700 text-white pt-6 pb-14 px-4">
+      <div className="text-white pt-6 pb-14 px-4" style={{ background: '#04241D' }}>
         <div className="max-w-lg mx-auto">
-          <button onClick={onVoltar}
-            className="inline-flex items-center gap-1.5 text-primary-200 hover:text-white text-sm mb-5 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Corrigir informações
-          </button>
+          <div className="flex items-center justify-between mb-5">
+            <button onClick={onVoltar}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80"
+              style={{ color: '#4ade80' }}>
+              <ArrowLeft className="w-4 h-4" /> Corrigir informações
+            </button>
+            <Link href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+              style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
+              <Home className="w-3.5 h-3.5" /> Tela Inicial
+            </Link>
+          </div>
           <div className="text-center">
             <p className="text-primary-200 text-sm mb-1">Seu Score Imobiliário</p>
             <div className="relative inline-block">
@@ -539,8 +554,8 @@ function ResultadoView({
       <div className="max-w-lg mx-auto px-4 -mt-8 space-y-4">
         {/* Card capacidade */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="bg-primary-600 px-5 py-3 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-white" />
+          <div className="px-5 py-3 flex items-center gap-2" style={{ background: '#04241D' }}>
+            <TrendingUp className="w-4 h-4" style={{ color: '#4ade80' }} />
             <span className="text-white font-bold text-sm">Sua capacidade de compra</span>
           </div>
           <div className="p-5">
@@ -596,8 +611,8 @@ function ResultadoView({
 
         {/* Bancos */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="bg-primary-600 px-5 py-3 flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-white" />
+          <div className="px-5 py-3 flex items-center gap-2" style={{ background: '#04241D' }}>
+            <Building2 className="w-4 h-4" style={{ color: '#4ade80' }} />
             <span className="text-white font-bold text-sm">Compatibilidade por banco</span>
           </div>
           <div className="p-4 space-y-3">
@@ -649,8 +664,10 @@ function ResultadoView({
 
         {/* Ações finais */}
         <Link href="/"
-          className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-2xl transition-colors">
-          <Home className="w-5 h-5" /> Ver imóveis no meu perfil
+          className="flex items-center justify-center gap-2 text-white font-bold py-4 rounded-2xl transition-colors hover:opacity-90"
+          style={{ background: '#04241D' }}>
+          <Home className="w-5 h-5" style={{ color: '#4ade80' }} />
+          <span>Ir para a Tela Inicial</span>
         </Link>
 
         <button onClick={onVoltar}
