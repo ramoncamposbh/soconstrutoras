@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Body, Param, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { ConstutorasService } from './construtoras.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -23,5 +23,28 @@ export class ConstutorasController {
   @Patch('perfil')
   atualizar(@Request() req: any, @Body() body: any) {
     return this.service.atualizar(req.user.sub, body);
+  }
+
+  // --- ROTAS ADMIN ---
+
+  // GET /api/v1/construtoras/admin/usuarios
+  @Get('admin/usuarios')
+  listarUsuarios(@Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.listarUsuarios();
+  }
+
+  // POST /api/v1/construtoras/admin/:id/reset-senha
+  @Post('admin/:id/reset-senha')
+  resetSenha(@Param('id') id: string, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.resetSenha(id);
+  }
+
+  // PATCH /api/v1/construtoras/admin/:id/toggle-ativo
+  @Patch('admin/:id/toggle-ativo')
+  toggleAtivo(@Param('id') id: string, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.toggleAtivo(id);
   }
 }

@@ -1,5 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { Pool } from 'pg';
+import * as bcrypt from 'bcrypt';
 import { PG_POOL } from '../database/database.module';
 
 @Injectable()
@@ -34,6 +35,50 @@ export class ConstutorasService {
       [userId, ...valores],
     );
     return c;
+  }
+
+  // ── ADMIN ──────────────────────────────────────────────────────────────────
+
+  async listarUsuarios() {
+    const { rows } = await this.pool.query(
+      `SELECT u.id, u.nome, u.email, u.created_at, u.ativo,
+              c.id AS construtora_id, c.nome_fantasia, c.logo_url,
+              p.nome AS plano_nome,
+              COUNT(DISTINCT e.id)::int AS total_empreendimentos,
+              COUNT(DISTINCT e.id) FILTER (WHERE e.publicado = TRUE)::int AS publicados
+       FROM users u
+       JOIN construtoras c ON c.user_id = u.id
+       LEFT JOIN planos p ON p.id = c.plano_id
+       LEFT JOIN empreendimentos e ON e.construtora_id = c.id
+       WHERE u.role = 'construtora'
+       GROUP BY u.id, c.id, c.nome_fantasia, c.logo_url, p.nome
+       ORDER BY u.created_at DESC`,
+    );
+    return rows;
+  }
+
+  async resetSenha(userId: string): Promise<{ nova_senha: string }> {
+    const alfa = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!';
+    const nova_senha = Array.from({ length: 10 }, () =>
+      alfa[Math.floor(Math.random() * alfa.length)],
+    ).join('');
+
+    const hash = await bcrypt.hash(nova_senha, 12);
+    const { rowCount } = await this.pool.query(
+      `UPDATE users SET password_hash = $1 WHERE id = $2 AND role = 'construtora'`,
+      [hash, userId],
+    );
+    if (!rowCount) throw new NotFoundException('Usuário não encontrado.');
+    return { nova_senha };
+  }
+
+  async toggleAtivo(userId: string): Promise<{ ativo: boolean }> {
+    const { rows: [u] } = await this.pool.query(
+      `UPDATE users SET ativo = NOT ativo WHERE id = $1 AND role = 'construtora' RETURNING ativo`,
+      [userId],
+    );
+    if (!u) throw new NotFoundException('Usuário não encontrado.');
+    return { ativo: u.ativo };
   }
 
   async dashboard(userId: string) {

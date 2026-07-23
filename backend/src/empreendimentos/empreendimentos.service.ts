@@ -70,7 +70,7 @@ export class EmpreendimentosService {
       params.push(filtros.estado.toUpperCase());
     }
     if (filtros.tipo) {
-      conditions.push(`e.tipo = $${i++}`);
+      conditions.push(`LOWER(e.tipo) = LOWER($${i++})`);
       params.push(filtros.tipo);
     }
     if (filtros.preco_min) {
@@ -82,7 +82,7 @@ export class EmpreendimentosService {
       params.push(filtros.preco_max);
     }
     if (filtros.quartos_min) {
-      conditions.push(`e.quartos_max >= $${i++}`);
+      conditions.push(`COALESCE(e.quartos_max, e.quartos_min, 0) >= $${i++}`);
       params.push(filtros.quartos_min);
     }
     if (filtros.vagas) {
@@ -168,5 +168,50 @@ export class EmpreendimentosService {
       [id, construtoraId],
     );
     if (!emp) throw new ForbiddenException('Empreendimento não encontrado ou sem permissão.');
+  }
+
+  // ── ADMIN ──────────────────────────────────────────────────────────────────
+
+  async listarTodas() {
+    const { rows } = await this.pool.query(
+      `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.publicado, e.publicado_em,
+              e.cidade, e.estado, e.preco_min, e.preco_max, e.created_at,
+              c.nome_fantasia AS construtora_nome, c.id AS construtora_id,
+              u.email AS construtora_email,
+              COUNT(DISTINCT l.id)::int AS total_leads,
+              COUNT(DISTINCT un.id)::int AS total_unidades,
+              (SELECT url FROM empreendimento_midias m
+               WHERE m.empreendimento_id = e.id AND m.tipo = 'foto'
+               ORDER BY m.ordem LIMIT 1) AS foto_capa
+       FROM empreendimentos e
+       JOIN construtoras c ON c.id = e.construtora_id
+       JOIN users u ON u.id = c.user_id
+       LEFT JOIN leads l ON l.empreendimento_id = e.id
+       LEFT JOIN unidades un ON un.empreendimento_id = e.id
+       GROUP BY e.id, c.nome_fantasia, c.id, u.email
+       ORDER BY e.created_at DESC`,
+    );
+    return rows;
+  }
+
+  async togglePublicado(id: string) {
+    const { rows: [emp] } = await this.pool.query(
+      `UPDATE empreendimentos
+       SET publicado    = NOT publicado,
+           publicado_em = CASE WHEN NOT publicado THEN NOW() ELSE publicado_em END
+       WHERE id = $1 RETURNING id, nome, publicado`,
+      [id],
+    );
+    if (!emp) throw new NotFoundException('Empreendimento não encontrado.');
+    return emp;
+  }
+
+  async deletarAdmin(id: string) {
+    const { rows: [emp] } = await this.pool.query(
+      'DELETE FROM empreendimentos WHERE id = $1 RETURNING id, nome',
+      [id],
+    );
+    if (!emp) throw new NotFoundException('Empreendimento não encontrado.');
+    return { deleted: true, ...emp };
   }
 }

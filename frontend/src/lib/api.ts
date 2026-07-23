@@ -147,3 +147,14 @@ export const lojasApi = {
   },
   removerFoto:     (id: string, midiaId: string) => api.delete(`/lojas/${id}/midias/${midiaId}`),
 };
+
+export const adminApi = {
+  // Empreendimentos
+  listarEmpreendimentos:  () => api.get('/empreendimentos/admin/todas'),
+  toggleEmpreendimento:   (id: string) => api.patch(`/empreendimentos/admin/${id}/toggle`),
+  deletarEmpreendimento:  (id: string) => api.delete(`/empreendimentos/admin/${id}`),
+  // Usuários construtora
+  listarUsuarios:         () => api.get('/construtoras/admin/usuarios'),
+  resetSenha:             (id: string) => api.post(`/construtoras/admin/${id}/reset-senha`, {}),
+  toggleAtivo:            (id: string) => api.patch(`/construtoras/admin/${id}/toggle-ativo`),
+};

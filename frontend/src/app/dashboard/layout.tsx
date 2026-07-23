@@ -7,10 +7,12 @@ import { useAuth } from '@/lib/auth';
 import Image from 'next/image';
 import {
   LayoutDashboard, Building2, Users, Bell, LogOut,
-  ChevronRight, Loader2, CreditCard, Menu, X, Store, Calculator,
+  ChevronRight, ChevronDown, Loader2, CreditCard, Menu, X, Store, Calculator,
+  HardHat, UserCog,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Itens simples
 const navItems = [
   { href: '/dashboard',                 label: 'Visão geral',      icon: LayoutDashboard, roles: null },
   { href: '/dashboard/empreendimentos', label: 'Empreendimentos',  icon: Building2,       roles: null },
@@ -21,11 +23,18 @@ const navItems = [
   { href: '/dashboard/assinatura',      label: 'Assinatura',       icon: CreditCard,      roles: null },
 ];
 
+// Sub-itens da seção Construtoras (só admin)
+const construtorasSubItems = [
+  { href: '/dashboard/construtoras/empreendimentos', label: 'Empreendimentos', icon: Building2 },
+  { href: '/dashboard/construtoras/usuarios',        label: 'Usuários',        icon: UserCog   },
+];
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout, isAuthenticated } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarAberto, setSidebarAberto] = useState(false);
+  const [construtorasAberto, setConstrutorasAberto] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -38,6 +47,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [loading, isAuthenticated, user, router]);
 
   useEffect(() => { setSidebarAberto(false); }, [pathname]);
+
+  // Abre automaticamente se estiver numa rota de Construtoras
+  useEffect(() => {
+    if (pathname.startsWith('/dashboard/construtoras')) setConstrutorasAberto(true);
+  }, [pathname]);
 
   if (loading) {
     return (
@@ -74,21 +88,72 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {itemsVisiveis.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+
+          // Após "Visão geral", injeta o grupo Construtoras (só para admin)
+          const isVisaoGeral = href === '/dashboard';
+          const injectConstrutoras = isVisaoGeral && user?.role === 'admin';
+
           return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                active
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+            <div key={href}>
+              <Link
+                href={href}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                  active
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                )}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                {label}
+                {active && <ChevronRight className="w-4 h-4 ml-auto" />}
+              </Link>
+
+              {/* ── Grupo Construtoras (admin only) ── */}
+              {injectConstrutoras && (
+                <div className="mt-1">
+                  <button
+                    onClick={() => setConstrutorasAberto(v => !v)}
+                    className={cn(
+                      'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                      pathname.startsWith('/dashboard/construtoras')
+                        ? 'bg-primary-50 text-primary-700'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                    )}
+                  >
+                    <HardHat className="w-4 h-4 shrink-0" />
+                    <span className="flex-1 text-left">Construtoras</span>
+                    {construtorasAberto
+                      ? <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                      : <ChevronRight className="w-3.5 h-3.5 opacity-60" />}
+                  </button>
+
+                  {construtorasAberto && (
+                    <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-primary-100 pl-3">
+                      {construtorasSubItems.map(({ href: sub, label: subLabel, icon: SubIcon }) => {
+                        const subActive = pathname.startsWith(sub);
+                        return (
+                          <Link
+                            key={sub}
+                            href={sub}
+                            className={cn(
+                              'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors',
+                              subActive
+                                ? 'bg-primary-50 text-primary-700'
+                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900',
+                            )}
+                          >
+                            <SubIcon className="w-3.5 h-3.5 shrink-0" />
+                            {subLabel}
+                            {subActive && <ChevronRight className="w-3.5 h-3.5 ml-auto" />}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               )}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              {label}
-              {active && <ChevronRight className="w-4 h-4 ml-auto" />}
-            </Link>
+            </div>
           );
         })}
       </nav>

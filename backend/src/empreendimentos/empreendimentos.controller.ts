@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { EmpreendimentosService } from './empreendimentos.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SubscriptionGuard } from '../common/guards/subscription.guard';
@@ -51,5 +51,31 @@ export class EmpreendimentosController {
   @Patch(':id/publicar')
   publicar(@Param('id') id: string, @Request() req: any) {
     return this.service.publicar(id, req.user.sub);
+  }
+
+  // --- ROTAS ADMIN ---
+
+  // GET /api/v1/empreendimentos/admin/todas
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/todas')
+  listarTodas(@Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.listarTodas();
+  }
+
+  // PATCH /api/v1/empreendimentos/admin/:id/toggle
+  @UseGuards(JwtAuthGuard)
+  @Patch('admin/:id/toggle')
+  togglePublicado(@Param('id') id: string, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.togglePublicado(id);
+  }
+
+  // DELETE /api/v1/empreendimentos/admin/:id
+  @UseGuards(JwtAuthGuard)
+  @Delete('admin/:id')
+  deletarAdmin(@Param('id') id: string, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.deletarAdmin(id);
   }
 }
