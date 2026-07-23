@@ -27,6 +27,13 @@ export class ConstutorasController {
 
   // --- ROTAS ADMIN ---
 
+  // GET /api/v1/construtoras/admin/lista
+  @Get('admin/lista')
+  listarAdmin(@Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.listarAdmin();
+  }
+
   // GET /api/v1/construtoras/admin/usuarios
   @Get('admin/usuarios')
   listarUsuarios(@Request() req: any) {

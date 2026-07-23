@@ -149,12 +149,18 @@ export const lojasApi = {
 };
 
 export const adminApi = {
+  // Construtoras
+  listarConstrutoras:          () => api.get('/construtoras/admin/lista'),
   // Empreendimentos
-  listarEmpreendimentos:  () => api.get('/empreendimentos/admin/todas'),
-  toggleEmpreendimento:   (id: string) => api.patch(`/empreendimentos/admin/${id}/toggle`),
-  deletarEmpreendimento:  (id: string) => api.delete(`/empreendimentos/admin/${id}`),
+  listarEmpreendimentos:       () => api.get('/empreendimentos/admin/todas'),
+  listarEmpsPorConstrutora:    (construtoraId: string) => api.get(`/empreendimentos/admin/construtora/${construtoraId}`),
+  toggleEmpreendimento:        (id: string) => api.patch(`/empreendimentos/admin/${id}/toggle`),
+  editarEmpreendimento:        (id: string, dto: any) => api.patch(`/empreendimentos/admin/${id}/editar`, dto),
+  deletarEmpreendimento:       (id: string) => api.delete(`/empreendimentos/admin/${id}`),
+  // Unidades
+  listarUnidades:              (empreendimentoId: string) => api.get(`/unidades/admin/${empreendimentoId}`),
   // Usuários construtora
-  listarUsuarios:         () => api.get('/construtoras/admin/usuarios'),
-  resetSenha:             (id: string) => api.post(`/construtoras/admin/${id}/reset-senha`, {}),
-  toggleAtivo:            (id: string) => api.patch(`/construtoras/admin/${id}/toggle-ativo`),
+  listarUsuarios:              () => api.get('/construtoras/admin/usuarios'),
+  resetSenha:                  (id: string) => api.post(`/construtoras/admin/${id}/reset-senha`, {}),
+  toggleAtivo:                 (id: string) => api.patch(`/construtoras/admin/${id}/toggle-ativo`),
 };

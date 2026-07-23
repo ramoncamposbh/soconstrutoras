@@ -63,6 +63,22 @@ export class EmpreendimentosController {
     return this.service.listarTodas();
   }
 
+  // GET /api/v1/empreendimentos/admin/construtora/:construtoraId
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/construtora/:construtoraId')
+  listarPorConstrutora(@Param('construtoraId') cid: string, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.listarPorConstrutora(cid);
+  }
+
+  // PATCH /api/v1/empreendimentos/admin/:id/editar
+  @UseGuards(JwtAuthGuard)
+  @Patch('admin/:id/editar')
+  editarAdmin(@Param('id') id: string, @Body() dto: any, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.editarAdmin(id, dto);
+  }
+
   // PATCH /api/v1/empreendimentos/admin/:id/toggle
   @UseGuards(JwtAuthGuard)
   @Patch('admin/:id/toggle')

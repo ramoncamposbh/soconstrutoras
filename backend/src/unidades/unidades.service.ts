@@ -93,6 +93,23 @@ export class UnidadesService {
     }));
   }
 
+  async listarAdmin(empreendimentoId: string) {
+    const { rows: unidades } = await this.pool.query(
+      `SELECT * FROM unidades WHERE empreendimento_id = $1 ORDER BY ordem, created_at`,
+      [empreendimentoId],
+    );
+    if (unidades.length === 0) return [];
+    const ids = unidades.map((u: any) => u.id);
+    const { rows: midias } = await this.pool.query(
+      `SELECT * FROM unidade_midias WHERE unidade_id = ANY($1) ORDER BY ordem, created_at`,
+      [ids],
+    );
+    return unidades.map((u: any) => ({
+      ...u,
+      midias: midias.filter((m: any) => m.unidade_id === u.id),
+    }));
+  }
+
   async criar(empreendimentoId: string, userId: string, dto: CriarUnidadeDto) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeEmpreendimento(empreendimentoId, construtoraId);

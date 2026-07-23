@@ -39,6 +39,26 @@ export class ConstutorasService {
 
   // ── ADMIN ──────────────────────────────────────────────────────────────────
 
+  async listarAdmin() {
+    const { rows } = await this.pool.query(
+      `SELECT c.id, c.nome_fantasia, c.logo_url, c.created_at,
+              u.id AS user_id, u.nome, u.email, u.ativo,
+              p.nome AS plano_nome,
+              COUNT(DISTINCT e.id)::int AS total_empreendimentos,
+              COUNT(DISTINCT e.id) FILTER (WHERE e.publicado = TRUE)::int AS publicados,
+              COUNT(DISTINCT l.id)::int AS total_leads
+       FROM construtoras c
+       JOIN users u ON u.id = c.user_id
+       LEFT JOIN planos p ON p.id = c.plano_id
+       LEFT JOIN empreendimentos e ON e.construtora_id = c.id
+       LEFT JOIN leads l ON l.empreendimento_id = e.id
+       WHERE u.role = 'construtora'
+       GROUP BY c.id, u.id, p.nome
+       ORDER BY c.created_at DESC`,
+    );
+    return rows;
+  }
+
   async listarUsuarios() {
     const { rows } = await this.pool.query(
       `SELECT u.id, u.nome, u.email, u.created_at, u.ativo,

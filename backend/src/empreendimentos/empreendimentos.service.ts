@@ -194,6 +194,39 @@ export class EmpreendimentosService {
     return rows;
   }
 
+  async listarPorConstrutora(construtoraId: string) {
+    const { rows } = await this.pool.query(
+      `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.publicado, e.publicado_em,
+              e.cidade, e.estado, e.preco_min, e.preco_max, e.created_at,
+              COUNT(DISTINCT l.id)::int AS total_leads,
+              COUNT(DISTINCT un.id)::int AS total_unidades,
+              (SELECT url FROM empreendimento_midias m
+               WHERE m.empreendimento_id = e.id AND m.tipo = 'foto'
+               ORDER BY m.ordem LIMIT 1) AS foto_capa
+       FROM empreendimentos e
+       LEFT JOIN leads l ON l.empreendimento_id = e.id
+       LEFT JOIN unidades un ON un.empreendimento_id = e.id
+       WHERE e.construtora_id = $1
+       GROUP BY e.id
+       ORDER BY e.created_at DESC`,
+      [construtoraId],
+    );
+    return rows;
+  }
+
+  async editarAdmin(id: string, dto: { nome?: string; status?: string; tipo?: string }) {
+    const entradas = Object.entries(dto).filter(([, v]) => v !== undefined && v !== '');
+    if (entradas.length === 0) return;
+    const campos = entradas.map(([k], i) => `${k} = $${i + 2}`).join(', ');
+    const valores = entradas.map(([, v]) => v);
+    const { rows: [emp] } = await this.pool.query(
+      `UPDATE empreendimentos SET ${campos} WHERE id = $1 RETURNING id, nome, status, tipo`,
+      [id, ...valores],
+    );
+    if (!emp) throw new NotFoundException('Empreendimento não encontrado.');
+    return emp;
+  }
+
   async togglePublicado(id: string) {
     const { rows: [emp] } = await this.pool.query(
       `UPDATE empreendimentos

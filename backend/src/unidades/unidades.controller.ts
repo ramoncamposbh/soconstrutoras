@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete,
-  Param, Body, Request, UseGuards,
+  Param, Body, Request, UseGuards, ForbiddenException,
 } from '@nestjs/common';
 import { UnidadesService } from './unidades.service';
 import { CriarUnidadeDto } from './dto/criar-unidade.dto';
@@ -16,6 +16,13 @@ export class UnidadesController {
   @Get('empreendimentos/:empreendimentoId')
   listar(@Param('empreendimentoId') empId: string, @Request() req: any) {
     return this.service.listar(empId, req.user.sub);
+  }
+
+  // GET /api/v1/unidades/admin/:empreendimentoId  (sem verificar propriedade)
+  @Get('admin/:empreendimentoId')
+  listarAdmin(@Param('empreendimentoId') empId: string, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException('Acesso negado.');
+    return this.service.listarAdmin(empId);
   }
 
   @Post('empreendimentos/:empreendimentoId')
