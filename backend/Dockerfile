@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Instala dependências primeiro (cache layer)
 COPY package*.json ./
-RUN npm ci
+RUN npm ci && npm install --save-dev typescript@5.7.3 --legacy-peer-deps
 
 # Copia código e compila TypeScript
 COPY . .
