@@ -14,6 +14,7 @@ export class HealthController {
         status: 'ok',
         timestamp: new Date().toISOString(),
         database: 'connected',
+        version: 'v2-simulacoes',
       };
     } catch {
       return {
