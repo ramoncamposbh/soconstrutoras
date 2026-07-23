@@ -9,6 +9,7 @@ export class SimularDto {
   score_serasa_estimado?: number;
   valor_imovel_desejado?: number;
   prazo_anos?: number;
+  idade?: number;
   nome?: string;
   email?: string;
   telefone?: string;
