@@ -17,7 +17,8 @@ interface Banco {
 interface SimulacaoResultado {
   score: number; renda_total: number; pmt_max: number;
   max_financiamento: number; entrada_total: number; capacidade_total: number;
-  prestacao_estimada: number | null; prazo_anos: number; bancos: Banco[];
+  prestacao_estimada: number | null; prazo_anos: number;
+  prazo_limitado_por_idade?: boolean; bancos: Banco[];
 }
 
 // ── Utilitários de moeda ──────────────────────────────────────────────────────
@@ -101,6 +102,7 @@ export default function SimuladoresPage() {
     valor_imovel_desejado: '',
     prazo_anos: '30',
     vinculo: 'CLT' as 'CLT' | 'SERVIDOR' | 'AUTONOMO_COM_IR' | 'AUTONOMO_SEM_IR',
+    idade: '',
     tempo_emprego_meses: '',
     score_serasa_estimado: '',
     nome: '',
@@ -120,7 +122,11 @@ export default function SimuladoresPage() {
     const fgts = parseBRL(form.fgts);
     const entradaTotal = entrada + (form.usa_fgts ? fgts : 0);
     const rendaTotal = renda + extra;
-    const prazo = parseInt(form.prazo_anos) * 12;
+    const prazoSolicitado = parseInt(form.prazo_anos) * 12;
+    // Regra dos bancos: idade + prazo ≤ 80 anos
+    const idade = parseInt(form.idade) || 0;
+    const prazoMaxPorIdade = idade > 0 ? Math.max(12, (80 - idade) * 12) : prazoSolicitado;
+    const prazo = Math.min(prazoSolicitado, prazoMaxPorIdade);
     const i = 0.0875 / 12;
     const pmtMax = rendaTotal * 0.30;
     const maxFin = pmtMax * (1 - Math.pow(1 + i, -prazo)) / i;
@@ -185,7 +191,9 @@ export default function SimuladoresPage() {
       score, renda_total: rendaTotal, pmt_max: Math.round(pmtMax),
       max_financiamento: Math.round(maxFin), entrada_total: Math.round(entradaTotal),
       capacidade_total: capTotal, prestacao_estimada: prestacaoEst,
-      prazo_anos: parseInt(form.prazo_anos), bancos,
+      prazo_anos: Math.round(prazo / 12),
+      prazo_limitado_por_idade: idade > 0 && prazo < prazoSolicitado,
+      bancos,
     };
   }
 
@@ -198,6 +206,7 @@ export default function SimuladoresPage() {
       fgts: parseBRL(form.fgts) || undefined,
       usa_fgts: form.usa_fgts,
       vinculo: form.vinculo,
+      idade: parseInt(form.idade) || undefined,
       tempo_emprego_meses: parseInt(form.tempo_emprego_meses) || undefined,
       score_serasa_estimado: parseInt(form.score_serasa_estimado) || undefined,
       valor_imovel_desejado: parseBRL(form.valor_imovel_desejado) || undefined,
@@ -393,6 +402,28 @@ export default function SimuladoresPage() {
                   <p className="text-sm text-gray-500 mt-0.5">Afeta quais bancos e condições você acessa</p>
                 </div>
                 <label className="block">
+                  <span className="text-sm font-semibold text-gray-700">Sua idade <span className="text-primary-600">*</span></span>
+                  <div className="relative mt-1">
+                    <input
+                      type="number" min="18" max="79" placeholder="Ex: 35"
+                      value={form.idade}
+                      onChange={e => set('idade', e.target.value)}
+                      className={inputCls}
+                    />
+                  </div>
+                  {form.idade && parseInt(form.idade) > 0 && (
+                    <p className="text-xs font-semibold mt-1" style={{ color: parseInt(form.idade) >= 60 ? '#b45309' : '#15803d' }}>
+                      {(() => {
+                        const prazoMax = Math.max(0, 80 - parseInt(form.idade));
+                        const prazoDesejado = parseInt(form.prazo_anos);
+                        return prazoMax < prazoDesejado
+                          ? `⚠ Com ${form.idade} anos, prazo máximo é ${prazoMax} anos (regra: idade + prazo ≤ 80)`
+                          : `✓ Prazo máximo disponível: ${prazoMax} anos`;
+                      })()}
+                    </p>
+                  )}
+                </label>
+                <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Vínculo empregatício <span className="text-primary-600">*</span></span>
                   <select value={form.vinculo} onChange={e => set('vinculo', e.target.value as typeof form.vinculo)} className={`mt-1 ${selectCls}`}>
                     <option value="CLT">CLT — empregado registrado</option>
@@ -564,6 +595,7 @@ function ResultadoView({
               {[
                 ['Renda total considerada', fmt(resultado.renda_total)],
                 ['Prestação máxima (30% da renda)', `${fmt(resultado.pmt_max)}/mês`],
+                ['Prazo aprovado', `${resultado.prazo_anos} anos`],
               ].map(([l, v]) => (
                 <div key={l} className="flex justify-between items-center py-2.5">
                   <span className="text-sm text-gray-500">{l}</span>
@@ -571,6 +603,15 @@ function ResultadoView({
                 </div>
               ))}
             </div>
+            {resultado.prazo_limitado_por_idade && (
+              <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
+                <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <p className="text-xs text-amber-800">
+                  <strong>Prazo reduzido por conta da sua idade.</strong> Os bancos exigem que <em>idade + prazo ≤ 80 anos</em>.
+                  O financiamento foi calculado com <strong>{resultado.prazo_anos} anos</strong> (prazo máximo permitido para você).
+                </p>
+              </div>
+            )}
 
             {/* Fórmula visual: banco + entrada = total */}
             <div className="bg-gray-50 rounded-xl p-4 space-y-2">
