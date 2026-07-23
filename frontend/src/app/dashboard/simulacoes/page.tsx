@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Calculator, Loader2, Phone, Mail, User, Download } from 'lucide-react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'https://soconstrutoras-production.up.railway.app/api/v1';
+import api from '@/lib/api';
 
 const fmt = (v: number | null) =>
   v != null ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }) : '—';
@@ -44,13 +43,9 @@ export default function SimulacoesAdminPage() {
   const [erro, setErro] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    fetch(`${API}/simulador/admin/lista`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(r => { if (!r.ok) throw new Error('Sem permissão ou tabela não criada'); return r.json(); })
-      .then(setRows)
-      .catch(e => setErro(e.message))
+    api.get('/simulador/admin/lista')
+      .then(r => setRows(r.data))
+      .catch(e => setErro(e.response?.data?.message ?? e.message ?? 'Erro ao carregar'))
       .finally(() => setLoading(false));
   }, []);
 
