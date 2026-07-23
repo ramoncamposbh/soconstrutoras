@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Calculator, ChevronRight, ChevronLeft, CheckCircle2,
   TrendingUp, Home, Building2, ExternalLink,
-  AlertCircle, Info, ArrowLeft,
+  AlertCircle, Info, ArrowLeft, Edit2, Brain, Sparkles,
+  User, DollarSign, Briefcase, Phone,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -21,24 +22,18 @@ interface SimulacaoResultado {
   prazo_limitado_por_idade?: boolean; bancos: Banco[];
 }
 
-// ── Utilitários de moeda ──────────────────────────────────────────────────────
-/** "18000" ou "18.000" → 18000 */
+// ── Utilitários ───────────────────────────────────────────────────────────────
 const parseBRL = (s: string) =>
   parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
 
-/** Formata enquanto digita: "18000" → "18.000"
- *  Ignora vírgula e centavos (ex: "15.000,00" → "15.000")
- *  Limita a 9 dígitos (até R$ 999.999.999) */
 function maskBRL(raw: string): string {
-  // Para na vírgula — descarta centavos que o usuário possa digitar
   const semCentavos = raw.split(',')[0];
   const digits = semCentavos.replace(/\D/g, '');
   if (!digits) return '';
-  const limited = digits.slice(0, 9); // máx 9 dígitos
+  const limited = digits.slice(0, 9);
   return parseInt(limited, 10).toLocaleString('pt-BR');
 }
 
-/** Exibe resultado: 18000 → "R$ 18.000" */
 const fmt = (v: number) =>
   v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
@@ -48,10 +43,32 @@ const pct = (v: number) =>
 // ── Steps ─────────────────────────────────────────────────────────────────────
 const STEPS = ['Renda', 'Entrada', 'Perfil', 'Contato'];
 
-// ── Input de moeda reutilizável ───────────────────────────────────────────────
-function MoneyInput({
-  label, value, onChange, placeholder = '0', hint, required,
-}: {
+const VINCULO_LABEL: Record<string, string> = {
+  CLT: 'CLT — empregado registrado',
+  SERVIDOR: 'Servidor público',
+  AUTONOMO_COM_IR: 'Autônomo com declaração de IR',
+  AUTONOMO_SEM_IR: 'Autônomo sem declaração de IR',
+};
+const TEMPO_LABEL: Record<string, string> = {
+  '': 'Não informado', '3': 'Menos de 6 meses', '9': '6 meses a 1 ano',
+  '18': '1 a 2 anos', '36': 'Mais de 2 anos',
+};
+const SCORE_LABEL: Record<string, string> = {
+  '': 'Não informado', '850': 'Acima de 800 — Excelente', '720': '700–800 — Bom',
+  '620': '600–700 — Regular', '520': '500–600 — Baixo', '400': 'Abaixo de 500',
+};
+
+// ── Fases de análise por IA ───────────────────────────────────────────────────
+const FASES = [
+  { texto: 'Analisando seu perfil financeiro...', icone: '🔍' },
+  { texto: 'Consultando critérios dos bancos...', icone: '🏦' },
+  { texto: 'Calculando poder de compra...', icone: '📊' },
+  { texto: 'Aplicando Tabela Price...', icone: '📐' },
+  { texto: 'Gerando seu relatório personalizado...', icone: '✨' },
+];
+
+// ── MoneyInput ────────────────────────────────────────────────────────────────
+function MoneyInput({ label, value, onChange, placeholder = '0', hint, required }: {
   label: string; value: string; onChange: (v: string) => void;
   placeholder?: string; hint?: string; required?: boolean;
 }) {
@@ -62,27 +79,227 @@ function MoneyInput({
         {label}{required && <span className="text-primary-600 ml-0.5">*</span>}
       </span>
       <div className="relative mt-1">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-sm pointer-events-none">
-          R$
-        </span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-sm pointer-events-none">R$</span>
         <input
-          type="text"
-          inputMode="numeric"
-          placeholder={placeholder}
-          value={value}
+          type="text" inputMode="numeric" placeholder={placeholder} value={value}
           onChange={e => onChange(maskBRL(e.target.value))}
-          className="block w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 font-semibold text-base
-                     focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-colors"
+          className="block w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 font-semibold text-base focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-colors"
         />
       </div>
-      {/* Confirmação do valor em verde */}
-      {numerico > 0 && (
-        <p className="text-xs text-primary-700 font-semibold mt-1">
-          ✓ {fmt(numerico)}
-        </p>
-      )}
+      {numerico > 0 && <p className="text-xs text-primary-700 font-semibold mt-1">✓ {fmt(numerico)}</p>}
       {hint && <p className="text-xs text-gray-400 mt-0.5">{hint}</p>}
     </label>
+  );
+}
+
+// ── Tela de análise por IA ────────────────────────────────────────────────────
+function AnalisandoScreen({ fase }: { fase: number }) {
+  const [pontos, setPontos] = useState('');
+  useEffect(() => {
+    const t = setInterval(() => setPontos(p => p.length >= 3 ? '' : p + '.'), 400);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#04241D' }}>
+      {/* Ícone central pulsante */}
+      <div className="relative mb-8">
+        <div className="w-24 h-24 rounded-full flex items-center justify-center"
+          style={{ background: 'rgba(74,222,128,0.15)', border: '2px solid rgba(74,222,128,0.3)' }}>
+          <Brain className="w-12 h-12" style={{ color: '#4ade80' }} />
+        </div>
+        {/* Círculos pulsantes */}
+        <div className="absolute inset-0 rounded-full animate-ping"
+          style={{ background: 'rgba(74,222,128,0.08)', animationDuration: '1.5s' }} />
+        <div className="absolute -inset-3 rounded-full animate-ping"
+          style={{ background: 'rgba(74,222,128,0.04)', animationDuration: '2s', animationDelay: '0.5s' }} />
+      </div>
+
+      <div className="text-center mb-10">
+        <p className="text-white text-sm font-semibold mb-1 tracking-widest uppercase"
+          style={{ color: '#86efac' }}>Análise por IA</p>
+        <h2 className="text-2xl font-black text-white">Calculando seu perfil{pontos}</h2>
+      </div>
+
+      {/* Fases */}
+      <div className="w-full max-w-sm space-y-3 mb-10">
+        {FASES.map((f, i) => {
+          const done = i < fase;
+          const active = i === fase;
+          return (
+            <div key={i}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500"
+              style={{
+                background: done ? 'rgba(74,222,128,0.15)' : active ? 'rgba(74,222,128,0.08)' : 'rgba(255,255,255,0.03)',
+                border: active ? '1px solid rgba(74,222,128,0.4)' : '1px solid transparent',
+                opacity: i > fase + 1 ? 0.3 : 1,
+              }}>
+              <span className="text-xl w-7 text-center">
+                {done ? '✅' : active ? f.icone : f.icone}
+              </span>
+              <span className="text-sm font-semibold"
+                style={{ color: done ? '#4ade80' : active ? '#ffffff' : '#6b7280' }}>
+                {f.texto}
+              </span>
+              {active && (
+                <div className="ml-auto flex gap-1">
+                  {[0, 1, 2].map(d => (
+                    <div key={d} className="w-1.5 h-1.5 rounded-full animate-bounce"
+                      style={{ background: '#4ade80', animationDelay: `${d * 0.15}s` }} />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Barra de progresso */}
+      <div className="w-full max-w-sm">
+        <div className="h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
+          <div className="h-1.5 rounded-full transition-all duration-700"
+            style={{ width: `${((fase + 1) / FASES.length) * 100}%`, background: '#4ade80' }} />
+        </div>
+        <p className="text-center mt-2 text-xs" style={{ color: '#86efac' }}>
+          {Math.round(((fase + 1) / FASES.length) * 100)}% concluído
+        </p>
+      </div>
+
+      <p className="mt-8 text-xs text-center" style={{ color: '#4b5563' }}>
+        Simulação baseada nos critérios oficiais dos bancos (SFH/SBPE 2025)
+      </p>
+    </div>
+  );
+}
+
+// ── Tela de prévia / confirmação ───────────────────────────────────────────────
+function PreviewScreen({
+  form, onConfirmar, onEditar,
+}: {
+  form: Record<string, string | boolean>;
+  onConfirmar: () => void;
+  onEditar: (step: number) => void;
+}) {
+  const renda = parseBRL(form.renda_liquida as string);
+  const extra = parseBRL(form.renda_extra as string);
+  const entrada = parseBRL(form.entrada as string);
+  const fgts = parseBRL(form.fgts as string);
+  const imovel = parseBRL(form.valor_imovel_desejado as string);
+  const entradaTotal = entrada + (form.usa_fgts ? fgts : 0);
+
+  const secoes = [
+    {
+      step: 0, titulo: 'Renda', icone: DollarSign, itens: [
+        { label: 'Renda líquida mensal', valor: renda > 0 ? fmt(renda) : '—' },
+        extra > 0 ? { label: 'Renda extra', valor: fmt(extra) } : null,
+        imovel > 0 ? { label: 'Imóvel desejado', valor: fmt(imovel) } : null,
+      ].filter(Boolean) as { label: string; valor: string }[],
+    },
+    {
+      step: 1, titulo: 'Entrada', icone: Home, itens: [
+        { label: 'Entrada disponível', valor: entrada > 0 ? fmt(entrada) : 'R$ 0' },
+        form.usa_fgts ? { label: 'FGTS incluído', valor: fmt(fgts) } : null,
+        form.usa_fgts ? { label: 'Total de entrada', valor: fmt(entradaTotal) } : null,
+        form.idade ? { label: 'Sua idade', valor: `${form.idade} anos` } : null,
+        { label: 'Prazo desejado', valor: `${form.prazo_anos} anos` },
+      ].filter(Boolean) as { label: string; valor: string }[],
+    },
+    {
+      step: 2, titulo: 'Perfil', icone: Briefcase, itens: [
+        { label: 'Vínculo empregatício', valor: VINCULO_LABEL[form.vinculo as string] ?? String(form.vinculo) },
+        { label: 'Tempo no emprego', valor: TEMPO_LABEL[form.tempo_emprego_meses as string] ?? 'Não informado' },
+        { label: 'Score Serasa', valor: SCORE_LABEL[form.score_serasa_estimado as string] ?? 'Não informado' },
+      ],
+    },
+    {
+      step: 3, titulo: 'Contato', icone: User, itens: [
+        form.nome ? { label: 'Nome', valor: String(form.nome) } : null,
+        form.email ? { label: 'E-mail', valor: String(form.email) } : null,
+        form.telefone ? { label: 'WhatsApp', valor: String(form.telefone) } : null,
+      ].filter(Boolean) as { label: string; valor: string }[],
+      opcional: true,
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-10">
+      {/* Hero */}
+      <div className="text-white py-8 px-4" style={{ background: '#04241D' }}>
+        <div className="max-w-lg mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <button onClick={() => onEditar(3)}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold hover:opacity-80 transition-opacity"
+              style={{ color: '#4ade80' }}>
+              <ArrowLeft className="w-4 h-4" /> Voltar
+            </button>
+            <Link href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg"
+              style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
+              <Home className="w-3.5 h-3.5" /> Tela Inicial
+            </Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl p-2.5" style={{ background: 'rgba(74,222,128,0.15)' }}>
+              <Sparkles className="w-6 h-6" style={{ color: '#4ade80' }} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">Confirme seus dados</h1>
+              <p className="text-sm" style={{ color: '#86efac' }}>Revise antes de calcular</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4 pt-5 space-y-3">
+        {/* Seções de confirmação */}
+        {secoes.map(({ step, titulo, icone: Icone, itens, opcional }) => (
+          <div key={titulo} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3"
+              style={{ background: '#04241D' }}>
+              <div className="flex items-center gap-2">
+                <Icone className="w-4 h-4" style={{ color: '#4ade80' }} />
+                <span className="text-white font-bold text-sm">{titulo}</span>
+                {opcional && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,222,128,0.2)', color: '#86efac' }}>opcional</span>}
+              </div>
+              <button onClick={() => onEditar(step)}
+                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-opacity hover:opacity-80"
+                style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80' }}>
+                <Edit2 className="w-3 h-3" /> Editar
+              </button>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {itens.length === 0 ? (
+                <p className="px-5 py-3 text-sm text-gray-400 italic">
+                  {opcional ? 'Nenhum dado de contato informado' : 'Não preenchido'}
+                </p>
+              ) : itens.map(({ label, valor }) => (
+                <div key={label} className="flex justify-between items-center px-5 py-2.5">
+                  <span className="text-sm text-gray-500">{label}</span>
+                  <span className="text-sm font-semibold text-gray-900 text-right max-w-[55%]">{valor}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Aviso */}
+        <div className="flex items-start gap-2 bg-primary-50 border border-primary-100 rounded-xl p-3">
+          <Info className="w-4 h-4 text-primary-600 mt-0.5 shrink-0" />
+          <p className="text-xs text-primary-800">
+            Nossa IA vai analisar seu perfil e calcular a melhor opção de financiamento para você com base nos critérios reais dos bancos.
+          </p>
+        </div>
+
+        {/* Botão confirmar */}
+        <button onClick={onConfirmar}
+          className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white font-black text-lg transition-opacity hover:opacity-90 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #04241D 0%, #0d4a38 100%)', border: '1px solid rgba(74,222,128,0.3)' }}>
+          <Brain className="w-6 h-6" style={{ color: '#4ade80' }} />
+          <span>Analisar meu perfil com IA</span>
+          <ChevronRight className="w-5 h-5" style={{ color: '#4ade80' }} />
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -90,30 +307,24 @@ function MoneyInput({
 export default function SimuladoresPage() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzePhase, setAnalyzePhase] = useState(0);
   const [resultado, setResultado] = useState<SimulacaoResultado | null>(null);
   const [erro, setErro] = useState('');
 
   const [form, setForm] = useState({
-    renda_liquida: '',
-    renda_extra: '',
-    entrada: '',
-    fgts: '',
-    usa_fgts: false,
-    valor_imovel_desejado: '',
-    prazo_anos: '30',
+    renda_liquida: '', renda_extra: '', entrada: '', fgts: '',
+    usa_fgts: false, valor_imovel_desejado: '', prazo_anos: '30',
     vinculo: 'CLT' as 'CLT' | 'SERVIDOR' | 'AUTONOMO_COM_IR' | 'AUTONOMO_SEM_IR',
-    idade: '',
-    tempo_emprego_meses: '',
-    score_serasa_estimado: '',
-    nome: '',
-    email: '',
-    telefone: '',
+    idade: '', tempo_emprego_meses: '', score_serasa_estimado: '',
+    nome: '', email: '', telefone: '',
   });
 
   const set = (k: keyof typeof form, v: string | boolean) =>
     setForm(f => ({ ...f, [k]: v }));
 
-  // ── Cálculo local (mesmo algoritmo do backend) ───────────────────────────
+  // ── Cálculo local ─────────────────────────────────────────────────────────
   function calcLocal(): SimulacaoResultado | null {
     const renda = parseBRL(form.renda_liquida);
     if (!renda) return null;
@@ -123,7 +334,6 @@ export default function SimuladoresPage() {
     const entradaTotal = entrada + (form.usa_fgts ? fgts : 0);
     const rendaTotal = renda + extra;
     const prazoSolicitado = parseInt(form.prazo_anos) * 12;
-    // Regra dos bancos: idade + prazo ≤ 80 anos
     const idade = parseInt(form.idade) || 0;
     const prazoMaxPorIdade = idade > 0 ? Math.max(12, (80 - idade) * 12) : prazoSolicitado;
     const prazo = Math.min(prazoSolicitado, prazoMaxPorIdade);
@@ -131,15 +341,12 @@ export default function SimuladoresPage() {
     const pmtMax = rendaTotal * 0.30;
     const maxFin = pmtMax * (1 - Math.pow(1 + i, -prazo)) / i;
     const capTotal = Math.round(maxFin + entradaTotal);
-
     const valorDesejado = parseBRL(form.valor_imovel_desejado) || 0;
     let prestacaoEst: number | null = null;
     if (valorDesejado > 0) {
       const fin = valorDesejado - entradaTotal;
       if (fin > 0) prestacaoEst = Math.round(fin * i / (1 - Math.pow(1 + i, -prazo)));
     }
-
-    // Score
     const vinculoMap: Record<string, number> = { SERVIDOR: 110, CLT: 100, AUTONOMO_COM_IR: 70, AUTONOMO_SEM_IR: 40 };
     const vPts = (vinculoMap[form.vinculo] ?? 60) / 110;
     let rendaPts = 0.7;
@@ -155,27 +362,21 @@ export default function SimuladoresPage() {
     const ser = parseInt(form.score_serasa_estimado) || 600;
     const sPts = ser >= 800 ? 1 : ser >= 700 ? 0.80 : ser >= 600 ? 0.65 : ser >= 500 ? 0.40 : 0.20;
     const fPts = Math.min(fgts / 60000, 1);
-    const score = Math.round(
-      (vPts * 0.25 + rendaPts * 0.25 + ePts * 0.20 + tPts * 0.15 + sPts * 0.10 + fPts * 0.05) * 1000,
-    );
-
+    const score = Math.round((vPts * 0.25 + rendaPts * 0.25 + ePts * 0.20 + tPts * 0.15 + sPts * 0.10 + fPts * 0.05) * 1000);
     const BANCOS_DATA = [
-      { nome: 'Caixa Econômica', sigla: 'CEF', ltv_max: 0.80, renda_min: 3000, taxa_aa: 0.0875, prazo_max: 420, autonomo_ok: true,  score_min: 500, url: 'https://habitacao.caixa.gov.br/simweb/init.asp',                                                           destaque: 'Aceita FGTS · Menor taxa · Minha Casa' },
-      { nome: 'Santander',       sigla: 'SAN', ltv_max: 0.82, renda_min: 4000, taxa_aa: 0.0949, prazo_max: 360, autonomo_ok: true,  score_min: 550, url: 'https://www.santander.com.br/financiamento-imobiliario/simulador',                                          destaque: 'Financia até 82% · Até 30 anos' },
-      { nome: 'Itaú',            sigla: 'ITA', ltv_max: 0.82, renda_min: 4000, taxa_aa: 0.0925, prazo_max: 360, autonomo_ok: true,  score_min: 550, url: 'https://www.itau.com.br/emprestimos-financiamentos/credito-imobiliario/simulador',                           destaque: 'Aprovação rápida · App completo' },
-      { nome: 'Bradesco',        sigla: 'BRA', ltv_max: 0.80, renda_min: 4000, taxa_aa: 0.0975, prazo_max: 360, autonomo_ok: false, score_min: 600, url: 'https://banco.bradesco/html/classic/produtos-servicos/emprestimo-financiamento/credito-imobiliario/',         destaque: 'Portabilidade · Relacionamento' },
+      { nome: 'Caixa Econômica', sigla: 'CEF', ltv_max: 0.80, renda_min: 3000, taxa_aa: 0.0875, prazo_max: 420, autonomo_ok: true,  score_min: 500, url: 'https://habitacao.caixa.gov.br/simweb/init.asp', destaque: 'Aceita FGTS · Menor taxa · Minha Casa' },
+      { nome: 'Santander',       sigla: 'SAN', ltv_max: 0.82, renda_min: 4000, taxa_aa: 0.0949, prazo_max: 360, autonomo_ok: true,  score_min: 550, url: 'https://www.santander.com.br/financiamento-imobiliario/simulador', destaque: 'Financia até 82% · Até 30 anos' },
+      { nome: 'Itaú',            sigla: 'ITA', ltv_max: 0.82, renda_min: 4000, taxa_aa: 0.0925, prazo_max: 360, autonomo_ok: true,  score_min: 550, url: 'https://www.itau.com.br/emprestimos-financiamentos/credito-imobiliario/simulador', destaque: 'Aprovação rápida · App completo' },
+      { nome: 'Bradesco',        sigla: 'BRA', ltv_max: 0.80, renda_min: 4000, taxa_aa: 0.0975, prazo_max: 360, autonomo_ok: false, score_min: 600, url: 'https://banco.bradesco/html/classic/produtos-servicos/emprestimo-financiamento/credito-imobiliario/', destaque: 'Portabilidade · Relacionamento' },
     ];
-
     const bancos: Banco[] = BANCOS_DATA.map(b => {
-      const ltv = (valorDesejado || capTotal) > 0
-        ? ((valorDesejado || capTotal) - entradaTotal) / (valorDesejado || capTotal)
-        : 0.80;
+      const ltv = (valorDesejado || capTotal) > 0 ? ((valorDesejado || capTotal) - entradaTotal) / (valorDesejado || capTotal) : 0.80;
       let pts = 0; const motivos: string[] = [];
       if (rendaTotal >= b.renda_min) pts++; else motivos.push(`Renda mínima: ${fmt(b.renda_min)}`);
-      if (ltv <= b.ltv_max)          pts++; else motivos.push(`Entrada insuficiente (LTV máx ${(b.ltv_max * 100).toFixed(0)}%)`);
+      if (ltv <= b.ltv_max) pts++; else motivos.push(`Entrada insuficiente (LTV máx ${(b.ltv_max * 100).toFixed(0)}%)`);
       if (form.vinculo === 'CLT' || form.vinculo === 'SERVIDOR' || b.autonomo_ok) pts++;
       else motivos.push('Banco não financia autônomo sem IR');
-      if (ser >= b.score_min)        pts++; else motivos.push(`Score abaixo do mínimo (${b.score_min})`);
+      if (ser >= b.score_min) pts++; else motivos.push(`Score abaixo do mínimo (${b.score_min})`);
       const comp = Math.round((pts / 4) * 100);
       const pMeses = Math.min(prazo, b.prazo_max);
       const fi = Math.min(Math.round(maxFin), (valorDesejado || capTotal) * b.ltv_max);
@@ -186,7 +387,6 @@ export default function SimuladoresPage() {
         prestacao_estimada: fi > 0 ? Math.round(fi * bi / (1 - Math.pow(1 + bi, -pMeses))) : null,
       };
     }).sort((a, b) => b.compatibilidade - a.compatibilidade);
-
     return {
       score, renda_total: rendaTotal, pmt_max: Math.round(pmtMax),
       max_financiamento: Math.round(maxFin), entrada_total: Math.round(entradaTotal),
@@ -222,16 +422,36 @@ export default function SimuladoresPage() {
     return res.json() as Promise<SimulacaoResultado>;
   }
 
-  async function simular() {
-    setErro('');
+  // ── Confirmar e analisar (chamado da tela de prévia) ──────────────────────
+  async function confirmarEAnalisar() {
+    setShowPreview(false);
+    setAnalyzing(true);
+    setAnalyzePhase(0);
+
+    // Avança fases a cada 700ms
+    let faseAtual = 0;
+    const phaseInterval = setInterval(() => {
+      faseAtual++;
+      if (faseAtual >= FASES.length) { clearInterval(phaseInterval); return; }
+      setAnalyzePhase(faseAtual);
+    }, 700);
+
     const local = calcLocal();
-    if (!local) { setErro('Preencha ao menos a renda mensal.'); return; }
-    setResultado(local);
-    if (form.nome || form.email || form.telefone) {
-      setLoading(true);
-      try { const r = await enviarBackend(); setResultado(r); } catch { /* usa local */ }
-      setLoading(false);
-    }
+
+    // Tempo mínimo de animação: 3.5s
+    const [r] = await Promise.all([
+      (async () => {
+        if (form.nome || form.email || form.telefone) {
+          try { return await enviarBackend(); } catch { return local; }
+        }
+        return local;
+      })(),
+      new Promise(resolve => setTimeout(resolve, 3500)),
+    ]);
+
+    clearInterval(phaseInterval);
+    setAnalyzing(false);
+    setResultado((r || local) as SimulacaoResultado);
   }
 
   function avancar() {
@@ -240,35 +460,48 @@ export default function SimuladoresPage() {
       return;
     }
     setErro('');
-    setStep(s => s + 1);
+    if (step === STEPS.length - 1) {
+      // Último passo → vai para prévia
+      setShowPreview(true);
+    } else {
+      setStep(s => s + 1);
+    }
   }
 
-  if (resultado) {
-    return (
-      <ResultadoView
-        resultado={resultado}
-        form={form}
-        onVoltar={() => { setResultado(null); setStep(3); }}
-        loading={loading}
-      />
-    );
-  }
+  // ── Renders condicionais ───────────────────────────────────────────────────
+  if (analyzing) return <AnalisandoScreen fase={analyzePhase} />;
 
-  // ── Input field comum ────────────────────────────────────────────────────
+  if (showPreview) return (
+    <PreviewScreen
+      form={form as Record<string, string | boolean>}
+      onConfirmar={confirmarEAnalisar}
+      onEditar={(s) => { setShowPreview(false); setStep(s); }}
+    />
+  );
+
+  if (resultado) return (
+    <ResultadoView
+      resultado={resultado}
+      form={form}
+      onVoltar={() => { setResultado(null); setShowPreview(true); }}
+      loading={loading}
+    />
+  );
+
+  // ── Formulário ─────────────────────────────────────────────────────────────
   const inputCls = 'block w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 font-medium text-base focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-colors';
   const selectCls = 'block w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 font-medium bg-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-colors';
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ── Hero verde ────────────────────────────────────────────────────── */}
       <div className="text-white py-8 px-4" style={{ background: '#04241D' }}>
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-4">
-            <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80" style={{ color: '#4ade80' }}>
+            <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-semibold hover:opacity-80" style={{ color: '#4ade80' }}>
               <ArrowLeft className="w-4 h-4" /> Voltar ao início
             </Link>
             <Link href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg"
               style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
               <Home className="w-3.5 h-3.5" /> Tela Inicial
             </Link>
@@ -286,7 +519,7 @@ export default function SimuladoresPage() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        {/* ── Stepper ───────────────────────────────────────────────────── */}
+        {/* Stepper */}
         <div className="flex items-center mb-6">
           {STEPS.map((s, i) => (
             <div key={s} className="flex items-center flex-1 last:flex-none">
@@ -297,9 +530,7 @@ export default function SimuladoresPage() {
                     : 'bg-gray-200 text-gray-400'}`}>
                   {i < step ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
                 </div>
-                <span className={`text-[10px] mt-1 font-semibold ${i === step ? 'text-primary-700' : 'text-gray-400'}`}>
-                  {s}
-                </span>
+                <span className={`text-[10px] mt-1 font-semibold ${i === step ? 'text-primary-700' : 'text-gray-400'}`}>{s}</span>
               </div>
               {i < STEPS.length - 1 && (
                 <div className={`h-0.5 flex-1 mx-1 mb-4 transition-colors ${i < step ? 'bg-primary-500' : 'bg-gray-200'}`} />
@@ -308,106 +539,63 @@ export default function SimuladoresPage() {
           ))}
         </div>
 
-        {/* ── Card do formulário ────────────────────────────────────────── */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Barra colorida no topo */}
           <div className="h-1.5 bg-primary-600" style={{ width: `${((step + 1) / STEPS.length) * 100}%`, transition: 'width .4s ease' }} />
-
           <div className="p-6 space-y-4">
-            {/* ── STEP 0: Renda ──────────────────────────────────────────── */}
+
+            {/* STEP 0: Renda */}
             {step === 0 && (
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">Qual é a sua renda?</h2>
                   <p className="text-sm text-gray-500 mt-0.5">Valores mensais, já descontados impostos e benefícios</p>
                 </div>
-                <MoneyInput
-                  label="Renda líquida mensal"
-                  value={form.renda_liquida}
-                  onChange={v => set('renda_liquida', v)}
-                  placeholder="0"
-                  hint="Digite apenas números. Ex: 15000 para R$ 15.000"
-                  required
-                />
-                <MoneyInput
-                  label="Renda extra (opcional)"
-                  value={form.renda_extra}
-                  onChange={v => set('renda_extra', v)}
-                  placeholder="0"
-                  hint="Aluguel, freela, pensão, 13º, etc. Ex: 2000 para R$ 2.000"
-                />
-                <MoneyInput
-                  label="Valor do imóvel que busca (opcional)"
-                  value={form.valor_imovel_desejado}
-                  onChange={v => set('valor_imovel_desejado', v)}
-                  placeholder="0"
-                  hint="Ex: 800000 para R$ 800.000. Deixe vazio para calcular seu limite."
-                />
+                <MoneyInput label="Renda líquida mensal" value={form.renda_liquida} onChange={v => set('renda_liquida', v)}
+                  hint="Digite apenas números. Ex: 15000 para R$ 15.000" required />
+                <MoneyInput label="Renda extra (opcional)" value={form.renda_extra} onChange={v => set('renda_extra', v)}
+                  hint="Aluguel, freela, pensão, 13º, etc." />
+                <MoneyInput label="Valor do imóvel que busca (opcional)" value={form.valor_imovel_desejado} onChange={v => set('valor_imovel_desejado', v)}
+                  hint="Deixe vazio para calcular seu limite máximo." />
               </>
             )}
 
-            {/* ── STEP 1: Entrada ────────────────────────────────────────── */}
+            {/* STEP 1: Entrada */}
             {step === 1 && (
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">Entrada disponível</h2>
                   <p className="text-sm text-gray-500 mt-0.5">Quanto você tem guardado para dar de entrada?</p>
                 </div>
-                <MoneyInput
-                  label="Valor da entrada"
-                  value={form.entrada}
-                  onChange={v => set('entrada', v)}
-                  placeholder="0"
-                  hint="Ex: 200000 para R$ 200.000"
-                  required
-                />
+                <MoneyInput label="Valor da entrada" value={form.entrada} onChange={v => set('entrada', v)}
+                  hint="Ex: 200000 para R$ 200.000" required />
                 <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 space-y-3">
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.usa_fgts}
-                      onChange={e => set('usa_fgts', e.target.checked)}
-                      className="w-5 h-5 rounded accent-primary-600"
-                    />
+                    <input type="checkbox" checked={form.usa_fgts} onChange={e => set('usa_fgts', e.target.checked)}
+                      className="w-5 h-5 rounded accent-primary-600" />
                     <span className="text-sm font-semibold text-gray-800">Vou usar o FGTS na entrada</span>
                   </label>
                   {form.usa_fgts && (
-                    <MoneyInput
-                      label="Saldo do FGTS"
-                      value={form.fgts}
-                      onChange={v => set('fgts', v)}
-                      placeholder="0"
-                      hint="Valor aproximado disponível para saque"
-                    />
+                    <MoneyInput label="Saldo do FGTS" value={form.fgts} onChange={v => set('fgts', v)}
+                      hint="Valor aproximado disponível para saque" />
                   )}
                 </div>
-
-                {/* Idade antes do prazo — prazo depende da idade */}
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Sua idade <span className="text-primary-600">*</span></span>
-                  <input
-                    type="number" min="18" max="79" placeholder="Ex: 35"
-                    value={form.idade}
+                  <input type="number" min="18" max="79" placeholder="Ex: 35" value={form.idade}
                     onChange={e => {
                       const novaIdade = e.target.value;
                       const prazoMaxAnos = novaIdade ? Math.max(5, 80 - parseInt(novaIdade)) : 35;
                       const prazoAtual = parseInt(form.prazo_anos);
                       const melhoPrazo = [35, 30, 25, 20].find(p => p <= prazoMaxAnos) ?? 20;
-                      setForm(f => ({
-                        ...f,
-                        idade: novaIdade,
-                        prazo_anos: prazoAtual > prazoMaxAnos ? String(melhoPrazo) : f.prazo_anos,
-                      }));
+                      setForm(f => ({ ...f, idade: novaIdade, prazo_anos: prazoAtual > prazoMaxAnos ? String(melhoPrazo) : f.prazo_anos }));
                     }}
-                    className={`mt-1 ${inputCls}`}
-                  />
+                    className={`mt-1 ${inputCls}`} />
                   {form.idade && parseInt(form.idade) > 0 && (
                     <p className="text-xs font-semibold mt-1" style={{ color: (80 - parseInt(form.idade)) < 20 ? '#b45309' : '#15803d' }}>
-                      {`✓ Prazo máximo disponível: ${Math.max(0, 80 - parseInt(form.idade))} anos`}
+                      ✓ Prazo máximo disponível: {Math.max(0, 80 - parseInt(form.idade))} anos
                     </p>
                   )}
                 </label>
-
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Prazo desejado do financiamento</span>
                   <select value={form.prazo_anos} onChange={e => set('prazo_anos', e.target.value)} className={`mt-1 ${selectCls}`}>
@@ -423,16 +611,11 @@ export default function SimuladoresPage() {
                       ));
                     })()}
                   </select>
-                  {form.idade && parseInt(form.idade) > 0 && parseInt(form.prazo_anos) < 30 && (
-                    <p className="text-xs text-amber-700 font-semibold mt-1">
-                      ⚠ Prazo limitado pela sua idade (regra: idade + prazo ≤ 80 anos)
-                    </p>
-                  )}
                 </label>
               </>
             )}
 
-            {/* ── STEP 2: Perfil ─────────────────────────────────────────── */}
+            {/* STEP 2: Perfil */}
             {step === 2 && (
               <>
                 <div>
@@ -472,7 +655,7 @@ export default function SimuladoresPage() {
               </>
             )}
 
-            {/* ── STEP 3: Contato ────────────────────────────────────────── */}
+            {/* STEP 3: Contato */}
             {step === 3 && (
               <>
                 <div>
@@ -487,61 +670,49 @@ export default function SimuladoresPage() {
                 </div>
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Nome completo</span>
-                  <input type="text" placeholder="Seu nome"
-                    value={form.nome} onChange={e => set('nome', e.target.value)}
-                    className={`mt-1 ${inputCls}`} />
+                  <input type="text" placeholder="Seu nome" value={form.nome}
+                    onChange={e => set('nome', e.target.value)} className={`mt-1 ${inputCls}`} />
                 </label>
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">E-mail</span>
-                  <input type="email" placeholder="seu@email.com"
-                    value={form.email} onChange={e => set('email', e.target.value)}
-                    className={`mt-1 ${inputCls}`} />
+                  <input type="email" placeholder="seu@email.com" value={form.email}
+                    onChange={e => set('email', e.target.value)} className={`mt-1 ${inputCls}`} />
                 </label>
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">WhatsApp</span>
-                  <input type="tel" placeholder="(31) 9 0000-0000"
-                    value={form.telefone} onChange={e => set('telefone', e.target.value)}
-                    className={`mt-1 ${inputCls}`} />
+                  <input type="tel" placeholder="(31) 9 0000-0000" value={form.telefone}
+                    onChange={e => set('telefone', e.target.value)} className={`mt-1 ${inputCls}`} />
                 </label>
               </>
             )}
 
-            {/* ── Erro ──────────────────────────────────────────────────── */}
             {erro && (
               <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-red-700 text-sm">
                 <AlertCircle className="w-4 h-4 shrink-0" /> {erro}
               </div>
             )}
 
-            {/* ── Navegação ─────────────────────────────────────────────── */}
+            {/* Navegação */}
             <div className="flex gap-3 pt-2">
               {step > 0 ? (
-                <button
-                  onClick={() => { setErro(''); setStep(s => s - 1); }}
-                  className="flex items-center gap-2 px-5 py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-semibold hover:border-primary-300 hover:text-primary-700 transition-colors"
-                >
+                <button onClick={() => { setErro(''); setStep(s => s - 1); }}
+                  className="flex items-center gap-2 px-5 py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-semibold hover:border-primary-300 hover:text-primary-700 transition-colors">
                   <ChevronLeft className="w-4 h-4" /> Voltar
                 </button>
               ) : (
                 <Link href="/"
-                  className="flex items-center gap-2 px-5 py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-semibold hover:border-primary-300 hover:text-primary-700 transition-colors"
-                >
+                  className="flex items-center gap-2 px-5 py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-semibold hover:border-primary-300 hover:text-primary-700 transition-colors">
                   <ChevronLeft className="w-4 h-4" /> Início
                 </Link>
               )}
-
-              {step < STEPS.length - 1 ? (
-                <button onClick={avancar}
-                  className="flex-1 flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-xl transition-colors">
-                  Continuar <ChevronRight className="w-4 h-4" />
-                </button>
-              ) : (
-                <button onClick={simular} disabled={loading}
-                  className="flex-1 flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors">
-                  <Calculator className="w-5 h-5" />
-                  {loading ? 'Calculando...' : 'Ver resultado'}
-                </button>
-              )}
+              <button onClick={avancar} disabled={loading}
+                className="flex-1 flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors">
+                {step === STEPS.length - 1 ? (
+                  <><Sparkles className="w-5 h-5" /> Revisar e calcular</>
+                ) : (
+                  <>Continuar <ChevronRight className="w-4 h-4" /></>
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -551,9 +722,7 @@ export default function SimuladoresPage() {
 }
 
 // ── Tela de resultado ─────────────────────────────────────────────────────────
-function ResultadoView({
-  resultado, form, onVoltar, loading,
-}: {
+function ResultadoView({ resultado, form, onVoltar, loading }: {
   resultado: SimulacaoResultado;
   form: { valor_imovel_desejado: string; renda_liquida: string; renda_extra: string; [k: string]: string | boolean };
   onVoltar: () => void;
@@ -566,17 +735,15 @@ function ResultadoView({
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
-      {/* Hero resultado */}
       <div className="text-white pt-6 pb-14 px-4" style={{ background: '#04241D' }}>
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-5">
             <button onClick={onVoltar}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80"
-              style={{ color: '#4ade80' }}>
+              className="inline-flex items-center gap-1.5 text-sm font-semibold hover:opacity-80" style={{ color: '#4ade80' }}>
               <ArrowLeft className="w-4 h-4" /> Corrigir informações
             </button>
             <Link href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg"
               style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
               <Home className="w-3.5 h-3.5" /> Tela Inicial
             </Link>
@@ -599,14 +766,12 @@ function ResultadoView({
       </div>
 
       <div className="max-w-lg mx-auto px-4 -mt-8 space-y-4">
-        {/* Card capacidade */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-5 py-3 flex items-center gap-2" style={{ background: '#04241D' }}>
             <TrendingUp className="w-4 h-4" style={{ color: '#4ade80' }} />
             <span className="text-white font-bold text-sm">Sua capacidade de compra</span>
           </div>
           <div className="p-5">
-            {/* Linha renda + prestação */}
             <div className="divide-y divide-gray-50 mb-4">
               {[
                 ['Renda total considerada', fmt(resultado.renda_total)],
@@ -623,16 +788,13 @@ function ResultadoView({
               <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
                 <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
                 <p className="text-xs text-amber-800">
-                  <strong>Prazo reduzido por conta da sua idade.</strong> Os bancos exigem que <em>idade + prazo ≤ 80 anos</em>.
-                  O financiamento foi calculado com <strong>{resultado.prazo_anos} anos</strong> (prazo máximo permitido para você).
+                  <strong>Prazo reduzido por conta da sua idade.</strong> Os bancos exigem <em>idade + prazo ≤ 80 anos</em>.
+                  Calculado com <strong>{resultado.prazo_anos} anos</strong>.
                 </p>
               </div>
             )}
-
-            {/* Fórmula visual: banco + entrada = total */}
             <div className="bg-gray-50 rounded-xl p-4 space-y-2">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Como é calculado seu poder de compra</p>
-
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
@@ -640,7 +802,6 @@ function ResultadoView({
                 </div>
                 <span className="font-bold text-gray-900">{fmt(resultado.max_financiamento)}</span>
               </div>
-
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-primary-300" />
@@ -648,13 +809,11 @@ function ResultadoView({
                 </div>
                 <span className="font-bold text-gray-900">{fmt(resultado.entrada_total)}</span>
               </div>
-
               <div className="border-t-2 border-primary-200 pt-3 flex justify-between items-center">
                 <span className="font-bold text-gray-800">= Valor do imóvel que pode comprar</span>
                 <span className="text-xl font-black text-primary-600">{fmt(resultado.capacidade_total)}</span>
               </div>
             </div>
-
             {resultado.prestacao_estimada && parseBRL(form.valor_imovel_desejado as string) > 0 && (
               <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3">
                 <p className="text-sm text-amber-800">
@@ -666,7 +825,6 @@ function ResultadoView({
           </div>
         </div>
 
-        {/* Bancos */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-5 py-3 flex items-center gap-2" style={{ background: '#04241D' }}>
             <Building2 className="w-4 h-4" style={{ color: '#4ade80' }} />
@@ -690,9 +848,7 @@ function ResultadoView({
                 </div>
                 <div className="flex justify-between text-xs text-gray-600 mb-3">
                   <span>Taxa: <strong>{pct(banco.taxa_aa)}</strong></span>
-                  {banco.prestacao_estimada && (
-                    <span>Prestação: <strong>{fmt(banco.prestacao_estimada)}/mês</strong></span>
-                  )}
+                  {banco.prestacao_estimada && <span>Prestação: <strong>{fmt(banco.prestacao_estimada)}/mês</strong></span>}
                 </div>
                 {banco.motivos.length > 0 && (
                   <div className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg p-2 mb-3 space-y-0.5">
@@ -701,9 +857,7 @@ function ResultadoView({
                 )}
                 <a href={banco.url} target="_blank" rel="noopener noreferrer"
                   className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-colors w-full
-                    ${banco.aprovavel
-                      ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                      : 'bg-gray-200 hover:bg-gray-300 text-gray-600'}`}>
+                    ${banco.aprovavel ? 'bg-primary-600 hover:bg-primary-700 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'}`}>
                   <ExternalLink className="w-3.5 h-3.5" />
                   Simular no {banco.nome}
                 </a>
@@ -719,9 +873,8 @@ function ResultadoView({
           </div>
         </div>
 
-        {/* Ações finais */}
         <Link href="/"
-          className="flex items-center justify-center gap-2 text-white font-bold py-4 rounded-2xl transition-colors hover:opacity-90"
+          className="flex items-center justify-center gap-2 text-white font-bold py-4 rounded-2xl hover:opacity-90 transition-opacity"
           style={{ background: '#04241D' }}>
           <Home className="w-5 h-5" style={{ color: '#4ade80' }} />
           <span>Ir para a Tela Inicial</span>
