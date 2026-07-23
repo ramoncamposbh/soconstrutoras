@@ -39,6 +39,52 @@ export class ConstutorasService {
 
   // ── ADMIN ──────────────────────────────────────────────────────────────────
 
+  async editarAdmin(construtoraId: string, dto: { nome_fantasia?: string }) {
+    const entradas = Object.entries(dto).filter(([, v]) => v !== undefined && v !== '');
+    if (entradas.length === 0) throw new NotFoundException('Nada para atualizar.');
+    const sets = entradas.map(([k], i) => `${k} = $${i + 2}`).join(', ');
+    const { rows: [c] } = await this.pool.query(
+      `UPDATE construtoras SET ${sets} WHERE id = $1 RETURNING id, nome_fantasia`,
+      [construtoraId, ...entradas.map(([, v]) => v)],
+    );
+    if (!c) throw new NotFoundException('Construtora não encontrada.');
+    return c;
+  }
+
+  async deletarAdmin(construtoraId: string) {
+    // Busca o user_id e verifica existência
+    const { rows: [c] } = await this.pool.query(
+      'SELECT id, user_id FROM construtoras WHERE id = $1', [construtoraId],
+    );
+    if (!c) throw new NotFoundException('Construtora não encontrada.');
+
+    // IDs de empreendimentos
+    const { rows: emps } = await this.pool.query(
+      'SELECT id FROM empreendimentos WHERE construtora_id = $1', [construtoraId],
+    );
+    const empIds = emps.map((e: any) => e.id);
+
+    if (empIds.length > 0) {
+      // IDs de unidades
+      const { rows: unds } = await this.pool.query(
+        'SELECT id FROM unidades WHERE empreendimento_id = ANY($1)', [empIds],
+      );
+      const undIds = unds.map((u: any) => u.id);
+      if (undIds.length > 0) {
+        await this.pool.query('DELETE FROM unidade_midias WHERE unidade_id = ANY($1)', [undIds]);
+        await this.pool.query('DELETE FROM unidades WHERE id = ANY($1)', [undIds]);
+      }
+      await this.pool.query('DELETE FROM leads WHERE empreendimento_id = ANY($1)', [empIds]);
+      await this.pool.query('DELETE FROM favoritos WHERE empreendimento_id = ANY($1)', [empIds]);
+      await this.pool.query('DELETE FROM empreendimento_midias WHERE empreendimento_id = ANY($1)', [empIds]);
+      await this.pool.query('DELETE FROM empreendimentos WHERE construtora_id = $1', [construtoraId]);
+    }
+    await this.pool.query('DELETE FROM parceiros WHERE construtora_id = $1', [construtoraId]);
+    await this.pool.query('DELETE FROM construtoras WHERE id = $1', [construtoraId]);
+    await this.pool.query('DELETE FROM users WHERE id = $1', [c.user_id]);
+    return { deleted: true, construtoraId };
+  }
+
   async listarAdmin() {
     const { rows } = await this.pool.query(
       `SELECT c.id, c.nome_fantasia, c.logo_url, c.created_at,

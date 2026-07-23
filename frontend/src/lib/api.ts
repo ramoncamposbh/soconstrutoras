@@ -151,6 +151,8 @@ export const lojasApi = {
 export const adminApi = {
   // Construtoras
   listarConstrutoras:          () => api.get('/construtoras/admin/lista'),
+  editarConstrutora:           (id: string, dto: any) => api.patch(`/construtoras/admin/${id}/editar`, dto),
+  deletarConstrutora:          (id: string) => api.delete(`/construtoras/admin/${id}`),
   // Empreendimentos
   listarEmpreendimentos:       () => api.get('/empreendimentos/admin/todas'),
   listarEmpsPorConstrutora:    (construtoraId: string) => api.get(`/empreendimentos/admin/construtora/${construtoraId}`),
