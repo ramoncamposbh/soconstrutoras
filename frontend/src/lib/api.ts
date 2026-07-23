@@ -158,7 +158,10 @@ export const adminApi = {
   editarEmpreendimento:        (id: string, dto: any) => api.patch(`/empreendimentos/admin/${id}/editar`, dto),
   deletarEmpreendimento:       (id: string) => api.delete(`/empreendimentos/admin/${id}`),
   // Unidades
-  listarUnidades:              (empreendimentoId: string) => api.get(`/unidades/admin/${empreendimentoId}`),
+  listarUnidades:              (empreendimentoId: string) => api.get(`/unidades/admin/empreendimento/${empreendimentoId}`),
+  toggleUnidade:               (id: string) => api.patch(`/unidades/admin/${id}/toggle`),
+  editarUnidade:               (id: string, dto: any) => api.patch(`/unidades/admin/${id}/editar`, dto),
+  deletarUnidade:              (id: string) => api.delete(`/unidades/admin/${id}`),
   // Usuários construtora
   listarUsuarios:              () => api.get('/construtoras/admin/usuarios'),
   resetSenha:                  (id: string) => api.post(`/construtoras/admin/${id}/reset-senha`, {}),

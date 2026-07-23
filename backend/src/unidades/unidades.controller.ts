@@ -18,11 +18,32 @@ export class UnidadesController {
     return this.service.listar(empId, req.user.sub);
   }
 
-  // GET /api/v1/unidades/admin/:empreendimentoId  (sem verificar propriedade)
-  @Get('admin/:empreendimentoId')
+  // GET /api/v1/unidades/admin/empreendimento/:empreendimentoId
+  @Get('admin/empreendimento/:empreendimentoId')
   listarAdmin(@Param('empreendimentoId') empId: string, @Request() req: any) {
     if (req.user?.role !== 'admin') throw new ForbiddenException('Acesso negado.');
     return this.service.listarAdmin(empId);
+  }
+
+  // PATCH /api/v1/unidades/admin/:id/toggle
+  @Patch('admin/:id/toggle')
+  toggleAdmin(@Param('id') id: string, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException('Acesso negado.');
+    return this.service.toggleDisponivelAdmin(id);
+  }
+
+  // PATCH /api/v1/unidades/admin/:id/editar
+  @Patch('admin/:id/editar')
+  editarAdmin(@Param('id') id: string, @Body() dto: any, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException('Acesso negado.');
+    return this.service.editarAdmin(id, dto);
+  }
+
+  // DELETE /api/v1/unidades/admin/:id
+  @Delete('admin/:id')
+  deletarAdmin(@Param('id') id: string, @Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException('Acesso negado.');
+    return this.service.deletarAdmin(id);
   }
 
   @Post('empreendimentos/:empreendimentoId')

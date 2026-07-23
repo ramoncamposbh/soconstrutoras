@@ -110,6 +110,44 @@ export class UnidadesService {
     }));
   }
 
+  async toggleDisponivelAdmin(id: string) {
+    const { rows: [u] } = await this.pool.query(
+      `UPDATE unidades SET disponivel = NOT disponivel, updated_at = NOW()
+       WHERE id = $1 RETURNING id, nome, disponivel`,
+      [id],
+    );
+    if (!u) throw new NotFoundException('Unidade não encontrada.');
+    return u;
+  }
+
+  async editarAdmin(id: string, dto: Partial<{
+    nome: string; tipo: string; quartos: number; suites: number; vagas: number;
+    metragem_privativa: number; metragem_total: number;
+    preco: number; descricao: string; disponivel: boolean;
+  }>) {
+    const entradas = Object.entries(dto).filter(([, v]) => v !== undefined);
+    if (entradas.length === 0) throw new NotFoundException('Nada para atualizar.');
+    const sets = entradas.map(([k], i) => `${k} = $${i + 2}`).join(', ');
+    const { rows: [u] } = await this.pool.query(
+      `UPDATE unidades SET ${sets}, updated_at = NOW() WHERE id = $1 RETURNING *`,
+      [id, ...entradas.map(([, v]) => v)],
+    );
+    if (!u) throw new NotFoundException('Unidade não encontrada.');
+    return u;
+  }
+
+  async deletarAdmin(id: string) {
+    const { rows: midias } = await this.pool.query(
+      'SELECT url FROM unidade_midias WHERE unidade_id = $1', [id],
+    );
+    await Promise.all(midias.map((m: any) => this.storage.deletar(m.url).catch(() => null)));
+    const { rows: [u] } = await this.pool.query(
+      'DELETE FROM unidades WHERE id = $1 RETURNING id, nome', [id],
+    );
+    if (!u) throw new NotFoundException('Unidade não encontrada.');
+    return { deleted: true, ...u };
+  }
+
   async criar(empreendimentoId: string, userId: string, dto: CriarUnidadeDto) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     await this.verificarPropriedadeEmpreendimento(empreendimentoId, construtoraId);
