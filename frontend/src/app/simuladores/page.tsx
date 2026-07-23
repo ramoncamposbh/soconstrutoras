@@ -206,7 +206,6 @@ export default function SimuladoresPage() {
       fgts: parseBRL(form.fgts) || undefined,
       usa_fgts: form.usa_fgts,
       vinculo: form.vinculo,
-      idade: parseInt(form.idade) || undefined,
       tempo_emprego_meses: parseInt(form.tempo_emprego_meses) || undefined,
       score_serasa_estimado: parseInt(form.score_serasa_estimado) || undefined,
       valor_imovel_desejado: parseBRL(form.valor_imovel_desejado) || undefined,
