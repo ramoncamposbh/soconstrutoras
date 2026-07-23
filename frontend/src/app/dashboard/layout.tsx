@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth';
 import Image from 'next/image';
 import {
   LayoutDashboard, Building2, Users, Bell, LogOut,
-  ChevronRight, Loader2, CreditCard, Menu, X, Store,
+  ChevronRight, Loader2, CreditCard, Menu, X, Store, Calculator,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,7 @@ const navItems = [
   { href: '/dashboard/empreendimentos', label: 'Empreendimentos',  icon: Building2,       roles: null },
   { href: '/dashboard/parceiros',       label: 'Parceiros',        icon: Users,           roles: ['construtora', 'admin'] },
   { href: '/dashboard/leads',           label: 'Leads',            icon: Bell,            roles: null },
+  { href: '/dashboard/simulacoes',      label: 'Simulações',       icon: Calculator,      roles: ['admin'] },
   { href: '/dashboard/lojas',           label: 'Lojas Parceiras',  icon: Store,           roles: ['admin'] },
   { href: '/dashboard/assinatura',      label: 'Assinatura',       icon: CreditCard,      roles: null },
 ];

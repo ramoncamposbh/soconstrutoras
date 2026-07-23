@@ -1,6 +1,7 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { SimuladorService } from './simulador.service';
 import { SimularDto } from './dto/simular.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('simulador')
 export class SimuladorController {
@@ -10,5 +11,12 @@ export class SimuladorController {
   @HttpCode(HttpStatus.OK)
   calcular(@Body() dto: SimularDto) {
     return this.simuladorService.calcular(dto);
+  }
+
+  @Get('admin/lista')
+  @UseGuards(JwtAuthGuard)
+  async lista(@Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.simuladorService.listar();
   }
 }

@@ -220,4 +220,16 @@ export class SimuladorService {
       bancos,
     };
   }
+
+  async listar() {
+    const { rows } = await this.pool.query(
+      `SELECT id, nome, email, telefone, renda_liquida, entrada, fgts, usa_fgts,
+              vinculo, valor_imovel_desejado, prazo_anos,
+              score_imobiliario, capacidade_total, max_financiamento, created_at
+       FROM simulacoes
+       ORDER BY created_at DESC
+       LIMIT 500`,
+    );
+    return rows;
+  }
 }
