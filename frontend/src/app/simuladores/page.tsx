@@ -382,14 +382,53 @@ export default function SimuladoresPage() {
                     />
                   )}
                 </div>
+
+                {/* Idade antes do prazo — prazo depende da idade */}
+                <label className="block">
+                  <span className="text-sm font-semibold text-gray-700">Sua idade <span className="text-primary-600">*</span></span>
+                  <input
+                    type="number" min="18" max="79" placeholder="Ex: 35"
+                    value={form.idade}
+                    onChange={e => {
+                      const novaIdade = e.target.value;
+                      const prazoMaxAnos = novaIdade ? Math.max(5, 80 - parseInt(novaIdade)) : 35;
+                      const prazoAtual = parseInt(form.prazo_anos);
+                      const melhoPrazo = [35, 30, 25, 20].find(p => p <= prazoMaxAnos) ?? 20;
+                      setForm(f => ({
+                        ...f,
+                        idade: novaIdade,
+                        prazo_anos: prazoAtual > prazoMaxAnos ? String(melhoPrazo) : f.prazo_anos,
+                      }));
+                    }}
+                    className={`mt-1 ${inputCls}`}
+                  />
+                  {form.idade && parseInt(form.idade) > 0 && (
+                    <p className="text-xs font-semibold mt-1" style={{ color: (80 - parseInt(form.idade)) < 20 ? '#b45309' : '#15803d' }}>
+                      {`✓ Prazo máximo disponível: ${Math.max(0, 80 - parseInt(form.idade))} anos`}
+                    </p>
+                  )}
+                </label>
+
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Prazo desejado do financiamento</span>
                   <select value={form.prazo_anos} onChange={e => set('prazo_anos', e.target.value)} className={`mt-1 ${selectCls}`}>
-                    <option value="20">20 anos (240 meses)</option>
-                    <option value="25">25 anos (300 meses)</option>
-                    <option value="30">30 anos (360 meses)</option>
-                    <option value="35">35 anos — máximo (420 meses)</option>
+                    {(() => {
+                      const prazoMaxAnos = form.idade ? Math.max(5, 80 - parseInt(form.idade)) : 35;
+                      return [
+                        { value: '20', label: '20 anos (240 meses)' },
+                        { value: '25', label: '25 anos (300 meses)' },
+                        { value: '30', label: '30 anos (360 meses)' },
+                        { value: '35', label: '35 anos — máximo (420 meses)' },
+                      ].filter(op => parseInt(op.value) <= prazoMaxAnos).map(op => (
+                        <option key={op.value} value={op.value}>{op.label}</option>
+                      ));
+                    })()}
                   </select>
+                  {form.idade && parseInt(form.idade) > 0 && parseInt(form.prazo_anos) < 30 && (
+                    <p className="text-xs text-amber-700 font-semibold mt-1">
+                      ⚠ Prazo limitado pela sua idade (regra: idade + prazo ≤ 80 anos)
+                    </p>
+                  )}
                 </label>
               </>
             )}
@@ -401,28 +440,6 @@ export default function SimuladoresPage() {
                   <h2 className="text-lg font-bold text-gray-900">Seu perfil de emprego</h2>
                   <p className="text-sm text-gray-500 mt-0.5">Afeta quais bancos e condições você acessa</p>
                 </div>
-                <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">Sua idade <span className="text-primary-600">*</span></span>
-                  <div className="relative mt-1">
-                    <input
-                      type="number" min="18" max="79" placeholder="Ex: 35"
-                      value={form.idade}
-                      onChange={e => set('idade', e.target.value)}
-                      className={inputCls}
-                    />
-                  </div>
-                  {form.idade && parseInt(form.idade) > 0 && (
-                    <p className="text-xs font-semibold mt-1" style={{ color: parseInt(form.idade) >= 60 ? '#b45309' : '#15803d' }}>
-                      {(() => {
-                        const prazoMax = Math.max(0, 80 - parseInt(form.idade));
-                        const prazoDesejado = parseInt(form.prazo_anos);
-                        return prazoMax < prazoDesejado
-                          ? `⚠ Com ${form.idade} anos, prazo máximo é ${prazoMax} anos (regra: idade + prazo ≤ 80)`
-                          : `✓ Prazo máximo disponível: ${prazoMax} anos`;
-                      })()}
-                    </p>
-                  )}
-                </label>
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Vínculo empregatício <span className="text-primary-600">*</span></span>
                   <select value={form.vinculo} onChange={e => set('vinculo', e.target.value as typeof form.vinculo)} className={`mt-1 ${selectCls}`}>
