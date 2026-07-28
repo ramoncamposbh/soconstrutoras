@@ -527,11 +527,17 @@ export default function HomePage() {
         // Resultado ideal: bairro + amenidades
         setEmpreendimentos(porAmenidades);
       } else if (todasAmenidades.length > 0) {
-        // Tem resultado no bairro mas nenhum com a amenidade descrita
-        setEmpreendimentos(porBairro);
+        // Pediu amenidade específica mas nenhum resultado tem — não mostra outros
+        setEmpreendimentos([]);
+        const amenLabel = todasAmenidades.map(a =>
+          a.charAt(0).toUpperCase() + a.slice(1)
+        ).join(' e ');
         setMensagemBusca({
-          texto: `Não encontramos imóveis com ${todasAmenidades.join(' e ')} no perfil pedido.`,
-          sugestoes: ['Mostrando os imóveis disponíveis no bairro — verifique as descrições para mais detalhes:'],
+          texto: `Nenhum imóvel encontrado com ${amenLabel}${regiaoLabel ? ` na região ${regiaoLabel}` : ''}.`,
+          sugestoes: [
+            'As construtoras cadastradas ainda não oferecem esse conjunto de características nessa região.',
+            'Tente buscar sem esse filtro ou em outra região da cidade.',
+          ],
         });
       } else {
         setEmpreendimentos(porBairro);
@@ -1368,7 +1374,7 @@ export default function HomePage() {
         );
       })()}
 
-      {/* ══ MODAL: Sugestão de região quando sem resultados ══ */}
+      {/* ══ MODAL: Sem resultados / amenidade não encontrada ══ */}
       {mensagemBusca && (
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center p-4"
@@ -1378,16 +1384,23 @@ export default function HomePage() {
             className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-2xl"
             style={{ background: 'linear-gradient(160deg, #0D2B22 0%, #0A3D2C 100%)', border: '1px solid #1A5440' }}
           >
-            {/* Ícone central */}
+            {/* Ícone e título dinâmicos conforme o tipo de mensagem */}
             <div className="flex flex-col items-center gap-2 pt-2">
               <div
                 className="w-20 h-20 rounded-full flex items-center justify-center"
                 style={{ border: '4px solid #0E8F6E', background: 'rgba(14,143,110,0.12)' }}
               >
-                <MapPin className="w-9 h-9" style={{ color: '#22D497' }} />
+                {mensagemBusca.texto.toLowerCase().includes('característica') ||
+                 mensagemBusca.texto.toLowerCase().includes('nenhum imóvel encontrado com') ?
+                  <Search className="w-9 h-9" style={{ color: '#22D497' }} /> :
+                  <MapPin className="w-9 h-9" style={{ color: '#22D497' }} />
+                }
               </div>
               <h3 className="text-white text-lg font-bold text-center mt-1">
-                Região não disponível
+                {mensagemBusca.texto.toLowerCase().includes('característica') ||
+                 mensagemBusca.texto.toLowerCase().includes('nenhum imóvel encontrado com') ?
+                  'Característica não encontrada' : 'Região não disponível'
+                }
               </h3>
             </div>
 
