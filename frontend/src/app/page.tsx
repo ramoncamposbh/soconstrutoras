@@ -150,7 +150,10 @@ export default function HomePage() {
           if (!res.ok) {
             const errText = await res.text();
             console.error('[Speech iOS] backend error:', errText);
-            throw new Error(`HTTP ${res.status}`);
+            // Tenta extrair mensagem amigável do backend
+            let msg = `HTTP ${res.status}`;
+            try { msg = (JSON.parse(errText) as any)?.message ?? msg; } catch { /* usa padrão */ }
+            throw new Error(msg);
           }
           const { text } = await res.json();
           toast.dismiss(tid);
