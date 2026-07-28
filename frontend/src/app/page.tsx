@@ -83,6 +83,14 @@ export default function HomePage() {
     setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
   }, []);
 
+  // Auto-expande textarea sempre que aiText muda (inclusive quando vem da transcrição)
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+  }, [aiText]);
+
   const startVoiceSearch = async () => {
     // Se MediaRecorder estiver gravando, para e transcreve
     if (mediaRecRef.current && mediaRecRef.current.state === 'recording') {
@@ -437,8 +445,11 @@ export default function HomePage() {
     setMensagemBusca(null);
     const { filtros, regiaoLabel, bairrosRegiao } = parseAiQuery(aiText);
 
-    // Remove parâmetros internos antes de enviar ao backend
-    const amenidadesExtras: string[] = filtros._amenidades_extras ?? [];
+    // Coleta TODAS as amenidades para filtro client-side (backend é pré-filtro pela 1ª)
+    const todasAmenidades: string[] = [
+      ...(filtros.busca ? [filtros.busca] : []),
+      ...(filtros._amenidades_extras ?? []),
+    ];
     delete filtros._amenidades_extras;
 
     // ── Inicia modal de progresso ──
@@ -484,43 +495,46 @@ export default function HomePage() {
         );
       };
 
-      // Helper: filtra amenidades extras (segunda, terceira...) na descricao client-side
-      const filtrarAmenidadesExtras = (lista: any[]) => {
-        if (amenidadesExtras.length === 0) return lista;
+      // Helper: filtra TODAS as amenidades client-side na descricao
+      const filtrarPorAmenidades = (lista: any[]) => {
+        if (todasAmenidades.length === 0) return lista;
         return lista.filter((e: any) => {
-          const desc = normalizarTexto(e.descricao ?? '');
-          return amenidadesExtras.every((a) => desc.includes(normalizarTexto(a)));
+          const desc = normalizarTexto((e.descricao ?? '') + ' ' + (e.nome ?? ''));
+          return todasAmenidades.every((a) => desc.includes(normalizarTexto(a)));
         });
       };
 
-      let resultado = filtrarPorBairro(data);
-      resultado = filtrarAmenidadesExtras(resultado);
+      const porBairro     = filtrarPorBairro(data);
+      const porAmenidades = filtrarPorAmenidades(porBairro);
 
-      if (resultado.length > 0) {
-        setEmpreendimentos(resultado);
-      } else if (bairrosRegiao.length > 0 && filtrarPorBairro(data).length === 0) {
-        // Bairro não encontrado — mostra tudo com aviso
-        const regioesSugeridas = detectarRegioes(data);
-        setEmpreendimentos(data);
-        setMensagemBusca({
-          texto: `Não encontramos imóveis com esse perfil na Região ${regiaoLabel}.`,
-          sugestoes: regioesSugeridas.length > 0
-            ? [`Mas temos opções próximas na${regioesSugeridas.length > 1 ? 's' : ''} Região ${regioesSugeridas.join(' e ')} — confira abaixo:`]
-            : ['Mostrando os imóveis disponíveis mais próximos do seu perfil:'],
-        });
-      } else if (data.length === 0) {
+      if (data.length === 0) {
         setEmpreendimentos([]);
         setMensagemBusca({
           texto: 'Nenhum imóvel encontrado com esses critérios.',
           sugestoes: ['Tente ampliar os filtros — menos quartos, outra região ou sem filtro de preço.'],
         });
-      } else {
-        // Amenidades não encontradas nos resultados do bairro — mostra sem filtro de amenidade
-        setEmpreendimentos(filtrarPorBairro(data).length > 0 ? filtrarPorBairro(data) : data);
+      } else if (porBairro.length === 0) {
+        // Bairro não encontrado — mostra tudo com aviso
+        const regioesSugeridas = detectarRegioes(data);
+        setEmpreendimentos(data);
         setMensagemBusca({
-          texto: 'Não encontramos imóveis com todas as características pedidas.',
-          sugestoes: ['Mostrando os mais próximos do seu perfil:'],
+          texto: `Não encontramos imóveis com esse perfil na região ${regiaoLabel}.`,
+          sugestoes: regioesSugeridas.length > 0
+            ? [`Mas temos opções próximas na${regioesSugeridas.length > 1 ? 's' : ''} Região ${regioesSugeridas.join(' e ')} — confira abaixo:`]
+            : ['Mostrando os imóveis disponíveis mais próximos do seu perfil:'],
         });
+      } else if (porAmenidades.length > 0) {
+        // Resultado ideal: bairro + amenidades
+        setEmpreendimentos(porAmenidades);
+      } else if (todasAmenidades.length > 0) {
+        // Tem resultado no bairro mas nenhum com a amenidade descrita
+        setEmpreendimentos(porBairro);
+        setMensagemBusca({
+          texto: `Não encontramos imóveis com ${todasAmenidades.join(' e ')} no perfil pedido.`,
+          sugestoes: ['Mostrando os imóveis disponíveis no bairro — verifique as descrições para mais detalhes:'],
+        });
+      } else {
+        setEmpreendimentos(porBairro);
       }
     } catch {
       clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
