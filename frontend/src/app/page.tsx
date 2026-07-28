@@ -403,10 +403,10 @@ export default function HomePage() {
         .match(/(?:no\s+bairro|na\s+bairro|pelo\s+bairro|bairro)\s+([\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+(?:\s+(?:do|da|de|dos|das)\s+[\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+)?)/);
 
       // Fallback: "no X" ou "na X" onde X não é preposição/artigo/direção
-      const stopWords = 'bairro|centro|norte|sul|leste|oeste|estado|pais|bh|minas|gerais';
+      // Regex literal (compatível Safari iOS) — captura "na Savassi", "no Buritis", "nas Mangabeiras"
       const mNaNoX = !mBairroExplicito
         ? texto.toLowerCase()
-            .match(new RegExp(`\\bn[ao]s?\\s+((?!${stopWords})[áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇa-z]+(?:\\s+(?:do|da|de|dos|das)\\s+[áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇa-z]+)?)`))
+            .match(/\bn[ao]s?\s+((?!bairro|centro|norte|sul|leste|oeste|estado|pais|bh|minas|gerais)[a-záàãâéêíóôõúüç]+(?:\s+(?:do|da|de|dos|das)\s+[a-záàãâéêíóôõúüç]+)?)/)
         : null;
 
       const bairroDetectado = mBairroExplicito?.[1]?.trim() || mNaNoX?.[1]?.trim() || null;
