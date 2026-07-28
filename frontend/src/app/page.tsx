@@ -323,6 +323,7 @@ export default function HomePage() {
     }
 
     // Bairros específicos mapeados por nome → cidade
+    // IMPORTANTE: ao detectar o bairro, também preenche bairrosRegiao para o filtro client-side
     const mapaBairros: Record<string, string> = {
       savassi: 'Belo Horizonte', funcionarios: 'Belo Horizonte',
       lourdes: 'Belo Horizonte', 'santo antonio': 'Belo Horizonte',
@@ -331,37 +332,46 @@ export default function HomePage() {
       floresta: 'Belo Horizonte', barreiro: 'Belo Horizonte',
       contorno: 'Belo Horizonte', sereno: 'Nova Lima',
       'vale do sereno': 'Nova Lima', alphaville: 'Nova Lima',
+      castelo: 'Belo Horizonte', mangabeiras: 'Belo Horizonte',
+      anchieta: 'Belo Horizonte', sion: 'Belo Horizonte',
+      'cidade jardim': 'Belo Horizonte', 'santa efigenia': 'Belo Horizonte',
+      horto: 'Belo Horizonte', 'santa teresa': 'Belo Horizonte',
     };
-    if (!filtros.cidade) {
-      for (const [k, v] of Object.entries(mapaBairros)) {
-        if (t.includes(k)) { filtros.cidade = v; break; }
+    for (const [k, v] of Object.entries(mapaBairros)) {
+      if (t.includes(k)) {
+        if (!filtros.cidade) filtros.cidade = v;
+        // Preenche bairrosRegiao se ainda não foi definido por região
+        if (bairrosRegiao.length === 0) {
+          bairrosRegiao = [k]; // já normalizado (lowercase, sem acento no mapa)
+          regiaoLabel = k.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+        break;
       }
     }
 
-    // ── Detecção de bairro explícito ──────────────────────────────
-    // Ex: "no bairro união", "bairro savassi", "no uniao"
+    // ── Detecção de bairro explícito por padrão textual ──────────────────────────────
+    // Cobre: "no bairro X", "na Savassi", "no Buritis", "pelo bairro X"
     if (bairrosRegiao.length === 0) {
       // Padrão "no bairro X" ou "bairro X"
       const mBairroExplicito = texto.toLowerCase()
-        .match(/(?:no\s+bairro|pelo\s+bairro|bairro)\s+([\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+(?:\s+(?:do|da|de|dos|das)\s+[\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+)?)/);
+        .match(/(?:no\s+bairro|na\s+bairro|pelo\s+bairro|bairro)\s+([\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+(?:\s+(?:do|da|de|dos|das)\s+[\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+)?)/);
 
-      // Fallback: "no X" onde X não é preposição/artigo
-      const mNoX = !mBairroExplicito
+      // Fallback: "no X" ou "na X" onde X não é preposição/artigo/direção
+      const stopWords = 'bairro|centro|norte|sul|leste|oeste|estado|pais|bh|minas|gerais';
+      const mNaNoX = !mBairroExplicito
         ? texto.toLowerCase()
-            .match(/\bno\s+((?!bairro|centro|norte|sul|leste|oeste|estado|pais|bh)[áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇa-z]+(?:\s+(?:do|da|de|dos|das)\s+[áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇa-z]+)?)/)
+            .match(new RegExp(`\\bn[ao]s?\\s+((?!${stopWords})[áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇa-z]+(?:\\s+(?:do|da|de|dos|das)\\s+[áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇa-z]+)?)`))
         : null;
 
-      const bairroDetectado = mBairroExplicito?.[1]?.trim() || mNoX?.[1]?.trim() || null;
+      const bairroDetectado = mBairroExplicito?.[1]?.trim() || mNaNoX?.[1]?.trim() || null;
 
       if (bairroDetectado) {
-        // Capitaliza para exibição (ex: "uniao" → "Uniao")
         regiaoLabel = bairroDetectado
           .split(' ')
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(' ');
-        // bairrosRegiao em texto normalizado para comparação client-side
         bairrosRegiao = [normalizarTexto(bairroDetectado)];
-        if (!filtros.cidade) filtros.cidade = 'Belo Horizonte'; // assume BH se não foi informado
+        if (!filtros.cidade) filtros.cidade = 'Belo Horizonte';
       }
     }
 
