@@ -31,4 +31,8 @@ export class BuscarEmpreendimentosDto {
 
   @IsOptional() @Type(() => Number) @IsNumber() @Min(0)
   pagina?: number;
+
+  // Busca textual livre — pesquisa em nome + descricao (amenidades, características)
+  @IsOptional() @IsString()
+  busca?: string;
 }

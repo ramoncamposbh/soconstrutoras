@@ -301,6 +301,44 @@ export default function HomePage() {
       filtros.preco_max = /mil|k/.test(mPreco[2] ?? '') ? v * 1000 : v;
     }
 
+    // Amenidades / características — busca textual na descrição do empreendimento
+    const mapaAmenidades: Record<string, string> = {
+      piscina:       'piscina',
+      quadra:        'quadra',
+      academia:      'academia',
+      playground:    'playground',
+      salao:         'salão de festas',
+      'salao de festas': 'salão de festas',
+      churrasqueira: 'churrasqueira',
+      sauna:         'sauna',
+      spa:           'spa',
+      portaria:      'portaria',
+      concierge:     'concierge',
+      rooftop:       'rooftop',
+      coworking:     'coworking',
+      pet:           'pet',
+      'espaco gourmet': 'espaço gourmet',
+      gourmet:       'gourmet',
+      subsolo:       'subsolo',
+      varanda:       'varanda',
+      'garden':      'garden',
+    };
+    const amenidadesEncontradas: string[] = [];
+    for (const [palavra, termo] of Object.entries(mapaAmenidades)) {
+      if (t.includes(palavra) && !amenidadesEncontradas.includes(termo)) {
+        amenidadesEncontradas.push(termo);
+      }
+    }
+    // Passa a primeira amenidade como busca textual ao backend
+    // (o backend faz ILIKE na descricao)
+    if (amenidadesEncontradas.length > 0) {
+      filtros.busca = amenidadesEncontradas[0];
+      // Se houver mais de uma, guarda para filtro client-side posterior
+      if (amenidadesEncontradas.length > 1) {
+        filtros._amenidades_extras = amenidadesEncontradas.slice(1);
+      }
+    }
+
     // Regiões de BH (ordem importa: mais específico primeiro)
     const ordemRegioes = ['noroeste', 'centro sul', 'venda nova', 'pampulha',
                           'leste', 'norte', 'oeste', 'sul'];
@@ -399,6 +437,10 @@ export default function HomePage() {
     setMensagemBusca(null);
     const { filtros, regiaoLabel, bairrosRegiao } = parseAiQuery(aiText);
 
+    // Remove parâmetros internos antes de enviar ao backend
+    const amenidadesExtras: string[] = filtros._amenidades_extras ?? [];
+    delete filtros._amenidades_extras;
+
     // ── Inicia modal de progresso ──
     setBuscaProgresso({
       pais: 'Brasil',
@@ -433,31 +475,52 @@ export default function HomePage() {
       setBuscaProgresso(null);
 
       // ── Processa resultados ──
-      if (bairrosRegiao.length > 0 && data.length > 0) {
+      // Helper: filtra por bairro
+      const filtrarPorBairro = (lista: any[]) => {
+        if (bairrosRegiao.length === 0) return lista;
         const bairrosNorm = bairrosRegiao.map(normalizarTexto);
-        const filtrado = data.filter((e: any) =>
+        return lista.filter((e: any) =>
           e.bairro && bairrosNorm.some((b) => normalizarTexto(e.bairro).includes(b))
         );
-        if (filtrado.length > 0) {
-          setEmpreendimentos(filtrado);
-        } else {
-          const regioesSugeridas = detectarRegioes(data);
-          setEmpreendimentos(data);
-          setMensagemBusca({
-            texto: `Não encontramos imóveis com esse perfil na Região ${regiaoLabel}.`,
-            sugestoes: regioesSugeridas.length > 0
-              ? [`Mas temos opções próximas na${regioesSugeridas.length > 1 ? 's' : ''} Região ${regioesSugeridas.join(' e ')} — confira abaixo:`]
-              : ['Mostrando os imóveis disponíveis mais próximos do seu perfil:'],
-          });
-        }
-      } else {
+      };
+
+      // Helper: filtra amenidades extras (segunda, terceira...) na descricao client-side
+      const filtrarAmenidadesExtras = (lista: any[]) => {
+        if (amenidadesExtras.length === 0) return lista;
+        return lista.filter((e: any) => {
+          const desc = normalizarTexto(e.descricao ?? '');
+          return amenidadesExtras.every((a) => desc.includes(normalizarTexto(a)));
+        });
+      };
+
+      let resultado = filtrarPorBairro(data);
+      resultado = filtrarAmenidadesExtras(resultado);
+
+      if (resultado.length > 0) {
+        setEmpreendimentos(resultado);
+      } else if (bairrosRegiao.length > 0 && filtrarPorBairro(data).length === 0) {
+        // Bairro não encontrado — mostra tudo com aviso
+        const regioesSugeridas = detectarRegioes(data);
         setEmpreendimentos(data);
-        if (data.length === 0) {
-          setMensagemBusca({
-            texto: 'Nenhum imóvel encontrado com esses critérios.',
-            sugestoes: ['Tente ampliar os filtros — menos quartos, outra região ou sem filtro de preço.'],
-          });
-        }
+        setMensagemBusca({
+          texto: `Não encontramos imóveis com esse perfil na Região ${regiaoLabel}.`,
+          sugestoes: regioesSugeridas.length > 0
+            ? [`Mas temos opções próximas na${regioesSugeridas.length > 1 ? 's' : ''} Região ${regioesSugeridas.join(' e ')} — confira abaixo:`]
+            : ['Mostrando os imóveis disponíveis mais próximos do seu perfil:'],
+        });
+      } else if (data.length === 0) {
+        setEmpreendimentos([]);
+        setMensagemBusca({
+          texto: 'Nenhum imóvel encontrado com esses critérios.',
+          sugestoes: ['Tente ampliar os filtros — menos quartos, outra região ou sem filtro de preço.'],
+        });
+      } else {
+        // Amenidades não encontradas nos resultados do bairro — mostra sem filtro de amenidade
+        setEmpreendimentos(filtrarPorBairro(data).length > 0 ? filtrarPorBairro(data) : data);
+        setMensagemBusca({
+          texto: 'Não encontramos imóveis com todas as características pedidas.',
+          sugestoes: ['Mostrando os mais próximos do seu perfil:'],
+        });
       }
     } catch {
       clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
@@ -796,15 +859,19 @@ export default function HomePage() {
                 <textarea
                   ref={textareaRef}
                   value={aiText}
-                  onChange={(e) => setAiText(e.target.value)}
-                  onInput={(e) => setAiText((e.target as HTMLTextAreaElement).value)}
+                  onChange={(e) => {
+                    setAiText(e.target.value);
+                    // Auto-expansão: reseta altura para recalcular
+                    e.target.style.height = 'auto';
+                    e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiSearch(); }
                   }}
                   placeholder="Conte como é o imóvel que você procura..."
                   rows={2}
                   className="flex-1 text-gray-800 placeholder:text-gray-400 resize-none outline-none leading-relaxed"
-                  style={{ fontSize: 16, lineHeight: 1.5 }}
+                  style={{ fontSize: 16, lineHeight: 1.5, minHeight: '52px', maxHeight: '200px', overflowY: 'auto' }}
                 />
                 <button onClick={handleAiSearch}
                   className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors mt-0.5"
@@ -812,9 +879,12 @@ export default function HomePage() {
                   <Send className="w-4 h-4 text-white" />
                 </button>
               </div>
-              <p className="text-[11px] mt-1.5 ml-7" style={{ color: '#9ca3af' }}>
-                Exemplos: "Quero um apartamento perto do Colégio Santo Antônio" · "Tenho dois filhos e trabalho na Savassi" · "Quero investir até R$ 900 mil"
-              </p>
+              {/* Exemplos só aparecem quando o campo está vazio */}
+              {!aiText && (
+                <p className="text-[11px] mt-1.5 ml-7" style={{ color: '#9ca3af' }}>
+                  Exemplos: "Quero um apartamento perto do Colégio Santo Antônio" · "Tenho dois filhos e trabalho na Savassi" · "Quero investir até R$ 900 mil"
+                </p>
+              )}
             </div>
 
             {/* Botões de ação */}

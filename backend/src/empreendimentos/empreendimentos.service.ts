@@ -93,6 +93,11 @@ export class EmpreendimentosService {
       conditions.push(`e.area_max >= $${i++}`);
       params.push(filtros.area_min);
     }
+    if (filtros.busca) {
+      conditions.push(`(e.nome ILIKE $${i} OR e.descricao ILIKE $${i})`);
+      params.push(`%${filtros.busca}%`);
+      i++;
+    }
 
     const where = conditions.join(' AND ');
     const limit  = Math.min(filtros.limite ?? 20, 50);
@@ -102,7 +107,7 @@ export class EmpreendimentosService {
       `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.bairro, e.cidade, e.estado,
               e.preco_min, e.preco_max, e.area_min, e.area_max,
               e.quartos_min, e.quartos_max, e.vagas,
-              e.latitude, e.longitude,
+              e.latitude, e.longitude, e.descricao,
               c.nome_fantasia AS construtora,
               (SELECT url FROM empreendimento_midias m
                WHERE m.empreendimento_id = e.id AND m.tipo = 'foto'
