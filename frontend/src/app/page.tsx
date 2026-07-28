@@ -83,13 +83,6 @@ export default function HomePage() {
     setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
   }, []);
 
-  // Auto-expande textarea sempre que aiText muda (inclusive quando vem da transcrição)
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
-  }, [aiText]);
 
   const startVoiceSearch = async () => {
     // Se MediaRecorder estiver gravando, para e transcreve
@@ -189,6 +182,15 @@ export default function HomePage() {
   const [destacado, setDestacado] = useState<string | null>(null);
   const [vista, setVista] = useState<'lista' | 'mapa'>('lista');
   const [aiText, setAiText] = useState('');
+
+  // Auto-expande textarea sempre que aiText muda (inclusive quando vem da transcrição por voz)
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+  }, [aiText]);
+
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [pesquisaAtiva, setPesquisaAtiva] = useState<string | null>(null);
   const [cidade, setCidade] = useState('');
