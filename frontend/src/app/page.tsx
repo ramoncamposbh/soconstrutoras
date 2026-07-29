@@ -325,7 +325,9 @@ export default function HomePage() {
       portaria:      'portaria',
       concierge:     'concierge',
       rooftop:       'rooftop',
-      coworking:     'coworking',
+      coworking:       'coworking',
+      'co-working':    'coworking',
+      'co working':    'coworking',
       pet:           'pet',
       'espaco gourmet': 'espaço gourmet',
       gourmet:       'gourmet',
@@ -497,12 +499,21 @@ export default function HomePage() {
         );
       };
 
+      // Normaliza para comparação: remove acentos, hífens e espaços extras
+      // "co-working" e "coworking" ficam iguais; "salão de festas" e "salao de festas" ficam iguais
+      const norm = (s: string) =>
+        normalizarTexto(s).replace(/[-\s]+/g, ' ').trim();
+
       // Helper: filtra TODAS as amenidades client-side na descricao
       const filtrarPorAmenidades = (lista: any[]) => {
         if (todasAmenidades.length === 0) return lista;
         return lista.filter((e: any) => {
-          const desc = normalizarTexto((e.descricao ?? '') + ' ' + (e.nome ?? ''));
-          return todasAmenidades.every((a) => desc.includes(normalizarTexto(a)));
+          const desc = norm((e.descricao ?? '') + ' ' + (e.nome ?? ''));
+          return todasAmenidades.every((a) => {
+            const termo = norm(a);
+            // tenta match exato ou sem hífens (co-working → coworking)
+            return desc.includes(termo) || desc.includes(termo.replace(/\s/g, ''));
+          });
         });
       };
 
