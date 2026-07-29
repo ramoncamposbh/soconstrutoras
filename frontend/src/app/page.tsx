@@ -529,16 +529,15 @@ export default function HomePage() {
         // Resultado ideal: bairro + amenidades
         setEmpreendimentos(porAmenidades);
       } else if (todasAmenidades.length > 0) {
-        // Pediu amenidade específica mas nenhum resultado tem — não mostra outros
-        setEmpreendimentos([]);
+        // Pediu característica mas não confirmamos na descrição — mostra bairro com aviso
         const amenLabel = todasAmenidades.map(a =>
           a.charAt(0).toUpperCase() + a.slice(1)
         ).join(' e ');
+        setEmpreendimentos(porBairro);
         setMensagemBusca({
-          texto: `Nenhum imóvel encontrado com ${amenLabel}${regiaoLabel ? ` na região ${regiaoLabel}` : ''}.`,
+          texto: `Não confirmamos "${amenLabel}" nas descrições dos imóveis${regiaoLabel ? ` na região ${regiaoLabel}` : ''}.`,
           sugestoes: [
-            'As construtoras cadastradas ainda não oferecem esse conjunto de características nessa região.',
-            'Tente buscar sem esse filtro ou em outra região da cidade.',
+            'Mostrando os imóveis disponíveis na região — consulte cada um para verificar os itens de lazer disponíveis.',
           ],
         });
       } else {
