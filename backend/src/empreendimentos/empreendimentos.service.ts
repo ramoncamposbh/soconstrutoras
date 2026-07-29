@@ -94,7 +94,8 @@ export class EmpreendimentosService {
       params.push(filtros.area_min);
     }
     if (filtros.busca) {
-      conditions.push(`(e.nome ILIKE $${i} OR e.descricao ILIKE $${i})`);
+      // Busca só na descricao (amenidades são características, não fazem parte do nome)
+      conditions.push(`e.descricao ILIKE $${i}`);
       params.push(`%${filtros.busca}%`);
       i++;
     }

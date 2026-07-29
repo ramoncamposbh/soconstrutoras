@@ -504,11 +504,12 @@ export default function HomePage() {
       const norm = (s: string) =>
         normalizarTexto(s).replace(/[-\s]+/g, ' ').trim();
 
-      // Helper: filtra TODAS as amenidades client-side na descricao
+      // Helper: filtra TODAS as amenidades client-side APENAS na descricao
+      // (não inclui e.nome — amenidades são características do imóvel, não parte do nome)
       const filtrarPorAmenidades = (lista: any[]) => {
         if (todasAmenidades.length === 0) return lista;
         return lista.filter((e: any) => {
-          const desc = norm((e.descricao ?? '') + ' ' + (e.nome ?? ''));
+          const desc = norm(e.descricao ?? '');
           return todasAmenidades.every((a) => {
             const termo = norm(a);
             // tenta match exato ou sem hífens (co-working → coworking)
