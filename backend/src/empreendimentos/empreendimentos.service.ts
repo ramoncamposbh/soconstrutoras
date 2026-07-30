@@ -95,8 +95,9 @@ export class EmpreendimentosService {
     }
     if (filtros.busca) {
       // Busca só na descricao (amenidades são características, não fazem parte do nome)
-      conditions.push(`e.descricao ILIKE $${i}`);
-      params.push(`%${filtros.busca}%`);
+      // REPLACE remove hifens para "co-working" e "coworking" serem equivalentes
+      conditions.push(`REPLACE(e.descricao, '-', '') ILIKE $${i}`);
+      params.push(`%${filtros.busca.replace(/-/g, '')}%`);
       i++;
     }
 
