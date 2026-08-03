@@ -373,7 +373,6 @@ export default function HomePage() {
     }
 
     // Bairros específicos mapeados por nome → cidade
-    // IMPORTANTE: ao detectar o bairro, também preenche bairrosRegiao para o filtro client-side
     const mapaBairros: Record<string, string> = {
       savassi: 'Belo Horizonte', funcionarios: 'Belo Horizonte',
       lourdes: 'Belo Horizonte', 'santo antonio': 'Belo Horizonte',
@@ -387,41 +386,78 @@ export default function HomePage() {
       'cidade jardim': 'Belo Horizonte', 'santa efigenia': 'Belo Horizonte',
       horto: 'Belo Horizonte', 'santa teresa': 'Belo Horizonte',
     };
+    // Palavras que indicam que o nome do bairro está dentro de um estabelecimento,
+    // não é referência de localização (ex: "Colégio Santo Antônio" ≠ bairro "Santo Antônio")
+    const prefixosEstab = [
+      'colegio', 'escola', 'faculdade', 'universidade', 'hospital', 'clinica',
+      'shopping', 'praca', 'rua', 'avenida', 'av', 'alameda', 'estrada',
+      'restaurante', 'mercado', 'supermercado', 'padaria', 'farmacia', 'posto',
+      'parque', 'clube', 'hotel', 'condominio', 'instituto',
+    ];
     for (const [k, v] of Object.entries(mapaBairros)) {
-      if (t.includes(k)) {
-        if (!filtros.cidade) filtros.cidade = v;
-        // Preenche bairrosRegiao se ainda não foi definido por região
-        if (bairrosRegiao.length === 0) {
-          bairrosRegiao = [k]; // já normalizado (lowercase, sem acento no mapa)
-          regiaoLabel = k.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        }
-        break;
+      const idx = t.indexOf(k);
+      if (idx === -1) continue;
+      // Verifica se o bairro é mencionado como parte de nome de estabelecimento (falso positivo)
+      const palavrasAntes = t.substring(0, idx).trim().split(/\s+/);
+      const ultimaPalavra = palavrasAntes[palavrasAntes.length - 1] || '';
+      if (prefixosEstab.includes(ultimaPalavra)) continue;
+      if (!filtros.cidade) filtros.cidade = v;
+      if (bairrosRegiao.length === 0) {
+        bairrosRegiao = [k];
+        regiaoLabel = k.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       }
+      break;
     }
 
     // ── Detecção de bairro explícito por padrão textual ──────────────────────────────
-    // Cobre: "no bairro X", "na Savassi", "no Buritis", "pelo bairro X"
     if (bairrosRegiao.length === 0) {
-      // Padrão "no bairro X" ou "bairro X"
       const mBairroExplicito = texto.toLowerCase()
         .match(/(?:no\s+bairro|na\s+bairro|pelo\s+bairro|bairro)\s+([\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+(?:\s+(?:do|da|de|dos|das)\s+[\wáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ]+)?)/);
-
-      // Fallback: "no X" ou "na X" onde X não é preposição/artigo/direção
-      // Regex literal (compatível Safari iOS) — captura "na Savassi", "no Buritis", "nas Mangabeiras"
+      // Regex literal Safari-safe — captura "na Savassi", "no Buritis", "nas Mangabeiras"
       const mNaNoX = !mBairroExplicito
         ? texto.toLowerCase()
             .match(/\bn[ao]s?\s+((?!bairro|centro|norte|sul|leste|oeste|estado|pais|bh|minas|gerais)[a-záàãâéêíóôõúüç]+(?:\s+(?:do|da|de|dos|das)\s+[a-záàãâéêíóôõúüç]+)?)/)
         : null;
-
       const bairroDetectado = mBairroExplicito?.[1]?.trim() || mNaNoX?.[1]?.trim() || null;
-
       if (bairroDetectado) {
         regiaoLabel = bairroDetectado
-          .split(' ')
-          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ');
+          .split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         bairrosRegiao = [normalizarTexto(bairroDetectado)];
         if (!filtros.cidade) filtros.cidade = 'Belo Horizonte';
+      }
+    }
+
+    // ── Normaliza variantes fonéticas/typos (erros comuns de transcrição por voz) ──
+    const canonicoBairros: Record<string, string> = {
+      savasse: 'savassi', savasi: 'savassi', savassy: 'savassi',
+      funcionario: 'funcionarios',
+      belveder: 'belvedere',
+    };
+    const canonicosLabel: Record<string, string> = {
+      savasse: 'Savassi', savasi: 'Savassi', savassy: 'Savassi',
+      funcionario: 'Funcionários',
+    };
+    bairrosRegiao = bairrosRegiao.map(b => {
+      const c = canonicoBairros[b];
+      if (c) {
+        if (regiaoLabel?.toLowerCase() === b) regiaoLabel = canonicosLabel[b] ?? regiaoLabel;
+        return c;
+      }
+      return b;
+    });
+
+    // ── "Perto de" / "próximo a" → expande para todos os bairros da mesma região ──
+    // Ex: "perto do Colégio Santo Antônio, na Savassi" → mostra todo o Centro-Sul
+    const pedePerto = /\bperto\b|\bproxim[ao]/.test(t);
+    if (pedePerto && bairrosRegiao.length > 0 && regiaoKey === null) {
+      const br = bairrosRegiao[0];
+      for (const [rKey, { bairros }] of Object.entries(REGIOES_BH)) {
+        const normBairros = bairros.map(normalizarTexto);
+        if (normBairros.some(b => b === br || b.includes(br) || br.includes(b))) {
+          regiaoKey = rKey;
+          bairrosRegiao = [...new Set([br, ...normBairros])];
+          break;
+        }
       }
     }
 
