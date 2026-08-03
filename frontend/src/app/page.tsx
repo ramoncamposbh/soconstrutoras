@@ -271,9 +271,28 @@ export default function HomePage() {
     regiaoKey: string | null;
     regiaoLabel: string | null;
     bairrosRegiao: string[];
+    mostraMapa: boolean;
+    landmarkLabel: string | null;
   } => {
+    // ── Extrai cláusula de ponto de referência ANTES de qualquer análise ─────────
+    // "perto do Colégio X", "próximo ao Parque Y", "ao lado da Praça Z" etc.
+    // O que vem depois de "perto de/próximo a" é um LANDMARK, não um bairro.
+    // Remove do texto para evitar falsos positivos na detecção de bairro.
+    let mostraMapa = false;
+    let landmarkLabel: string | null = null;
+    let textoPrincipal = texto;
+
+    const mPoi = texto.match(
+      /\b(?:perto\s+d[aeo]s?|pr[oó]xim[ao]\s+(?:a[ao]s?\s+)?|ao\s+lado\s+d[aeo]s?|pertinho\s+d[aeo]s?)\s*([^,.\n]+?)(?=\s*[,.]|\s+na\b|\s+no\b|\s+em\b|\s+com\b|\s+de\b|$)/i
+    );
+    if (mPoi) {
+      landmarkLabel = mPoi[1].trim();
+      textoPrincipal = texto.replace(mPoi[0], ' ').replace(/\s{2,}/g, ' ').trim();
+      mostraMapa = true;
+    }
+
     // Converte números por extenso (PT-BR) para algarismos antes de normalizar
-    const textoNorm = texto
+    const textoNorm = textoPrincipal
       .replace(/\bum\b/gi, '1').replace(/\bdois\b/gi, '2')
       .replace(/\btr[eê]s\b/gi, '3').replace(/\bquatro\b/gi, '4')
       .replace(/\bcinco\b/gi, '5').replace(/\bseis\b/gi, '6')
@@ -461,7 +480,7 @@ export default function HomePage() {
       }
     }
 
-    return { filtros, regiaoKey, regiaoLabel, bairrosRegiao };
+    return { filtros, regiaoKey, regiaoLabel, bairrosRegiao, mostraMapa, landmarkLabel };
   };
 
   /** Identifica em quais regiões de BH os empreendimentos estão */
@@ -483,7 +502,10 @@ export default function HomePage() {
   const handleAiSearch = async () => {
     if (!aiText.trim()) return;
     setMensagemBusca(null);
-    const { filtros, regiaoLabel, bairrosRegiao } = parseAiQuery(aiText);
+    const { filtros, regiaoLabel, bairrosRegiao, mostraMapa } = parseAiQuery(aiText);
+
+    // Se o usuário pediu "perto de / próximo ao X", abre o mapa automaticamente
+    if (mostraMapa) setVista('mapa');
 
     // Coleta TODAS as amenidades para filtro client-side (backend é pré-filtro pela 1ª)
     const todasAmenidades: string[] = [
