@@ -1,7 +1,10 @@
 import {
   Controller, Get, Post, Patch, Delete,
   Param, Body, Request, UseGuards, ForbiddenException,
+  UploadedFile, UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as multer from 'multer';
 import { UnidadesService } from './unidades.service';
 import { CriarUnidadeDto } from './dto/criar-unidade.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -66,6 +69,25 @@ export class UnidadesController {
   }
 
   // ── Mídias via R2 ─────────────────────────────────────────────
+
+  /** Upload proxy: arquivo passa pelo backend e vai direto para o R2 */
+  @Post(':id/midias/upload-local')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: (_req: any, file: any, cb: any) => {
+      if (!file.mimetype.startsWith('image/')) return cb(new Error('Apenas imagens'), false);
+      cb(null, true);
+    },
+  }))
+  uploadLocal(
+    @Param('id') id: string,
+    @Request() req: any,
+    @UploadedFile() file: any,
+    @Body() body: { tipo?: string },
+  ) {
+    return this.service.uploadViaProxy(id, req.user.sub, file, body?.tipo ?? 'foto');
+  }
 
   /** Passo 1: gera URL pré-assinada para upload direto ao R2 */
   @Post(':id/midias/url-upload')

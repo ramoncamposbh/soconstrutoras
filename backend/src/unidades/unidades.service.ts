@@ -196,6 +196,7 @@ export class UnidadesService {
   async uploadViaProxy(
     unidadeId: string, userId: string,
     file: { buffer: Buffer; mimetype: string; originalname: string },
+    tipo: string = 'foto',
   ) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     const empId = await this.verificarPropriedadeUnidade(unidadeId, construtoraId);
@@ -203,8 +204,8 @@ export class UnidadesService {
     const key = `unidades/${empId}/${unidadeId}/${uuidv4()}.${ext}`;
     const url = await this.storage.uploadBuffer(key, file.buffer, file.mimetype);
     const { rows: [m] } = await this.pool.query(
-      `INSERT INTO unidade_midias (unidade_id, url, tipo) VALUES ($1, $2, 'foto') RETURNING *`,
-      [unidadeId, url],
+      `INSERT INTO unidade_midias (unidade_id, url, tipo) VALUES ($1, $2, $3) RETURNING *`,
+      [unidadeId, url, tipo],
     );
     return m;
   }
