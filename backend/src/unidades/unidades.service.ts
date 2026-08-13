@@ -47,7 +47,7 @@ export class UnidadesService {
     const { rows: [c] } = await this.pool.query(
       'SELECT limite_unidades FROM construtoras WHERE id = $1', [construtoraId],
     );
-    const limite = c?.limite_unidades ?? 10;
+    const limite = c?.limite_unidades ?? 100;
     const { rows: [cnt] } = await this.pool.query(
       'SELECT COUNT(*)::int AS total FROM unidades WHERE empreendimento_id = $1',
       [empreendimentoId],
