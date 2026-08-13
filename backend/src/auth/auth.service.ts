@@ -125,10 +125,19 @@ export class AuthService implements OnModuleInit {
       );
 
       if (dto.role === 'construtora') {
-        await client.query(
-          `INSERT INTO construtoras (user_id, razao_social, cnpj) VALUES ($1, $2, $3)`,
-          [user.id, dto.razao_social, dto.cnpj],
-        );
+        // cnpj é opcional — insere apenas se fornecido e não vazio
+        const cnpj = dto.cnpj?.trim() || null;
+        if (cnpj) {
+          await client.query(
+            `INSERT INTO construtoras (user_id, razao_social, cnpj) VALUES ($1, $2, $3)`,
+            [user.id, dto.razao_social, cnpj],
+          );
+        } else {
+          await client.query(
+            `INSERT INTO construtoras (user_id, razao_social) VALUES ($1, $2)`,
+            [user.id, dto.razao_social],
+          );
+        }
       }
 
       await client.query('COMMIT');
