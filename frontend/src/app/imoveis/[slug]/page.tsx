@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import Header from '@/components/layout/Header';
 import FormularioLead from '@/components/empreendimentos/FormularioLead';
 import SecaoLocalizacao from '@/components/mapa/SecaoLocalizacao';
 import SecaoUnidades from '@/components/unidades/SecaoUnidades';
-import { MapPin, BedDouble, Car, Maximize2, Building2, ArrowRight } from 'lucide-react';
+import GaleriaEmpreendimento from '@/components/empreendimentos/GaleriaEmpreendimento';
+import { MapPin, BedDouble, Car, Maximize2, ArrowRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 async function getEmpreendimento(slug: string) {
@@ -63,26 +63,9 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
       <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Coluna principal */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Galeria */}
+          {/* Galeria com lightbox */}
           <div className="card overflow-hidden">
-            {fotos.length > 0 ? (
-              <div className="relative h-56 sm:h-80 md:h-[480px]">
-                <Image src={fotos[0].url} alt={emp.nome} fill className="object-cover" />
-              </div>
-            ) : (
-              <div className="h-56 sm:h-80 md:h-[480px] bg-gray-100 flex items-center justify-center text-gray-300">
-                <Building2 className="w-20 h-20" />
-              </div>
-            )}
-            {fotos.length > 1 && (
-              <div className="flex gap-2 p-2 overflow-x-auto">
-                {fotos.slice(1, 5).map((f: any) => (
-                  <div key={f.id} className="relative w-24 h-16 flex-shrink-0 rounded overflow-hidden">
-                    <Image src={f.url} alt="" fill className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
+            <GaleriaEmpreendimento fotos={fotos} nome={emp.nome} />
           </div>
 
           {/* Dados principais */}

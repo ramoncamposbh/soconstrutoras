@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import {
   X, Home, Building2, Leaf, Layers, Square, Store,
   BedDouble, Car, Maximize2, BadgeCheck, BadgeX,
   LayoutGrid, ChevronRight, Image as ImageIcon,
+  ChevronLeft,
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import type { Unidade, TipoUnidade } from '@/types';
@@ -31,9 +33,65 @@ interface Props {
   nomeEmpreendimento: string;
 }
 
+interface LightboxState { midias: { id: string; url: string }[]; idx: number }
+
+function Lightbox({ midias, idx, onClose }: { midias: { id: string; url: string }[]; idx: number; onClose: () => void }) {
+  const [current, setCurrent] = useState(idx);
+  const anterior = useCallback(() => setCurrent(i => (i - 1 + midias.length) % midias.length), [midias.length]);
+  const proximo  = useCallback(() => setCurrent(i => (i + 1) % midias.length), [midias.length]);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') anterior();
+      if (e.key === 'ArrowRight') proximo();
+    };
+    window.addEventListener('keydown', handler);
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', handler); };
+  }, [onClose, anterior, proximo]);
+
+  return (
+    <div className="fixed inset-0 z-[99999] bg-black/95 flex flex-col" onClick={onClose}>
+      <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
+        <span className="text-white text-sm opacity-70">{current + 1} / {midias.length}</span>
+        <button onClick={onClose} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+          <X className="w-5 h-5 text-white" />
+        </button>
+      </div>
+      <div className="flex-1 relative flex items-center justify-center px-16" onClick={e => e.stopPropagation()}>
+        {midias.length > 1 && (
+          <button onClick={anterior} className="absolute left-2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10">
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
+        )}
+        <div className="relative w-full h-full max-w-4xl">
+          <Image src={midias[current].url} alt="" fill className="object-contain" sizes="(max-width: 768px) 100vw, 80vw" priority />
+        </div>
+        {midias.length > 1 && (
+          <button onClick={proximo} className="absolute right-2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10">
+            <ChevronRight className="w-6 h-6 text-white" />
+          </button>
+        )}
+      </div>
+      {midias.length > 1 && (
+        <div className="flex gap-2 p-3 overflow-x-auto justify-center flex-shrink-0" onClick={e => e.stopPropagation()}>
+          {midias.map((m, i) => (
+            <div key={m.id} onClick={() => setCurrent(i)}
+              className={`relative w-14 h-10 flex-shrink-0 rounded overflow-hidden cursor-pointer transition-all ${i === current ? 'ring-2 ring-white opacity-100' : 'opacity-50 hover:opacity-80'}`}>
+              <Image src={m.url} alt="" fill className="object-cover" />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SecaoUnidades({ unidades, nomeEmpreendimento }: Props) {
   const [aberto, setAberto] = useState(false);
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
+  const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
   const disponíveis = unidades.filter((u) => u.disponivel);
   const tiposDisponiveis = ['todos', ...Array.from(new Set(unidades.map((u) => u.tipo)))];
@@ -46,6 +104,11 @@ export default function SecaoUnidades({ unidades, nomeEmpreendimento }: Props) {
 
   return (
     <>
+      {/* Lightbox de fotos de unidade */}
+      {lightbox && (
+        <Lightbox midias={lightbox.midias} idx={lightbox.idx} onClose={() => setLightbox(null)} />
+      )}
+
       {/* Botão de acesso */}
       <button
         onClick={() => setAberto(true)}
@@ -123,7 +186,7 @@ export default function SecaoUnidades({ unidades, nomeEmpreendimento }: Props) {
                   <div key={u.id} className="border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
                     {/* Foto da unidade */}
                     {foto && (
-                      <div className="relative h-44 bg-gray-100">
+                      <div className="relative h-44 bg-gray-100 cursor-zoom-in" onClick={() => setLightbox({ midias: u.midias!, idx: 0 })}>
                         <img src={foto} alt={u.nome ?? u.tipo} className="w-full h-full object-cover" />
                         <div className="absolute top-3 left-3">
                           <span className={`text-xs font-bold px-2.5 py-1 rounded-full shadow ${cor}`}>
@@ -221,8 +284,12 @@ export default function SecaoUnidades({ unidades, nomeEmpreendimento }: Props) {
                       {/* Galeria de fotos adicionais */}
                       {u.midias && u.midias.length > 1 && (
                         <div className="flex gap-2 mt-3 overflow-x-auto">
-                          {u.midias.slice(1).map((m) => (
-                            <div key={m.id} className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                          {u.midias.slice(1).map((m, mi) => (
+                            <div
+                              key={m.id}
+                              className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-zoom-in hover:opacity-80 transition-opacity"
+                              onClick={() => setLightbox({ midias: u.midias!, idx: mi + 1 })}
+                            >
                               <img src={m.url} alt="" className="w-full h-full object-cover" />
                             </div>
                           ))}
