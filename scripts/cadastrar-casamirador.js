@@ -207,7 +207,7 @@ async function main() {
     tipo:'apartamento', status:'pronto',
     descricao:'Casamirador Catarina é um empreendimento exclusivo no bairro Lourdes, BH. Lofts duplex com pé-direito duplo, terraço privativo e acabamento de alto padrão. Localização privilegiada a poucos passos da Savassi. Pronto para morar desde janeiro/2026.',
     endereco:'Rua Santa Catarina', bairro:'Lourdes', cidade:'Belo Horizonte', estado:'MG', cep:'30170-080',
-    area_min:60.00, area_max:120.00, preco_min:0, preco_max:0,
+    area_min:60.00, area_max:120.00,
     quartos_min:1, quartos_max:2, vagas:1, latitude:-19.9350, longitude:-43.9320,
   });
   const caDet = await api(`/empreendimentos/${ca.slug ?? ca.id}`, { headers:{Authorization:`Bearer ${TOKEN}`} });

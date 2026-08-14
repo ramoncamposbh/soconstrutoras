@@ -219,7 +219,7 @@ async function main() {
     tipo:'apartamento', status:'pronto',
     descricao:'Isaac Newton Residence: empreendimento de alto luxo na Pampulha, BH. 2, 3 e 4 suítes de 93 a 228m². Apartamentos tipo, garden e coberturas com design sofisticado. Paisagismo exuberante, garagem e hall de entrada imponente. Pronto para morar.',
     endereco:'Av. Presidente Antônio Carlos', bairro:'Pampulha', cidade:'Belo Horizonte', estado:'MG', cep:'31310-270',
-    area_min:93.00, area_max:228.00, preco_min:0, preco_max:0,
+    area_min:93.00, area_max:228.00,
     quartos_min:2, quartos_max:4, vagas:2, latitude:-19.8660, longitude:-43.9710,
   });
   const inDet = await api(`/empreendimentos/${inObj.slug ?? inObj.id}`, { headers:{Authorization:`Bearer ${TOKEN}`} });

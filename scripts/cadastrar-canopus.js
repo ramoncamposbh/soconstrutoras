@@ -241,7 +241,7 @@ async function main() {
     tipo:'apartamento', status:'pronto',
     descricao:'History é um empreendimento residencial entregue no bairro Funcionários, BH. Torres com apartamentos de 2 e 3 suítes do 6º ao 32º pavimento, piscina no pilotis e terraço. Alto padrão Canopus.',
     endereco:'Rua Alagoas', bairro:'Funcionários', cidade:'Belo Horizonte', estado:'MG', cep:'30130-160',
-    area_min:80.00, area_max:180.00, preco_min:0, preco_max:0,
+    area_min:80.00, area_max:180.00,
     quartos_min:2, quartos_max:3, vagas:2, latitude:-19.9310, longitude:-43.9400,
   });
   await uploadAndPublish(TOKEN, hi.id, HI_COND, hi.slug ?? hi.id);
@@ -276,7 +276,7 @@ async function main() {
     tipo:'apartamento', status:'pronto',
     descricao:'Infinity Art Residences é um empreendimento de alto padrão em Santo Antônio, BH. Ampla área de lazer com academia, piscina, espaço gourmet, espaço zen e lounge festas. Design contemporâneo e localização privilegiada. Pronto para morar.',
     endereco:'Rua São Domingos do Prata', bairro:'Santo Antônio', cidade:'Belo Horizonte', estado:'MG', cep:'30350-040',
-    area_min:80.00, area_max:200.00, preco_min:0, preco_max:0,
+    area_min:80.00, area_max:200.00,
     quartos_min:2, quartos_max:3, vagas:2, latitude:-19.9570, longitude:-43.9460,
   });
   await uploadAndPublish(TOKEN, inf.id, INF_COND, inf.slug ?? inf.id);

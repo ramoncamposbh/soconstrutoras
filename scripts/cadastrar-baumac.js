@@ -178,7 +178,7 @@ async function main() {
     tipo:'apartamento', status:'pronto',
     descricao:'O Santorinii é um residencial entregue no Gutierrez, BH. Inspirado na arquitetura grega, com apartamentos tipo, garden e cobertura com terraço. Espaço gourmet, academia e localização privilegiada. Pronto para morar.',
     endereco:'Rua Ludgero Dolabela', bairro:'Gutierrez', cidade:'Belo Horizonte', estado:'MG', cep:'30430-130',
-    area_min:110.77, area_max:190.54, preco_min:0, preco_max:0,
+    area_min:110.77, area_max:190.54,
     quartos_min:2, quartos_max:3, vagas:2, latitude:-19.9460, longitude:-43.9530,
   });
   const saDet = await api(`/empreendimentos/${sa.slug ?? sa.id}`, { headers:{Authorization:`Bearer ${TOKEN}`} });

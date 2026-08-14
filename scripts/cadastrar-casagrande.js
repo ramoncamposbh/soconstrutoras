@@ -214,7 +214,7 @@ async function main() {
     tipo:'apartamento', status:'pronto',
     descricao:'Alma Residence é um residencial moderno no Barreiro, BH. Piscina com deck, espaço gourmet, salão de festas, academia, espaço kids, coworking e playground. Apartamentos tipo, garden e coberturas. Pronto para morar desde 2025.',
     endereco:'Rua Rodolfo Jacob', bairro:'Barreiro', cidade:'Belo Horizonte', estado:'MG', cep:'30640-080',
-    area_min:55.00, area_max:180.00, preco_min:0, preco_max:0,
+    area_min:55.00, area_max:180.00,
     quartos_min:2, quartos_max:3, vagas:1, latitude:-19.9750, longitude:-44.0150,
   });
   const alDet = await api(`/empreendimentos/${al.slug ?? al.id}`, { headers:{Authorization:`Bearer ${TOKEN}`} });
