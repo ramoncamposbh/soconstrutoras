@@ -278,6 +278,26 @@ D:\3 -IMOVEIS\CONSTRUTORAS\ATUAIS\[Construtora]\
 | CANOPUS | canopus@soconstrutoras.com.br | cadastrar-canopus.js | ✅ |
 | CASA GRANDE | casagrande@soconstrutoras.com.br | cadastrar-casagrande.js | ✅ |
 | CASAMIRADOR | casamirador@soconstrutoras.com.br | cadastrar-casamirador.js | ✅ |
+| COB | cob@soconstrutoras.com.br | cadastrar-cob.js | ✅ |
+| COLLEM | collem@soconstrutoras.com.br | cadastrar-collem.js | ✅ |
+| BERTI | berti@soconstrutoras.com.br | cadastrar-berti.js | ✅ |
+| GETTA | getta@soconstrutoras.com.br | cadastrar-getta.js | ✅ |
+| GRANCORP | grancorp@soconstrutoras.com.br | cadastrar-grancorp.js | ✅ |
+| PLANO | plano@soconstrutoras.com.br | cadastrar-plano.js | ✅ |
+| EVOLUIR | evoluir@soconstrutoras.com.br | cadastrar-evoluir.js | ✅ |
+| DMC | dmc@soconstrutoras.com.br | cadastrar-dmc.js | ✅ |
+| FIBRA | fibra@soconstrutoras.com.br | cadastrar-fibra.js | ✅ |
+| FORÇA | forca@soconstrutoras.com.br | cadastrar-forca.js | ✅ |
+| CONUP | conup@soconstrutoras.com.br | cadastrar-conup.js | ✅ |
+| CONCRETO | concreto@soconstrutoras.com.br | cadastrar-concreto.js | ✅ |
+| CONTTI | contti@soconstrutoras.com.br | cadastrar-contti.js | ✅ |
+| CASTOR | castor@soconstrutoras.com.br | cadastrar-castor.js | ✅ |
+| CAPANEMA | capanema@soconstrutoras.com.br | cadastrar-capanema.js | ✅ |
+| CIMOS | cimos@soconstrutoras.com.br | cadastrar-cimos.js | ✅ |
+| GARCIA | garcia@soconstrutoras.com.br | cadastrar-garcia.js | ✅ |
+| FURTADO ARAÚJO | furtadoaraujo@soconstrutoras.com.br | cadastrar-furtadoaraujo.js | ✅ |
+| EPO | epo@soconstrutoras.com.br | cadastrar-epo.js | ✅ |
+| F2 + LUME | f2@soconstrutoras.com.br | cadastrar-f2.js | ✅ |
 
 ---
 

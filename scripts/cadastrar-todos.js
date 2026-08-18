@@ -9,6 +9,7 @@
  */
 
 const CONSTRUTORAS = [
+  // ── Grupo original ──────────────────────────────────────────────
   { nome: 'ALTHOUSE',        script: 'cadastrar-terrazzo-belvedere' },
   { nome: 'ALTTI',           script: 'cadastrar-altti'              },
   { nome: 'ÂNIMA SIGNATURE', script: 'cadastrar-animasignature'     },
@@ -23,13 +24,37 @@ const CONSTRUTORAS = [
   { nome: 'CANOPUS',         script: 'cadastrar-canopus'            },
   { nome: 'CASA GRANDE',     script: 'cadastrar-casagrande'         },
   { nome: 'CASAMIRADOR',     script: 'cadastrar-casamirador'        },
+  // ── Grupo 1 ─────────────────────────────────────────────────────
+  { nome: 'COB',             script: 'cadastrar-cob'                },
+  { nome: 'COLLEM',          script: 'cadastrar-collem'             },
+  { nome: 'BERTI',           script: 'cadastrar-berti'              },
+  { nome: 'GETTA',           script: 'cadastrar-getta'              },
+  { nome: 'GRANCORP',        script: 'cadastrar-grancorp'           },
+  { nome: 'PLANO',           script: 'cadastrar-plano'              },
+  // ── Grupo 2 ─────────────────────────────────────────────────────
+  { nome: 'EVOLUIR',         script: 'cadastrar-evoluir'            },
+  { nome: 'DMC',             script: 'cadastrar-dmc'                },
+  { nome: 'FIBRA',           script: 'cadastrar-fibra'              },
+  { nome: 'FORÇA',           script: 'cadastrar-forca'              },
+  // ── Grupo 3 ─────────────────────────────────────────────────────
+  { nome: 'CONUP',           script: 'cadastrar-conup'              },
+  { nome: 'CONCRETO',        script: 'cadastrar-concreto'           },
+  { nome: 'CONTTI',          script: 'cadastrar-contti'             },
+  { nome: 'CASTOR',          script: 'cadastrar-castor'             },
+  // ── Grupo 4 ─────────────────────────────────────────────────────
+  { nome: 'CAPANEMA',        script: 'cadastrar-capanema'           },
+  { nome: 'CIMOS',           script: 'cadastrar-cimos'              },
+  { nome: 'GARCIA',          script: 'cadastrar-garcia'             },
+  { nome: 'FURTADO ARAÚJO',  script: 'cadastrar-furtadoaraujo'      },
+  { nome: 'EPO',             script: 'cadastrar-epo'                },
+  { nome: 'F2 + LUME',       script: 'cadastrar-f2'                 },
 ];
 
 async function main() {
   const total = CONSTRUTORAS.length;
   console.log('╔══════════════════════════════════════════════════╗');
   console.log(`║  SóConstrutoras — Cadastro em Massa               ║`);
-  console.log(`║  ${total} construtoras                                  ║`);
+  console.log(`║  ${String(total).padEnd(2)} construtoras                                ║`);
   console.log('╚══════════════════════════════════════════════════╝\n');
 
   const resultados = [];
