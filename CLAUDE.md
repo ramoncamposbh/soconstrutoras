@@ -305,6 +305,9 @@ D:\3 -IMOVEIS\CONSTRUTORAS\ATUAIS\[Construtora]\
 | LBX | lbx@soconstrutoras.com.br | cadastrar-lbx.js | ✅ |
 | LASO ENGENHARIA | laso@soconstrutoras.com.br | cadastrar-laso.js | ✅ |
 | VOLUME | volume@soconstrutoras.com.br | cadastrar-volume.js | ✅ |
+| LAGE | lage@soconstrutoras.com.br | cadastrar-lage.js | ✅ |
+| M MPO | mmpo@soconstrutoras.com.br | cadastrar-mmpo.js | ✅ |
+| M. MATOS | mmatos@soconstrutoras.com.br | cadastrar-mmatos.js | ✅ |
 
 ---
 

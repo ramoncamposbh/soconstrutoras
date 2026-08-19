@@ -56,6 +56,10 @@ const CONSTRUTORAS = [
   { nome: 'LBX',             script: 'cadastrar-lbx'                },
   { nome: 'LASO ENGENHARIA', script: 'cadastrar-laso'               },
   { nome: 'VOLUME',          script: 'cadastrar-volume'             },
+  // ── Grupo 6 ─────────────────────────────────────────────────────
+  { nome: 'LAGE',            script: 'cadastrar-lage'               },
+  { nome: 'M MPO',           script: 'cadastrar-mmpo'               },
+  { nome: 'M. MATOS',        script: 'cadastrar-mmatos'             },
 ];
 
 async function main() {
