@@ -298,6 +298,13 @@ D:\3 -IMOVEIS\CONSTRUTORAS\ATUAIS\[Construtora]\
 | FURTADO ARAÚJO | furtadoaraujo@soconstrutoras.com.br | cadastrar-furtadoaraujo.js | ✅ |
 | EPO | epo@soconstrutoras.com.br | cadastrar-epo.js | ✅ |
 | F2 + LUME | f2@soconstrutoras.com.br | cadastrar-f2.js | ✅ |
+| INTACTA | intacta@soconstrutoras.com.br | cadastrar-intacta.js | ✅ |
+| JANEIRO | janeiro@soconstrutoras.com.br | cadastrar-janeiro.js | ✅ |
+| LATO | lato@soconstrutoras.com.br | cadastrar-lato.js | ✅ |
+| LCG | lcg@soconstrutoras.com.br | cadastrar-lcg.js | ✅ |
+| LBX | lbx@soconstrutoras.com.br | cadastrar-lbx.js | ✅ |
+| LASO ENGENHARIA | laso@soconstrutoras.com.br | cadastrar-laso.js | ✅ |
+| VOLUME | volume@soconstrutoras.com.br | cadastrar-volume.js | ✅ |
 
 ---
 

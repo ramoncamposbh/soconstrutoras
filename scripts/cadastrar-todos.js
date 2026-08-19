@@ -48,6 +48,14 @@ const CONSTRUTORAS = [
   { nome: 'FURTADO ARAÚJO',  script: 'cadastrar-furtadoaraujo'      },
   { nome: 'EPO',             script: 'cadastrar-epo'                },
   { nome: 'F2 + LUME',       script: 'cadastrar-f2'                 },
+  // ── Grupo 5 ─────────────────────────────────────────────────────
+  { nome: 'INTACTA',         script: 'cadastrar-intacta'            },
+  { nome: 'JANEIRO',         script: 'cadastrar-janeiro'            },
+  { nome: 'LATO',            script: 'cadastrar-lato'               },
+  { nome: 'LCG',             script: 'cadastrar-lcg'                },
+  { nome: 'LBX',             script: 'cadastrar-lbx'                },
+  { nome: 'LASO ENGENHARIA', script: 'cadastrar-laso'               },
+  { nome: 'VOLUME',          script: 'cadastrar-volume'             },
 ];
 
 async function main() {
