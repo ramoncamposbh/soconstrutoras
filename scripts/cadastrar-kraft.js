@@ -1,15 +1,9 @@
-/**
- * cadastrar-kraft.js — KRAFT (1 empreendimento)
- *   Terraço Mosteiro — Belo Horizonte (vendido)
- */
 const fs   = require('fs');
 const path = require('path');
-
 const API   = 'https://soconstrutoras-production.up.railway.app/api/v1';
 const EMAIL = 'kraft@soconstrutoras.com.br';
 const SENHA = 'KRAFT@2026';
 const BASE  = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\KRAFT';
-
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function api(url, opts = {}) {
   const res = await fetch(`${API}${url}`, opts);
@@ -38,12 +32,15 @@ async function criarOuBuscar(TOKEN, nome, body) {
   if (!res.data?.id) throw new Error('Falha: ' + JSON.stringify(res.data).slice(0,200));
   console.log(`  ✅ ${nome} criado`); return res.data;
 }
-async function uploadImagens(TOKEN, empId, dir, facade, skip) {
+async function uploadImagens(TOKEN, empId, dir, facade) {
   const det = await api(`/empreendimentos/${empId}`, { headers:{Authorization:`Bearer ${TOKEN}`} });
   if ((det.data?.midias ?? []).filter(m => m.tipo==='foto').length > 0) { console.log('  ✓ fotos já existem'); return; }
-  if (!fs.existsSync(dir)) { console.log('  ⚠ dir não encontrado'); return; }
-  const skipSet = new Set(skip || []);
-  const all    = fs.readdirSync(dir).filter(f => /\.(jpe?g|png|jpg)$/i.test(f) && !skipSet.has(f));
+  if (!dir || !fs.existsSync(dir)) { console.log('  ⚠ dir não encontrado'); return; }
+  const all = fs.readdirSync(dir).filter(f => {
+    const full = path.join(dir, f);
+    return /\.(jpe?g|png|jpg)$/i.test(f) && fs.statSync(full).isFile();
+  });
+  if (!all.length) { console.log('  ⚠ sem imagens'); return; }
   const plantas = all.filter(f => f.toLowerCase().includes('planta'));
   const fotos   = all.filter(f => !f.toLowerCase().includes('planta'));
   const ordered = facade ? [facade, ...fotos.filter(f => f !== facade)] : fotos;
@@ -59,41 +56,32 @@ async function publicar(TOKEN, empId) {
 }
 
 const EMPS = [
-  {
-    nome: 'Terraço Mosteiro',
-    dir:  path.join(BASE, '2026-08-18-Terraço Mosteiro'),
-    facade: 'wmremove-transformed_(1)webp-.jpeg',
-    skip: ['WhatsApp_Video_2025-05-08_at_082609.mp4'], // vídeo — ignorar
-    body: {
-      tipo:'apartamento', status:'pronto',
-      descricao:'Terraço Mosteiro, empreendimento KRAFT em Belo Horizonte. Apartamentos com terraço privativo e acabamento diferenciado. Unidades esgotadas.',
+  { nome:'Terraço Mosteiro',
+    dir: path.join(BASE,'2026-08-18-Terraço Mosteiro'),
+    facade: null,
+    body: { tipo:'apartamento', status:'pronto', descricao:'Terraço Mosteiro, KRAFT em BH. Apartamentos de alto padrão entregues. Unidades esgotadas.',
       endereco:'Belo Horizonte', bairro:'Belo Horizonte', cidade:'Belo Horizonte', estado:'MG', cep:'30000-000',
-      area_min:60, area_max:200, preco_min:null, preco_max:null, quartos_min:2, quartos_max:3, vagas:2,
-    },
-  },
+      area_min:60, area_max:300, preco_min:null, preco_max:null, quartos_min:2, quartos_max:4, vagas:2 } },
 ];
 
 async function main() {
-  console.log('═══════════════════════════════════════════════════');
-  console.log('  KRAFT — 1 empreendimento');
-  console.log('═══════════════════════════════════════════════════\n');
+  console.log('  KRAFT');
   let TOKEN;
   const login = await api('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:EMAIL, password:SENHA }) });
   if (login.data?.access_token) { TOKEN = login.data.access_token; console.log('✅ Login OK'); }
   else {
     const reg = await api('/auth/register', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'KRAFT', razao_social:'KRAFT Empreendimentos Imobiliários', role:'construtora' }) });
+      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'KRAFT', razao_social:'KRAFT Incorporações', role:'construtora' }) });
     if (!reg.data?.access_token) throw new Error('Auth falhou: ' + JSON.stringify(reg.data));
     TOKEN = reg.data.access_token; console.log('✅ Conta criada');
   }
   for (const emp of EMPS) {
     console.log(`\n── ${emp.nome} ──`);
     const e = await criarOuBuscar(TOKEN, emp.nome, emp.body);
-    await uploadImagens(TOKEN, e.id, emp.dir, emp.facade, emp.skip);
+    await uploadImagens(TOKEN, e.id, emp.dir, emp.facade);
     await publicar(TOKEN, e.id);
   }
   console.log('\n✅ KRAFT concluído');
 }
-
 module.exports = { main };
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });

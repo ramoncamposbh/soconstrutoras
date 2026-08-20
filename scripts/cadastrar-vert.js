@@ -1,9 +1,9 @@
 const fs   = require('fs');
 const path = require('path');
 const API   = 'https://soconstrutoras-production.up.railway.app/api/v1';
-const EMAIL = 'apo@soconstrutoras.com.br';
-const SENHA = 'APO@2026';
-const BASE  = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\APO';
+const EMAIL = 'vert@soconstrutoras.com.br';
+const SENHA = 'VERT@2026';
+const BASE  = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\VERT';
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function api(url, opts = {}) {
   const res = await fetch(`${API}${url}`, opts);
@@ -55,23 +55,30 @@ async function publicar(TOKEN, empId) {
   else console.log('  ⚠ publicar:', JSON.stringify(r.data));
 }
 
+const bd = (desc, bairro, cep, q1=2, q2=4) => ({
+  tipo:'apartamento', status:'pronto', descricao: desc,
+  endereco:'Belo Horizonte', bairro, cidade:'Belo Horizonte', estado:'MG', cep,
+  area_min:50, area_max:300, preco_min:null, preco_max:null, quartos_min:q1, quartos_max:q2, vagas:2,
+});
 const EMPS = [
-  { nome:'Tea Monde',
-    dir: path.join(BASE,'2026-08-14-Tea Monde','PERSPECTIVAS','CONDOMINIO'),
-    facade: 'fachada.jpeg',
-    body: { tipo:'apartamento', status:'pronto', descricao:'Tea Monde, APO em BH. Apartamentos de alto padrão entregues. Unidades esgotadas.',
-      endereco:'Belo Horizonte', bairro:'Belo Horizonte', cidade:'Belo Horizonte', estado:'MG', cep:'30000-000',
-      area_min:60, area_max:300, preco_min:null, preco_max:null, quartos_min:2, quartos_max:4, vagas:2 } },
+  { nome:'Halley', dir: path.join(BASE,'2026-08-20-Halley'), facade: 'Fachada.jpeg',
+    body: bd('Halley, VERT em BH. Apartamentos de alto padrão entregues. Unidades esgotadas.','Belo Horizonte','30000-000') },
+  { nome:'Orsini', dir: path.join(BASE,'2026-08-20-Orsini'), facade: 'Fachada-Orsini-Destaque.jpeg',
+    body: bd('Orsini, VERT em BH. Apartamentos de alto padrão entregues. Unidades esgotadas.','Belo Horizonte','30000-000') },
+  { nome:'Residencial Primavera VERT', dir: path.join(BASE,'2026-08-20-Residencial Primavera'), facade: 'Fachada.jpeg',
+    body: bd('Residencial Primavera, VERT em BH. Apartamentos de alto padrão entregues. Unidades esgotadas.','Belo Horizonte','30000-000') },
+  { nome:'Vêneto', dir: path.join(BASE,'2026-08-20-Vêneto'), facade: 'Fachada2.jpeg',
+    body: bd('Vêneto, VERT em BH. Apartamentos de alto padrão com área de lazer entregues. Unidades esgotadas.','Belo Horizonte','30000-000') },
 ];
 
 async function main() {
-  console.log('  APO');
+  console.log('  VERT');
   let TOKEN;
   const login = await api('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:EMAIL, password:SENHA }) });
   if (login.data?.access_token) { TOKEN = login.data.access_token; console.log('✅ Login OK'); }
   else {
     const reg = await api('/auth/register', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'APO', razao_social:'APO Incorporadora', role:'construtora' }) });
+      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'VERT', razao_social:'VERT Incorporações', role:'construtora' }) });
     if (!reg.data?.access_token) throw new Error('Auth falhou: ' + JSON.stringify(reg.data));
     TOKEN = reg.data.access_token; console.log('✅ Conta criada');
   }
@@ -81,7 +88,7 @@ async function main() {
     await uploadImagens(TOKEN, e.id, emp.dir, emp.facade);
     await publicar(TOKEN, e.id);
   }
-  console.log('\n✅ APO concluído');
+  console.log('\n✅ VERT concluído');
 }
 module.exports = { main };
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });

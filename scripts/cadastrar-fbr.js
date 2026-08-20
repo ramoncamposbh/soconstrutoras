@@ -1,15 +1,9 @@
-/**
- * cadastrar-fbr.js — FBR INCORPORADORA (1 empreendimento)
- *   Walk Funcionários — Funcionários, BH (vendido)
- */
 const fs   = require('fs');
 const path = require('path');
-
 const API   = 'https://soconstrutoras-production.up.railway.app/api/v1';
 const EMAIL = 'fbr@soconstrutoras.com.br';
 const SENHA = 'FBR@2026';
 const BASE  = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\FBR INCORPORADORA';
-
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function api(url, opts = {}) {
   const res = await fetch(`${API}${url}`, opts);
@@ -41,8 +35,12 @@ async function criarOuBuscar(TOKEN, nome, body) {
 async function uploadImagens(TOKEN, empId, dir, facade) {
   const det = await api(`/empreendimentos/${empId}`, { headers:{Authorization:`Bearer ${TOKEN}`} });
   if ((det.data?.midias ?? []).filter(m => m.tipo==='foto').length > 0) { console.log('  ✓ fotos já existem'); return; }
-  if (!fs.existsSync(dir)) { console.log('  ⚠ dir não encontrado'); return; }
-  const all    = fs.readdirSync(dir).filter(f => /\.(jpe?g|png|jpg)$/i.test(f));
+  if (!dir || !fs.existsSync(dir)) { console.log('  ⚠ dir não encontrado'); return; }
+  const all = fs.readdirSync(dir).filter(f => {
+    const full = path.join(dir, f);
+    return /\.(jpe?g|png|jpg)$/i.test(f) && fs.statSync(full).isFile();
+  });
+  if (!all.length) { console.log('  ⚠ sem imagens'); return; }
   const plantas = all.filter(f => f.toLowerCase().includes('planta'));
   const fotos   = all.filter(f => !f.toLowerCase().includes('planta'));
   const ordered = facade ? [facade, ...fotos.filter(f => f !== facade)] : fotos;
@@ -58,29 +56,22 @@ async function publicar(TOKEN, empId) {
 }
 
 const EMPS = [
-  {
-    nome: 'Walk Funcionários',
-    dir:  path.join(BASE, '2026-08-18-Walk Funcionários'),
+  { nome:'Walk Funcionários',
+    dir: path.join(BASE,'2026-08-18-Walk Funcionários'),
     facade: '25001_FBR_Aimores_02_FachadaDiurna_R02_alta.jpeg',
-    body: {
-      tipo:'apartamento', status:'pronto',
-      descricao:'Walk Funcionários na Rua Aimore, Funcionários, Belo Horizonte. Lofts e apartamentos FBR Incorporadora de alto padrão com garagem em subsolo. Localização nobre no coração dos Funcionários. Unidades esgotadas.',
-      endereco:'Rua Aimorés', bairro:'Funcionários', cidade:'Belo Horizonte', estado:'MG', cep:'30140-072',
-      area_min:40, area_max:150, preco_min:null, preco_max:null, quartos_min:1, quartos_max:2, vagas:1,
-    },
-  },
+    body: { tipo:'apartamento', status:'pronto', descricao:'Walk Funcionários, FBR Incorporadora na Rua Aimorés, BH. Lofts e apartamentos de alto padrão entregues. Unidades esgotadas.',
+      endereco:'Rua Aimorés', bairro:'Funcionários', cidade:'Belo Horizonte', estado:'MG', cep:'30140-070',
+      area_min:30, area_max:150, preco_min:null, preco_max:null, quartos_min:1, quartos_max:2, vagas:1 } },
 ];
 
 async function main() {
-  console.log('═══════════════════════════════════════════════════');
-  console.log('  FBR INCORPORADORA — 1 empreendimento');
-  console.log('═══════════════════════════════════════════════════\n');
+  console.log('  FBR INCORPORADORA');
   let TOKEN;
   const login = await api('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:EMAIL, password:SENHA }) });
   if (login.data?.access_token) { TOKEN = login.data.access_token; console.log('✅ Login OK'); }
   else {
     const reg = await api('/auth/register', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'FBR Incorporadora', razao_social:'FBR Incorporadora Empreendimentos', role:'construtora' }) });
+      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'FBR Incorporadora', razao_social:'FBR Incorporadora Ltda', role:'construtora' }) });
     if (!reg.data?.access_token) throw new Error('Auth falhou: ' + JSON.stringify(reg.data));
     TOKEN = reg.data.access_token; console.log('✅ Conta criada');
   }
@@ -90,8 +81,7 @@ async function main() {
     await uploadImagens(TOKEN, e.id, emp.dir, emp.facade);
     await publicar(TOKEN, e.id);
   }
-  console.log('\n✅ FBR concluído');
+  console.log('\n✅ FBR INCORPORADORA concluído');
 }
-
 module.exports = { main };
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });

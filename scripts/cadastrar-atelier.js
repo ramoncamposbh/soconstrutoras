@@ -1,15 +1,9 @@
-/**
- * cadastrar-atelier.js — ATELIER (1 empreendimento)
- *   Vista São Bento — Belo Horizonte (vendido)
- */
 const fs   = require('fs');
 const path = require('path');
-
 const API   = 'https://soconstrutoras-production.up.railway.app/api/v1';
 const EMAIL = 'atelier@soconstrutoras.com.br';
 const SENHA = 'ATELIER@2026';
 const BASE  = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\ATELIER';
-
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function api(url, opts = {}) {
   const res = await fetch(`${API}${url}`, opts);
@@ -41,8 +35,12 @@ async function criarOuBuscar(TOKEN, nome, body) {
 async function uploadImagens(TOKEN, empId, dir, facade) {
   const det = await api(`/empreendimentos/${empId}`, { headers:{Authorization:`Bearer ${TOKEN}`} });
   if ((det.data?.midias ?? []).filter(m => m.tipo==='foto').length > 0) { console.log('  ✓ fotos já existem'); return; }
-  if (!fs.existsSync(dir)) { console.log('  ⚠ dir não encontrado'); return; }
-  const all    = fs.readdirSync(dir).filter(f => /\.(jpe?g|png|jpg)$/i.test(f));
+  if (!dir || !fs.existsSync(dir)) { console.log('  ⚠ dir não encontrado'); return; }
+  const all = fs.readdirSync(dir).filter(f => {
+    const full = path.join(dir, f);
+    return /\.(jpe?g|png|jpg)$/i.test(f) && fs.statSync(full).isFile();
+  });
+  if (!all.length) { console.log('  ⚠ sem imagens'); return; }
   const plantas = all.filter(f => f.toLowerCase().includes('planta'));
   const fotos   = all.filter(f => !f.toLowerCase().includes('planta'));
   const ordered = facade ? [facade, ...fotos.filter(f => f !== facade)] : fotos;
@@ -58,29 +56,22 @@ async function publicar(TOKEN, empId) {
 }
 
 const EMPS = [
-  {
-    nome: 'Vista São Bento',
-    dir:  path.join(BASE, '2026-08-14-Vista São Bento'),
+  { nome:'Vista São Bento',
+    dir: path.join(BASE,'2026-08-14-Vista São Bento'),
     facade: 'ATELIER_SL_FACHADA_DIURNA_V2.jpeg',
-    body: {
-      tipo:'apartamento', status:'pronto',
-      descricao:'Vista São Bento, empreendimento ATELIER em Belo Horizonte. Apartamentos de 3 quartos com mini quadra, lazer completo e vista privilegiada. Unidades esgotadas.',
-      endereco:'Belo Horizonte', bairro:'São Bento', cidade:'Belo Horizonte', estado:'MG', cep:'30330-080',
-      area_min:70, area_max:200, preco_min:null, preco_max:null, quartos_min:3, quartos_max:3, vagas:2,
-    },
-  },
+    body: { tipo:'apartamento', status:'pronto', descricao:'Vista São Bento, ATELIER em BH. Apartamentos de alto padrão entregues. Unidades esgotadas.',
+      endereco:'São Bento', bairro:'São Bento', cidade:'Belo Horizonte', estado:'MG', cep:'30000-000',
+      area_min:50, area_max:250, preco_min:null, preco_max:null, quartos_min:2, quartos_max:4, vagas:2 } },
 ];
 
 async function main() {
-  console.log('═══════════════════════════════════════════════════');
-  console.log('  ATELIER — 1 empreendimento');
-  console.log('═══════════════════════════════════════════════════\n');
+  console.log('  ATELIER');
   let TOKEN;
   const login = await api('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:EMAIL, password:SENHA }) });
   if (login.data?.access_token) { TOKEN = login.data.access_token; console.log('✅ Login OK'); }
   else {
     const reg = await api('/auth/register', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'ATELIER', razao_social:'ATELIER Empreendimentos Imobiliários', role:'construtora' }) });
+      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'ATELIER', razao_social:'ATELIER Incorporações', role:'construtora' }) });
     if (!reg.data?.access_token) throw new Error('Auth falhou: ' + JSON.stringify(reg.data));
     TOKEN = reg.data.access_token; console.log('✅ Conta criada');
   }
@@ -92,6 +83,5 @@ async function main() {
   }
   console.log('\n✅ ATELIER concluído');
 }
-
 module.exports = { main };
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });

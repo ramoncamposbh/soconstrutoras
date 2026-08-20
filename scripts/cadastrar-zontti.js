@@ -1,9 +1,9 @@
 const fs   = require('fs');
 const path = require('path');
 const API   = 'https://soconstrutoras-production.up.railway.app/api/v1';
-const EMAIL = 'apo@soconstrutoras.com.br';
-const SENHA = 'APO@2026';
-const BASE  = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\APO';
+const EMAIL = 'zontti@soconstrutoras.com.br';
+const SENHA = 'ZONTTI@2026';
+const BASE  = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\ZONTTI';
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function api(url, opts = {}) {
   const res = await fetch(`${API}${url}`, opts);
@@ -56,22 +56,21 @@ async function publicar(TOKEN, empId) {
 }
 
 const EMPS = [
-  { nome:'Tea Monde',
-    dir: path.join(BASE,'2026-08-14-Tea Monde','PERSPECTIVAS','CONDOMINIO'),
-    facade: 'fachada.jpeg',
-    body: { tipo:'apartamento', status:'pronto', descricao:'Tea Monde, APO em BH. Apartamentos de alto padrão entregues. Unidades esgotadas.',
-      endereco:'Belo Horizonte', bairro:'Belo Horizonte', cidade:'Belo Horizonte', estado:'MG', cep:'30000-000',
-      area_min:60, area_max:300, preco_min:null, preco_max:null, quartos_min:2, quartos_max:4, vagas:2 } },
+  { nome:'Aristóteles 576',
+    dir: path.join(BASE,'2026-08-20-Aristóteles 576'), facade: 'Fachada(2).jpeg',
+    body: { tipo:'cobertura', status:'pronto', descricao:'Aristóteles 576, ZONTTI em BH. Coberturas e apartamentos de altíssimo padrão entregues na Rua Aristóteles, 576. Unidades esgotadas.',
+      endereco:'Rua Aristóteles, 576', bairro:'Belo Horizonte', cidade:'Belo Horizonte', estado:'MG', cep:'30000-000',
+      area_min:100, area_max:600, preco_min:null, preco_max:null, quartos_min:3, quartos_max:4, vagas:2 } },
 ];
 
 async function main() {
-  console.log('  APO');
+  console.log('  ZONTTI');
   let TOKEN;
   const login = await api('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:EMAIL, password:SENHA }) });
   if (login.data?.access_token) { TOKEN = login.data.access_token; console.log('✅ Login OK'); }
   else {
     const reg = await api('/auth/register', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'APO', razao_social:'APO Incorporadora', role:'construtora' }) });
+      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'ZONTTI', razao_social:'ZONTTI Incorporações', role:'construtora' }) });
     if (!reg.data?.access_token) throw new Error('Auth falhou: ' + JSON.stringify(reg.data));
     TOKEN = reg.data.access_token; console.log('✅ Conta criada');
   }
@@ -81,7 +80,7 @@ async function main() {
     await uploadImagens(TOKEN, e.id, emp.dir, emp.facade);
     await publicar(TOKEN, e.id);
   }
-  console.log('\n✅ APO concluído');
+  console.log('\n✅ ZONTTI concluído');
 }
 module.exports = { main };
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });

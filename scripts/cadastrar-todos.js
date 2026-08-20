@@ -89,6 +89,24 @@ const CONSTRUTORAS = [
   { nome: 'SENSIA',          script: 'cadastrar-sensia'             },
   { nome: 'SOL EDIFICAÇÕES', script: 'cadastrar-soledificacoes'     },
   { nome: 'SOMATTOS',        script: 'cadastrar-somattos'           },
+  // ── Grupo 9 ─────────────────────────────────────────────────────
+  { nome: 'APO',             script: 'cadastrar-apo'                },
+  { nome: 'ARTHROS',         script: 'cadastrar-arthros'            },
+  { nome: 'ATELIER',         script: 'cadastrar-atelier'            },
+  { nome: 'emmcamp',         script: 'cadastrar-emmcamp'            },
+  { nome: 'FBR INCORPORADORA', script: 'cadastrar-fbr'             },
+  { nome: 'KRAFT',           script: 'cadastrar-kraft'              },
+  { nome: 'Luma engenharia', script: 'cadastrar-luma'              },
+  { nome: 'SUDESTE',         script: 'cadastrar-sudeste'            },
+  { nome: 'SUDOESTE',        script: 'cadastrar-sudoeste'           },
+  { nome: 'TERGOS',          script: 'cadastrar-tergos'             },
+  { nome: 'Terrazas',        script: 'cadastrar-terrazas'           },
+  { nome: 'URB3',            script: 'cadastrar-urb3'               },
+  { nome: 'V3V',             script: 'cadastrar-v3v'                },
+  { nome: 'VALLE RIBEIRO',   script: 'cadastrar-valleribeiro'       },
+  { nome: 'VERT',            script: 'cadastrar-vert'               },
+  { nome: 'ZONTTI',          script: 'cadastrar-zontti'             },
+  { nome: 'Zip Incorporadora', script: 'cadastrar-zip'             },
 ];
 
 async function main() {

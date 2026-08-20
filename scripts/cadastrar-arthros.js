@@ -1,15 +1,9 @@
-/**
- * cadastrar-arthros.js — ARTHROS (1 empreendimento)
- *   Casa Ferolla — Belo Horizonte (vendido)
- */
 const fs   = require('fs');
 const path = require('path');
-
 const API   = 'https://soconstrutoras-production.up.railway.app/api/v1';
 const EMAIL = 'arthros@soconstrutoras.com.br';
 const SENHA = 'ARTHROS@2026';
 const BASE  = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\ARTHROS';
-
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function api(url, opts = {}) {
   const res = await fetch(`${API}${url}`, opts);
@@ -41,8 +35,12 @@ async function criarOuBuscar(TOKEN, nome, body) {
 async function uploadImagens(TOKEN, empId, dir, facade) {
   const det = await api(`/empreendimentos/${empId}`, { headers:{Authorization:`Bearer ${TOKEN}`} });
   if ((det.data?.midias ?? []).filter(m => m.tipo==='foto').length > 0) { console.log('  ✓ fotos já existem'); return; }
-  if (!fs.existsSync(dir)) { console.log('  ⚠ dir não encontrado'); return; }
-  const all    = fs.readdirSync(dir).filter(f => /\.(jpe?g|png|jpg)$/i.test(f));
+  if (!dir || !fs.existsSync(dir)) { console.log('  ⚠ dir não encontrado'); return; }
+  const all = fs.readdirSync(dir).filter(f => {
+    const full = path.join(dir, f);
+    return /\.(jpe?g|png|jpg)$/i.test(f) && fs.statSync(full).isFile();
+  });
+  if (!all.length) { console.log('  ⚠ sem imagens'); return; }
   const plantas = all.filter(f => f.toLowerCase().includes('planta'));
   const fotos   = all.filter(f => !f.toLowerCase().includes('planta'));
   const ordered = facade ? [facade, ...fotos.filter(f => f !== facade)] : fotos;
@@ -58,29 +56,22 @@ async function publicar(TOKEN, empId) {
 }
 
 const EMPS = [
-  {
-    nome: 'Casa Ferolla',
-    dir:  path.join(BASE, '2026-08-14-Casa Ferolla'),
+  { nome:'Casa Ferolla',
+    dir: path.join(BASE,'2026-08-14-Casa Ferolla'),
     facade: 'Fachada_Casa_Ferolla.jpeg',
-    body: {
-      tipo:'apartamento', status:'pronto',
-      descricao:'Casa Ferolla, empreendimento ARTHROS de alto padrão em Belo Horizonte. Apartamentos com área privativa decorados CasaCor 2023, academia e lazer exclusivo. Unidades esgotadas.',
+    body: { tipo:'apartamento', status:'pronto', descricao:'Casa Ferolla, ARTHROS em BH. Apartamentos de altíssimo padrão entregues. Unidades esgotadas.',
       endereco:'Belo Horizonte', bairro:'Belo Horizonte', cidade:'Belo Horizonte', estado:'MG', cep:'30000-000',
-      area_min:80, area_max:300, preco_min:null, preco_max:null, quartos_min:2, quartos_max:4, vagas:2,
-    },
-  },
+      area_min:80, area_max:400, preco_min:null, preco_max:null, quartos_min:3, quartos_max:4, vagas:2 } },
 ];
 
 async function main() {
-  console.log('═══════════════════════════════════════════════════');
-  console.log('  ARTHROS — 1 empreendimento');
-  console.log('═══════════════════════════════════════════════════\n');
+  console.log('  ARTHROS');
   let TOKEN;
   const login = await api('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:EMAIL, password:SENHA }) });
   if (login.data?.access_token) { TOKEN = login.data.access_token; console.log('✅ Login OK'); }
   else {
     const reg = await api('/auth/register', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'ARTHROS', razao_social:'ARTHROS Empreendimentos Imobiliários', role:'construtora' }) });
+      body: JSON.stringify({ email:EMAIL, password:SENHA, nome:'ARTHROS', razao_social:'ARTHROS Empreendimentos', role:'construtora' }) });
     if (!reg.data?.access_token) throw new Error('Auth falhou: ' + JSON.stringify(reg.data));
     TOKEN = reg.data.access_token; console.log('✅ Conta criada');
   }
@@ -92,6 +83,5 @@ async function main() {
   }
   console.log('\n✅ ARTHROS concluído');
 }
-
 module.exports = { main };
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });
