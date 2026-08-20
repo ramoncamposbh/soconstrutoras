@@ -326,6 +326,15 @@ D:\3 -IMOVEIS\CONSTRUTORAS\ATUAIS\[Construtora]\
 | PRODOMO | prodomo@soconstrutoras.com.br | cadastrar-prodomo.js | ✅ |
 | PROTEMPO | protempo@soconstrutoras.com.br | cadastrar-protempo.js | ✅ |
 | RICAM | ricam@soconstrutoras.com.br | cadastrar-ricam.js | ✅ |
+| RIVA | riva@soconstrutoras.com.br | cadastrar-riva.js | ✅ |
+| RKM | rkm@soconstrutoras.com.br | cadastrar-rkm.js | ✅ |
+| RL COSTA | rlcosta@soconstrutoras.com.br | cadastrar-rlcosta.js | ✅ |
+| ROLIM | rolim@soconstrutoras.com.br | cadastrar-rolim.js | ✅ |
+| SAGA | saga@soconstrutoras.com.br | cadastrar-saga.js | ✅ |
+| SEGENCO | segenco@soconstrutoras.com.br | cadastrar-segenco.js | ✅ |
+| SENSIA | sensia@soconstrutoras.com.br | cadastrar-sensia.js | ✅ |
+| SOL EDIFICAÇÕES | soledificacoes@soconstrutoras.com.br | cadastrar-soledificacoes.js | ✅ |
+| SOMATTOS | somattos@soconstrutoras.com.br | cadastrar-somattos.js | ✅ |
 
 ---
 

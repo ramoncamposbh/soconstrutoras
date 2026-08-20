@@ -79,6 +79,16 @@ const CONSTRUTORAS = [
   { nome: 'PRODOMO',         script: 'cadastrar-prodomo'            },
   { nome: 'PROTEMPO',        script: 'cadastrar-protempo'           },
   { nome: 'RICAM',           script: 'cadastrar-ricam'              },
+  // ── Grupo 8 ─────────────────────────────────────────────────────
+  { nome: 'RIVA',            script: 'cadastrar-riva'               },
+  { nome: 'RKM',             script: 'cadastrar-rkm'                },
+  { nome: 'RL COSTA',        script: 'cadastrar-rlcosta'            },
+  { nome: 'ROLIM',           script: 'cadastrar-rolim'              },
+  { nome: 'SAGA',            script: 'cadastrar-saga'               },
+  { nome: 'SEGENCO',         script: 'cadastrar-segenco'            },
+  { nome: 'SENSIA',          script: 'cadastrar-sensia'             },
+  { nome: 'SOL EDIFICAÇÕES', script: 'cadastrar-soledificacoes'     },
+  { nome: 'SOMATTOS',        script: 'cadastrar-somattos'           },
 ];
 
 async function main() {
