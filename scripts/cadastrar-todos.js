@@ -60,6 +60,25 @@ const CONSTRUTORAS = [
   { nome: 'LAGE',            script: 'cadastrar-lage'               },
   { nome: 'M MPO',           script: 'cadastrar-mmpo'               },
   { nome: 'M. MATOS',        script: 'cadastrar-mmatos'             },
+  // ── Grupo 7 ─────────────────────────────────────────────────────
+  { nome: 'MCF',             script: 'cadastrar-mcf'                },
+  { nome: 'MENDES FERRAZ',   script: 'cadastrar-mendesferraz'       },
+  { nome: 'MINAS BRISA',     script: 'cadastrar-minasbrisa'         },
+  { nome: 'MIP',             script: 'cadastrar-mip'                },
+  { nome: 'MODERNIZAR',      script: 'cadastrar-modernizar'         },
+  { nome: 'MONTERRE',        script: 'cadastrar-monterre'           },
+  { nome: 'MRV',             script: 'cadastrar-mrv'                },
+  { nome: 'NATUS E BELO VALE',script: 'cadastrar-natusebelovale'   },
+  { nome: 'NOVOLAR',         script: 'cadastrar-novolar'            },
+  { nome: 'ORKHESTRA',       script: 'cadastrar-orkhestra'          },
+  { nome: 'PARCELAR',        script: 'cadastrar-parcelar'           },
+  { nome: 'PARDINI NASSIF',  script: 'cadastrar-pardinassif'        },
+  { nome: 'PATRIMAR',        script: 'cadastrar-patrimar'           },
+  { nome: 'PHV',             script: 'cadastrar-phv'                },
+  { nome: 'PRISBEL',         script: 'cadastrar-prisbel'            },
+  { nome: 'PRODOMO',         script: 'cadastrar-prodomo'            },
+  { nome: 'PROTEMPO',        script: 'cadastrar-protempo'           },
+  { nome: 'RICAM',           script: 'cadastrar-ricam'              },
 ];
 
 async function main() {

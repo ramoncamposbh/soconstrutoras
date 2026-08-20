@@ -308,6 +308,24 @@ D:\3 -IMOVEIS\CONSTRUTORAS\ATUAIS\[Construtora]\
 | LAGE | lage@soconstrutoras.com.br | cadastrar-lage.js | ✅ |
 | M MPO | mmpo@soconstrutoras.com.br | cadastrar-mmpo.js | ✅ |
 | M. MATOS | mmatos@soconstrutoras.com.br | cadastrar-mmatos.js | ✅ |
+| MCF | mcf@soconstrutoras.com.br | cadastrar-mcf.js | ✅ |
+| MENDES FERRAZ | mendesferraz@soconstrutoras.com.br | cadastrar-mendesferraz.js | ✅ |
+| MINAS BRISA | minasbrisa@soconstrutoras.com.br | cadastrar-minasbrisa.js | ✅ |
+| MIP | mip@soconstrutoras.com.br | cadastrar-mip.js | ✅ |
+| MODERNIZAR | modernizar@soconstrutoras.com.br | cadastrar-modernizar.js | ✅ |
+| MONTERRE | monterre@soconstrutoras.com.br | cadastrar-monterre.js | ✅ |
+| MRV | mrv@soconstrutoras.com.br | cadastrar-mrv.js | ✅ |
+| NATUS E BELO VALE | natusebelovale@soconstrutoras.com.br | cadastrar-natusebelovale.js | ✅ |
+| NOVOLAR | novolar@soconstrutoras.com.br | cadastrar-novolar.js | ✅ |
+| ORKHESTRA | orkhestra@soconstrutoras.com.br | cadastrar-orkhestra.js | ✅ |
+| PARCELAR | parcelar@soconstrutoras.com.br | cadastrar-parcelar.js | ✅ |
+| PARDINI NASSIF | pardinassif@soconstrutoras.com.br | cadastrar-pardinassif.js | ✅ |
+| PATRIMAR | patrimar@soconstrutoras.com.br | cadastrar-patrimar.js | ✅ |
+| PHV | phv@soconstrutoras.com.br | cadastrar-phv.js | ✅ |
+| PRISBEL | prisbel@soconstrutoras.com.br | cadastrar-prisbel.js | ✅ |
+| PRODOMO | prodomo@soconstrutoras.com.br | cadastrar-prodomo.js | ✅ |
+| PROTEMPO | protempo@soconstrutoras.com.br | cadastrar-protempo.js | ✅ |
+| RICAM | ricam@soconstrutoras.com.br | cadastrar-ricam.js | ✅ |
 
 ---
 
