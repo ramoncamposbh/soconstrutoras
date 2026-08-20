@@ -64,7 +64,7 @@ async function uploadImagensOld(TOKEN, empId, baseDir) {
   console.log(`  📸 ${ok}/${all.length}`);
 }
 async function publicar(TOKEN, empId) {
-  const r = await api(`/empreendimentos/${empId}/publicar`, { method:'POST', headers:{Authorization:`Bearer ${TOKEN}`} });
+  const r = await api(`/empreendimentos/${empId}/publicar`, { method:'PATCH', headers:{Authorization:`Bearer ${TOKEN}`} });
   if (r.data?.publicado || r.status === 200) console.log('  🌐 publicado');
   else console.log('  ⚠ publicar:', JSON.stringify(r.data));
 }
