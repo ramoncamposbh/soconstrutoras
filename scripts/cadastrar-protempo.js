@@ -72,7 +72,7 @@ const EMPS = [
     body: bd('Jaya, PROTEMPO em BH. Apartamentos de alto padrão entregues. Unidades esgotadas.','Belo Horizonte','30000-000') },
   { nome:'ONE',               dir: path.join(BASE,'2026-08-19-ONE'),              facade:'115-Fachada_Detalhe_R03.jpeg',
     body: bd('ONE, PROTEMPO em BH. Empreendimento de altíssimo padrão entregue. Unidades esgotadas.','Belo Horizonte','30000-000') },
-  { nome:'Reserva Gutierrez', dir: path.join(BASE,'2026-08-19-Reserva Gutierrez'),facade:'23031_PRO_MarechalBitencourt_23_Fachada_R05_alta.jpeg',
+  { nome:'Reserva Gutierrez PROTEMPO', dir: path.join(BASE,'2026-08-19-Reserva Gutierrez'),facade:'23031_PRO_MarechalBitencourt_23_Fachada_R05_alta.jpeg',
     body: { tipo:'apartamento', status:'pronto', descricao:'Reserva Gutierrez na Rua Marechal Bitencourt, 23, Gutierrez, Belo Horizonte. Empreendimento PROTEMPO de alto padrão entregue. Unidades esgotadas.',
       endereco:'Rua Marechal Bitencourt, 23', bairro:'Gutierrez', cidade:'Belo Horizonte', estado:'MG', cep:'30430-110',
       area_min:80, area_max:350, preco_min:null, preco_max:null, quartos_min:2, quartos_max:4, vagas:2 } },
