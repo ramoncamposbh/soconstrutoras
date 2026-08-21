@@ -7,7 +7,7 @@
  */
 const API   = 'https://soconstrutoras-production.up.railway.app/api/v1';
 const ADMIN_EMAIL = 'admin@soconstrutoras.com.br';
-const ADMIN_SENHA = 'Admin@2024';
+const ADMIN_SENHA = '102030';
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -48,7 +48,7 @@ async function main() {
   console.log('✅ Admin logado\n');
 
   // Buscar todos os empreendimentos (admin)
-  const list = await api('/empreendimentos/admin/listar', { headers: { Authorization: `Bearer ${TOKEN}` } });
+  const list = await api('/empreendimentos/admin/todas', { headers: { Authorization: `Bearer ${TOKEN}` } });
   const emps = Array.isArray(list.data) ? list.data : (list.data?.data ?? []);
   console.log(`Total: ${emps.length} empreendimentos`);
 
@@ -68,13 +68,13 @@ async function main() {
       continue;
     }
 
-    const upd = await api(`/empreendimentos/${emp.id}`, {
+    const upd = await api(`/empreendimentos/admin/${emp.id}/editar`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
       body: JSON.stringify({ lat: coords.lat, lng: coords.lng }),
     });
 
-    if (upd.status === 200 || upd.data?.id) {
+    if (upd.status === 200 || upd.status === 201 || upd.data?.id) {
       console.log(`  ✅ ${emp.nome} → ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
       ok++;
     } else {

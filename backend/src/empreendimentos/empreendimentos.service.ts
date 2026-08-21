@@ -182,7 +182,7 @@ export class EmpreendimentosService {
   async listarTodas() {
     const { rows } = await this.pool.query(
       `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.publicado, e.publicado_em,
-              e.cidade, e.estado, e.preco_min, e.preco_max, e.created_at,
+              e.cidade, e.estado, e.bairro, e.lat, e.lng, e.preco_min, e.preco_max, e.created_at,
               c.nome_fantasia AS construtora_nome, c.id AS construtora_id,
               u.email AS construtora_email,
               COUNT(DISTINCT l.id)::int AS total_leads,
