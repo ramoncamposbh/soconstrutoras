@@ -102,7 +102,7 @@ export class EmpreendimentosService {
     }
 
     const where = conditions.join(' AND ');
-    const limit  = Math.min(filtros.limite ?? 200, 500);
+    const limit  = Math.min(filtros.limite ?? 500, 1000);
     const offset = (filtros.pagina ?? 0) * limit;
 
     const { rows } = await this.pool.query(
