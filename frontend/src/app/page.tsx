@@ -712,7 +712,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen" style={{ background: '#99ffff' }}>
 
       {/* ══ MENU GLOBAL DO USUÁRIO ══ */}
       {userMenuOpen && isAuthenticated && (
