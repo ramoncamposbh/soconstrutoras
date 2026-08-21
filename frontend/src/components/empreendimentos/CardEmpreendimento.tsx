@@ -12,12 +12,12 @@ import { formatCurrency } from '@/lib/utils';
 import type { Empreendimento } from '@/types';
 
 // ─── Paleta brand ──────────────────────────────────────────────────────────
-const G = '#04241D';
-const GD = '#021A13';
+const G = '#0E8F6E';
+const GD = '#0A6A52';
 
 // ─── Status badge ──────────────────────────────────────────────────────────
 const STATUS_LABEL: Record<string, { label: string; bg: string; text: string }> = {
-  lancamento: { label: 'Lançamento',  bg: '#04241D', text: '#fff' },
+  lancamento: { label: 'Lançamento',  bg: '#0E8F6E', text: '#fff' },
   em_obras:   { label: 'Em obras',    bg: '#F59E0B', text: '#78350F' },
   pronto:     { label: 'Pronto',      bg: '#059669', text: '#fff' },
   suspenso:   { label: 'Suspenso',    bg: '#6B7280', text: '#fff' },
@@ -180,7 +180,7 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
               </div>
             )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#374151' }}>
-              <MapPin size={10} color="#04241D" />
+              <MapPin size={10} color="#0E8F6E" />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {emp.cidade} — {emp.estado}
               </span>

@@ -760,7 +760,7 @@ export default function HomePage() {
             <button
               onClick={() => setMenuOpen(o => !o)}
               className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: '#F0FAF7', color: '#04241D' }}
+              style={{ background: '#F0FAF7', color: '#0E8F6E' }}
               aria-label="Menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -783,7 +783,7 @@ export default function HomePage() {
                     onMouseEnter={e => (e.currentTarget.style.background = '#F0FAF7')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                   >
-                    <Icon style={{ width: 16, height: 16, color: '#04241D', flexShrink: 0 }} />
+                    <Icon style={{ width: 16, height: 16, color: '#0E8F6E', flexShrink: 0 }} />
                     {label}
                   </Link>
                 ))}
@@ -795,7 +795,7 @@ export default function HomePage() {
           <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
             <Image src="/logo.png" alt="SóConstrutoras" width={30} height={30} className="object-contain" priority />
             <div className="leading-tight">
-              <span className="block font-extrabold text-[12px]" style={{ color: '#0E8F6E' }}>SÓCONSTRUTORAS</span>
+              <span className="block font-extrabold text-[12px]" style={{ color: '#0B1D2A' }}>SÓCONSTRUTORAS</span>
               <span className="block text-[9px]" style={{ color: '#9CA3AF' }}>Portal das Construtoras</span>
             </div>
           </Link>
@@ -812,7 +812,7 @@ export default function HomePage() {
             ) : (
               <Link href="/auth/login"
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
-                style={{ background: '#04241D' }}>
+                style={{ background: '#0E8F6E' }}>
                 Entrar
               </Link>
             )}
@@ -824,7 +824,7 @@ export default function HomePage() {
       {/* ══ NAVBAR DESKTOP (oculto no mobile) ══ */}
       <nav
         className="hidden md:flex sticky top-0 z-50 h-[66px] items-center px-5 md:px-7 gap-0"
-        style={{ background: '#0E8F6E', borderBottom: '1px solid #19483D' }}
+        style={{ background: '#0B1D2A', borderBottom: '1px solid #1A3547' }}
       >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-4">
@@ -851,13 +851,13 @@ export default function HomePage() {
           href="/"
           className="hidden md:flex items-center gap-2 text-white text-[13px] font-semibold shrink-0 mr-1"
           style={{
-            background: '#04241D',
+            background: '#0E8F6E',
             border: '1px solid #16A37F',
             padding: '8px 20px',
             borderRadius: 12,
           }}
           onMouseEnter={e => (e.currentTarget.style.background = '#16A37F')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#04241D')}
+          onMouseLeave={e => (e.currentTarget.style.background = '#0E8F6E')}
         >
           <Home className="w-[15px] h-[15px]" /> Início
         </Link>
@@ -870,7 +870,7 @@ export default function HomePage() {
               style={{ color: '#AAB5B2' }}
               onMouseEnter={e => {
                 e.currentTarget.style.color = '#FFFFFF';
-                e.currentTarget.style.background = '#19483D';
+                e.currentTarget.style.background = '#1A3547';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.color = '#AAB5B2';
@@ -918,7 +918,7 @@ export default function HomePage() {
         <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.035 }} xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="hero-grid" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#04241D" strokeWidth="0.5" />
+              <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E8F6E" strokeWidth="0.5" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#hero-grid)" />
@@ -984,8 +984,8 @@ export default function HomePage() {
                 onClick={startVoiceSearch}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
                 style={{
-                  background: isListening ? '#04241D' : 'rgba(255,255,255,0.08)',
-                  borderColor: isListening ? '#04241D' : 'rgba(255,255,255,0.18)',
+                  background: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.08)',
+                  borderColor: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.18)',
                   color: '#bbf7d0',
                   animation: isListening ? 'pulse 1s infinite' : 'none',
                 }}>
@@ -1183,7 +1183,7 @@ export default function HomePage() {
                   Ordenados por compatibilidade com seu perfil
                   {pesquisaAtiva && (
                     <button onClick={() => { setPesquisaAtiva(null); buscar(); }}
-                      className="ml-2 inline-flex items-center gap-1 font-medium" style={{ color: '#04241D' }}>
+                      className="ml-2 inline-flex items-center gap-1 font-medium" style={{ color: '#0E8F6E' }}>
                       · {pesquisaAtiva} <X className="w-3 h-3" />
                     </button>
                   )}
@@ -1193,7 +1193,7 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-2 shrink-0 pt-1">
             <button className="hidden md:flex items-center gap-1.5 text-sm font-semibold border rounded-lg px-3 py-1.5 transition-colors"
-              style={{ color: '#04241D', borderColor: '#04241D' }}
+              style={{ color: '#0E8F6E', borderColor: '#0E8F6E' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F0FAF7'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>
               <Map className="w-3.5 h-3.5" /> Ver no mapa
@@ -1256,15 +1256,15 @@ export default function HomePage() {
       </div>
 
       {/* ══ FOOTER SIMPLES ══ */}
-      <footer style={{ background: '#0E8F6E', borderTop: '1px solid #19483D', padding: '20px 32px' }}>
+      <footer style={{ background: '#0B1D2A', borderTop: '1px solid #1A3547', padding: '20px 32px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#04241D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0E8F6E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Building2 size={16} color="#fff" />
             </div>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#AAB5B2', letterSpacing: '0.05em' }}>SÓCONSTRUTORAS</span>
           </div>
-          <p style={{ fontSize: 11, color: '#19483D' }}>© {new Date().getFullYear()} SóConstrutoras. Todos os direitos reservados.</p>
+          <p style={{ fontSize: 11, color: '#1A3547' }}>© {new Date().getFullYear()} SóConstrutoras. Todos os direitos reservados.</p>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidade', 'Termos', 'Contato'].map(l => (
               <a key={l} href="#" style={{ fontSize: 11, color: '#AAB5B2', textDecoration: 'none' }}
@@ -1297,7 +1297,7 @@ export default function HomePage() {
             <Link key={label} href={href}
               className="flex-1 flex flex-col items-center py-2.5 gap-1 transition-colors"
               style={{ color: '#9CA3AF' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#04241D'; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0E8F6E'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#9CA3AF'; }}>
               <Icon className="w-5 h-5" strokeWidth={1.6} />
               <span className="text-[10px] font-medium">{label}</span>
@@ -1328,7 +1328,7 @@ export default function HomePage() {
 
               {/* Logo */}
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#04241D' }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#0E8F6E' }}>
                   <Building2 size={15} color="#fff" />
                 </div>
                 <div>
@@ -1396,7 +1396,7 @@ export default function HomePage() {
                 <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.4)' }}>
                   <div className="h-full rounded-full"
                     style={{
-                      background: 'linear-gradient(90deg, #04241D, #22D497)',
+                      background: 'linear-gradient(90deg, #0E8F6E, #22D497)',
                       width: `${pct}%`,
                       transition: 'width 0.45s ease',
                     }} />
@@ -1415,13 +1415,13 @@ export default function HomePage() {
         >
           <div
             className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-2xl"
-            style={{ background: 'linear-gradient(160deg, #0D2B22 0%, #0A3D2C 100%)', border: '1px solid #1A5440' }}
+            style={{ background: 'linear-gradient(160deg, #0B1D2A 0%, #0A3D2C 100%)', border: '1px solid #1A3547' }}
           >
             {/* Ícone e título dinâmicos conforme o tipo de mensagem */}
             <div className="flex flex-col items-center gap-2 pt-2">
               <div
                 className="w-20 h-20 rounded-full flex items-center justify-center"
-                style={{ border: '4px solid #04241D', background: 'rgba(14,143,110,0.12)' }}
+                style={{ border: '4px solid #0E8F6E', background: 'rgba(14,143,110,0.12)' }}
               >
                 {mensagemBusca.texto.toLowerCase().includes('característica') ||
                  mensagemBusca.texto.toLowerCase().includes('nenhum imóvel encontrado com') ?
@@ -1446,7 +1446,7 @@ export default function HomePage() {
             {mensagemBusca.sugestoes.length > 0 && (
               <div
                 className="rounded-2xl p-4 flex flex-col gap-2"
-                style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid #1A5440' }}
+                style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid #1A3547' }}
               >
                 <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#22D497' }}>
                   Sugestão
@@ -1464,7 +1464,7 @@ export default function HomePage() {
             <button
               onClick={() => setMensagemBusca(null)}
               className="w-full py-3.5 rounded-2xl font-bold text-base transition-all active:scale-95"
-              style={{ background: 'linear-gradient(90deg, #04241D, #22D497)', color: '#fff', letterSpacing: '0.02em' }}
+              style={{ background: 'linear-gradient(90deg, #0E8F6E, #22D497)', color: '#fff', letterSpacing: '0.02em' }}
             >
               Ok, entendi
             </button>
