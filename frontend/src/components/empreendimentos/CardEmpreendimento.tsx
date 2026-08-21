@@ -169,15 +169,26 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
             {emp.nome}
           </h3>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#9CA3AF', marginBottom: 10 }}>
-            <MapPin size={10} />
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {emp.cidade} — {emp.estado}
-            </span>
+          <div style={{ marginBottom: 10 }}>
+            {(emp as any).bairro && (
+              <div style={{
+                fontSize: 12, fontWeight: 700, color: '#111827',
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                marginBottom: 2,
+              }}>
+                {(emp as any).bairro}
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#374151' }}>
+              <MapPin size={10} color="#0E8F6E" />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {emp.cidade} — {emp.estado}
+              </span>
+            </div>
           </div>
 
           {/* Specs */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0, fontSize: 11, color: '#6B7280', marginBottom: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0, fontSize: 11, color: '#374151', marginBottom: 10, flexWrap: 'wrap' }}>
             {suitesLabel && (
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <BedDouble size={10} /> {suitesLabel}
