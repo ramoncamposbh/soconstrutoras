@@ -56,7 +56,7 @@ async function publicar(TOKEN, empId) {
 }
 
 const EMPS = [
-  { nome:'Aristóteles 576',
+  { nome:'Aristóteles 576 ZONTTI',
     dir: path.join(BASE,'2026-08-20-Aristóteles 576'), facade: 'Fachada(2).jpeg',
     body: { tipo:'apartamento', status:'pronto', descricao:'Aristóteles 576, ZONTTI em BH. Coberturas e apartamentos de altíssimo padrão entregues na Rua Aristóteles, 576. Unidades esgotadas.',
       endereco:'Rua Aristóteles, 576', bairro:'Belo Horizonte', cidade:'Belo Horizonte', estado:'MG', cep:'30000-000',

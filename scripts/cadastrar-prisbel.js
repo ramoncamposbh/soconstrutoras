@@ -59,7 +59,7 @@ async function publicar(TOKEN, empId) {
 
 const EMPS = [
   {
-    nome: 'Arbo Residence & Mall',
+    nome: 'Arbo Residence e Mall PRISBEL',
     dir:  path.join(BASE, '2026-08-19-Arbo Residence & Mall'),
     facade: 'PRISMA_ARBO_FACHADA_NOITE_grama.jpeg',
     body: { tipo:'apartamento', status:'pronto', descricao:'Arbo Residence & Mall, PRISBEL em BH. Empreendimento mixed-use com residencial e mall entregue. Unidades esgotadas.',
@@ -67,7 +67,7 @@ const EMPS = [
       area_min:50, area_max:200, preco_min:null, preco_max:null, quartos_min:2, quartos_max:3, vagas:1 },
   },
   {
-    nome: 'Downtown',
+    nome: 'Downtown PRISBEL',
     dir:  path.join(BASE, '2026-08-19-Downtown'),
     facade: '22015_PRI_Curitiba_01_FachadaNoturna_R03_alta.jpeg',
     body: { tipo:'apartamento', status:'pronto', descricao:'Downtown PRISBEL na Rua Curitiba, Belo Horizonte. Apartamentos de alto padrão entregues com fachada noturna. Unidades esgotadas.',
@@ -75,7 +75,7 @@ const EMPS = [
       area_min:50, area_max:200, preco_min:null, preco_max:null, quartos_min:1, quartos_max:3, vagas:1 },
   },
   {
-    nome: 'Oásis Vale do Sereno',
+    nome: 'Oásis Vale do Sereno PRISBEL',
     dir:  path.join(BASE, '2026-08-19-Oásis Vale do Sereno'),
     facade: '04-Cascata-800x450.jpeg',
     body: { tipo:'apartamento', status:'pronto', descricao:'Oásis Vale do Sereno, PRISBEL em Nova Lima. Condomínio fechado com cascata, parrilla e área de lazer completa. Unidades esgotadas.',
@@ -83,7 +83,7 @@ const EMPS = [
       area_min:80, area_max:300, preco_min:null, preco_max:null, quartos_min:3, quartos_max:4, vagas:2 },
   },
   {
-    nome: 'Paradiso',
+    nome: 'Paradiso PRISBEL',
     dir:  path.join(BASE, '2026-08-19-Paradiso'),
     facade: 'PRISBEL_PARADISO_FACHADA02.jpeg',
     body: { tipo:'apartamento', status:'pronto', descricao:'Paradiso, PRISBEL em BH. Apartamentos de alto padrão entregues com fachada contemporânea. Unidades esgotadas.',
@@ -91,7 +91,7 @@ const EMPS = [
       area_min:60, area_max:250, preco_min:null, preco_max:null, quartos_min:2, quartos_max:4, vagas:2 },
   },
   {
-    nome: 'Uptown Savassi',
+    nome: 'Uptown Savassi PRISBEL',
     dir:  path.join(BASE, '2026-08-19-Uptown Savassi'),
     facade: 'PRISBEL_UPTOWN_FACHADA2.jpeg',
     body: { tipo:'apartamento', status:'pronto', descricao:'Uptown Savassi, PRISBEL no Savassi, Belo Horizonte. Apartamentos de alto padrão entregues na melhor localização. Unidades esgotadas.',

@@ -67,7 +67,7 @@ const EMPS = [
     body: { tipo:'apartamento', status:'pronto', descricao:'Aldea Bias Fortes, SUDOESTE na Rua Bias Fortes, BH. Apartamentos de alto padrão entregues. Unidades esgotadas.',
       endereco:'Rua Bias Fortes', bairro:'Centro', cidade:'Belo Horizonte', estado:'MG', cep:'30170-010',
       area_min:40, area_max:200, preco_min:null, preco_max:null, quartos_min:1, quartos_max:3, vagas:1 } },
-  { nome:'Aldea Vale do Sereno',
+  { nome:'Aldea Vale do Sereno SUDOESTE',
     dir: path.join(BASE,'ALDEAS VALE DO SERENO','2026-07-20-Aldea Vale do Sereno'),
     facade: 'ima-sudoeste-vale-do-sereno-fachada-diurna-baixa-1638x2048-1.jpeg',
     body: { tipo:'apartamento', status:'pronto', descricao:'Aldea Vale do Sereno, SUDOESTE em Nova Lima. Apartamentos de alto padrão entregues no Vale do Sereno. Unidades esgotadas.',

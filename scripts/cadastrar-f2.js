@@ -21,7 +21,7 @@ const path = require('path');
 
 const API   = 'https://soconstrutoras-production.up.railway.app/api/v1';
 const EMAIL = 'f2@soconstrutoras.com.br';
-const SENHA = 'F2@2026';
+const SENHA = 'F2LUME@2026';
 const BASE_F2   = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\F2';
 const BASE_LUME = 'D:\\3 -IMOVEIS\\CONSTRUTORAS\\ATUAIS\\F2\\2026-08-18-Lume';
 
