@@ -1255,44 +1255,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ══ COMO FUNCIONA (apenas desktop) ══ */}
-      <section className="hidden md:block" style={{ background: '#fff', borderTop: '1px solid #F3F4F6', padding: '28px 32px', marginTop: 8 }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, alignItems: 'stretch' }}>
-            {/* Título */}
-            <div style={{ flex: '0 0 220px', paddingRight: 28, borderRight: '1px solid #F3F4F6', marginRight: 28 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>
-                Como funciona nossa IA
-              </p>
-              <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
-                Um processo simples para encontrar o imóvel ideal.
-              </p>
-            </div>
-
-            {/* Steps */}
-            {[
-              { icon: MessageCircle, n: 1, title: 'Converse com a IA',        desc: 'Conte suas necessidades em linguagem natural.' },
-              { icon: Brain,         n: 2, title: 'IA analisa seu perfil',     desc: 'Entendemos seu momento de vida e preferências.' },
-              { icon: Target,        n: 3, title: 'Encontramos o ideal',       desc: 'Buscamos entre milhares de imóveis novos.' },
-              { icon: CheckCircle,   n: 4, title: 'Resultados personalizados', desc: 'Você recebe apenas imóveis compatíveis com você.' },
-            ].map(({ icon: Icon, n, title, desc }) => (
-              <div key={n} style={{ flex: '1 1 160px', display: 'flex', gap: 10, paddingRight: 16 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                  background: '#F0FAF7', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon size={15} color="#0E8F6E" />
-                </div>
-                <div>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: '#1F2937', marginBottom: 3 }}>{n}. {title}</p>
-                  <p style={{ fontSize: 11, color: '#9CA3AF', lineHeight: 1.6 }}>{desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ══ FOOTER SIMPLES ══ */}
       <footer style={{ background: '#04241D', borderTop: '1px solid #19483D', padding: '20px 32px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
