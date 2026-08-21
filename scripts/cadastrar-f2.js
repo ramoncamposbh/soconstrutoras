@@ -108,7 +108,7 @@ const EMPS = [
       endereco:'Rua do Ouro', bairro:'Serra', cidade:'Belo Horizonte', estado:'MG', cep:'30220-230',
       area_min:80, area_max:200, preco_min:null, preco_max:null, quartos_min:3, quartos_max:4, vagas:3 },
     unidades:[] },
-  { nome:'Casa Ferolla',      dir:path.join(BASE_F2,'2026-08-18-Casa Ferolla'),
+  { nome:'Casa Ferolla F2',      dir:path.join(BASE_F2,'2026-08-18-Casa Ferolla'),
     body:{ tipo:'apartamento', status:'pronto',
       descricao:'Casa Ferolla na Rua São Domingos do Prata, Santo Antônio, BH. Apartamentos de 3 suítes com 187m² e 3 vagas. Ao lado do casarão tombado Casa Ferolla, entregue montado e decorado.',
       endereco:'Rua São Domingos do Prata', bairro:'Santo Antônio', cidade:'Belo Horizonte', estado:'MG', cep:'30330-190',
