@@ -52,17 +52,17 @@ async function main() {
   const emps = Array.isArray(list.data) ? list.data : (list.data?.data ?? []);
   console.log(`Total: ${emps.length} empreendimentos`);
 
-  const semCoord = emps.filter(e => !e.lat || !e.lng);
+  const semCoord = emps.filter(e => !e.latitude || !e.longitude);
   console.log(`Sem coordenadas: ${semCoord.length}\n`);
 
   let ok = 0, falha = 0;
 
   for (const emp of semCoord) {
-    const bairro = emp.bairro !== emp.cidade ? emp.bairro : null;
+    const bairro = (emp.bairro && emp.bairro !== emp.cidade) ? emp.bairro : null;
     const coords = await geocode(bairro, emp.cidade || 'Belo Horizonte', emp.estado || 'MG');
     await sleep(1100); // respeitar rate limit Nominatim (1 req/s)
 
-    if (!coords) {
+    if (!coords || isNaN(coords.lat) || isNaN(coords.lng)) {
       console.log(`  ⚠ [${emp.id}] ${emp.nome} — não geocodificado`);
       falha++;
       continue;
@@ -71,7 +71,7 @@ async function main() {
     const upd = await api(`/empreendimentos/admin/${emp.id}/editar`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
-      body: JSON.stringify({ lat: coords.lat, lng: coords.lng }),
+      body: JSON.stringify({ latitude: coords.lat, longitude: coords.lng }),
     });
 
     if (upd.status === 200 || upd.status === 201 || upd.data?.id) {
