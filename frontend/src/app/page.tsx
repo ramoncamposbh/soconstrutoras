@@ -1080,68 +1080,75 @@ export default function HomePage() {
 
             {/* Filtros tradicionais — visíveis somente quando abertos */}
             {filtrosAbertos && (
-              <div className="p-5 rounded-2xl border"
-                style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
+              <div className="rounded-2xl p-5"
+                style={{ background: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', border: '1px solid #E5E7EB' }}>
 
                 {/* Linha 1: Estado + Cidade */}
                 <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Estado</label>
-                    <select value={estadoSel} onChange={e => setEstadoSel(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
-                      <option value="">Todos</option>
-                      {ESTADOS_BR.map(e => <option key={e.uf} value={e.uf}>{e.nome}</option>)}
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Cidade</label>
-                    <select value={cidadeSel} onChange={e => setCidadeSel(e.target.value)}
-                      disabled={cidadesDisp.length === 0}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4', opacity: cidadesDisp.length === 0 ? 0.4 : 1 }}>
-                      <option value="">{estadoSel ? 'Todas' : 'Selecione o estado'}</option>
-                      {cidadesDisp.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
+                  {[
+                    { label: 'Estado', node: (
+                      <select value={estadoSel} onChange={e => setEstadoSel(e.target.value)}
+                        className="rounded-xl outline-none w-full"
+                        style={{ fontSize: 14, padding: '10px 12px', background: '#fff', border: '1.5px solid #D1D5DB', color: '#111827' }}>
+                        <option value="">Todos os estados</option>
+                        {ESTADOS_BR.map(e => <option key={e.uf} value={e.uf}>{e.nome}</option>)}
+                      </select>
+                    )},
+                    { label: 'Cidade', node: (
+                      <select value={cidadeSel} onChange={e => setCidadeSel(e.target.value)}
+                        disabled={cidadesDisp.length === 0}
+                        className="rounded-xl outline-none w-full"
+                        style={{ fontSize: 14, padding: '10px 12px', background: '#fff', border: '1.5px solid #D1D5DB', color: '#111827', opacity: cidadesDisp.length === 0 ? 0.45 : 1 }}>
+                        <option value="">{estadoSel ? 'Todas as cidades' : '← Selecione o estado'}</option>
+                        {cidadesDisp.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    )},
+                  ].map(({ label, node }) => (
+                    <div key={label} className="flex flex-col gap-1">
+                      <label className="text-xs font-semibold" style={{ color: '#6B7280' }}>{label}</label>
+                      {node}
+                    </div>
+                  ))}
                 </div>
 
-                {/* Linha 2: Bairros (multi-select) + Tipo */}
+                {/* Linha 2: Bairros + Tipo */}
                 <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                      Bairros {bairrosSel.length > 0 && <span style={{ color: '#22D497' }}>({bairrosSel.length})</span>}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold" style={{ color: '#6B7280' }}>
+                      Bairros {bairrosSel.length > 0 && <span style={{ color: '#0E8F6E' }}>({bairrosSel.length})</span>}
                     </label>
                     <div className="relative">
-                      <button type="button"
-                        onClick={() => setBairrosOpen(o => !o)}
+                      <button type="button" onClick={() => setBairrosOpen(o => !o)}
                         disabled={bairrosDisp.length === 0}
                         className="rounded-xl w-full text-left flex items-center justify-between"
-                        style={{ fontSize: 14, padding: '11px 12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: bairrosDisp.length === 0 ? 'rgba(255,255,255,0.3)' : '#f0fdf4', opacity: bairrosDisp.length === 0 ? 0.4 : 1 }}>
-                        <span>{bairrosSel.length > 0 ? bairrosSel.slice(0,2).join(', ') + (bairrosSel.length > 2 ? '...' : '') : cidadeSel ? 'Todos' : 'Selecione a cidade'}</span>
-                        <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ transform: bairrosOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+                        style={{ fontSize: 14, padding: '10px 12px', background: '#fff', border: '1.5px solid #D1D5DB', color: bairrosDisp.length === 0 ? '#9CA3AF' : '#111827', opacity: bairrosDisp.length === 0 ? 0.45 : 1 }}>
+                        <span className="truncate">{bairrosSel.length > 0 ? bairrosSel.slice(0,2).join(', ') + (bairrosSel.length > 2 ? `… +${bairrosSel.length - 2}` : '') : cidadeSel ? 'Todos os bairros' : '← Selecione a cidade'}</span>
+                        <ChevronDown className="w-3.5 h-3.5 shrink-0 ml-1" style={{ transform: bairrosOpen ? 'rotate(180deg)' : 'none', transition: '0.2s', color: '#9CA3AF' }} />
                       </button>
                       {bairrosOpen && bairrosDisp.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl overflow-auto"
-                          style={{ background: '#0A2318', border: '1px solid #1B5C3E', maxHeight: 200 }}>
+                        <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl overflow-auto bg-white"
+                          style={{ border: '1.5px solid #E5E7EB', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', maxHeight: 200 }}>
                           {bairrosDisp.map(b => (
-                            <label key={b} className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-white/10">
+                            <label key={b} className="flex items-center gap-2.5 px-3 py-2.5 cursor-pointer"
+                              style={{ borderBottom: '1px solid #F3F4F6' }}
+                              onMouseEnter={e => (e.currentTarget.style.background = '#F0FDF4')}
+                              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                               <input type="checkbox" checked={bairrosSel.includes(b)}
                                 onChange={() => setBairrosSel(prev => prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b])}
-                                style={{ accentColor: '#0E8F6E' }} />
-                              <span style={{ fontSize: 13, color: '#f0fdf4' }}>{b}</span>
+                                style={{ accentColor: '#0E8F6E', width: 15, height: 15 }} />
+                              <span style={{ fontSize: 13, color: '#374151' }}>{b}</span>
                             </label>
                           ))}
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Tipo</label>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold" style={{ color: '#6B7280' }}>Tipo</label>
                     <select value={tipo} onChange={e => setTipo(e.target.value)}
                       className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
-                      <option value="">Todos</option>
+                      style={{ fontSize: 14, padding: '10px 12px', background: '#fff', border: '1.5px solid #D1D5DB', color: '#111827' }}>
+                      <option value="">Todos os tipos</option>
                       {TIPOS_IMOVEL.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                     </select>
                   </div>
@@ -1149,29 +1156,25 @@ export default function HomePage() {
 
                 {/* Linha 3: suítes, vagas, área */}
                 <div className="grid grid-cols-3 gap-3 mb-3">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Suítes</label>
-                    <select value={quartos} onChange={e => setQuartos(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
-                      <option value="">Qualquer</option>
-                      {[1,2,3,4].map(n => <option key={n} value={n}>{n}+</option>)}
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Vagas</label>
-                    <select value={vagas} onChange={e => setVagas(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
-                      <option value="">Qualquer</option>
-                      {[1,2,3,4].map(n => <option key={n} value={n}>{n}+</option>)}
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Área mín.</label>
+                  {[
+                    { label: 'Suítes', value: quartos, set: setQuartos, opts: [1,2,3,4].map(n => ({ v: String(n), l: `${n}+` })) },
+                    { label: 'Vagas',  value: vagas,   set: setVagas,   opts: [1,2,3,4].map(n => ({ v: String(n), l: `${n}+` })) },
+                  ].map(({ label, value, set, opts }) => (
+                    <div key={label} className="flex flex-col gap-1">
+                      <label className="text-xs font-semibold" style={{ color: '#6B7280' }}>{label}</label>
+                      <select value={value} onChange={e => set(e.target.value)}
+                        className="rounded-xl outline-none w-full"
+                        style={{ fontSize: 14, padding: '10px 8px', background: '#fff', border: '1.5px solid #D1D5DB', color: '#111827' }}>
+                        <option value="">Qualquer</option>
+                        {opts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold" style={{ color: '#6B7280' }}>Área mín.</label>
                     <select value={area} onChange={e => setArea(e.target.value)}
                       className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      style={{ fontSize: 14, padding: '10px 8px', background: '#fff', border: '1.5px solid #D1D5DB', color: '#111827' }}>
                       <option value="">Qualquer</option>
                       {AREAS.map(a => <option key={a.value} value={a.value}>{a.label}+</option>)}
                     </select>
@@ -1180,41 +1183,25 @@ export default function HomePage() {
 
                 {/* Linha 4: valor mín, valor máx, buscar */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor mín.</label>
-                    <select value={precoMin} onChange={e => setPrecoMin(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 14, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
-                      <option value="">Qualquer</option>
-                      <option value="200000">R$ 200 mil</option>
-                      <option value="400000">R$ 400 mil</option>
-                      <option value="600000">R$ 600 mil</option>
-                      <option value="800000">R$ 800 mil</option>
-                      <option value="1000000">R$ 1 mi</option>
-                      <option value="1500000">R$ 1,5 mi</option>
-                      <option value="2000000">R$ 2 mi</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor máx.</label>
-                    <select value={precoMax} onChange={e => setPrecoMax(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 14, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
-                      <option value="">Qualquer</option>
-                      <option value="400000">R$ 400 mil</option>
-                      <option value="600000">R$ 600 mil</option>
-                      <option value="800000">R$ 800 mil</option>
-                      <option value="1000000">R$ 1 mi</option>
-                      <option value="1500000">R$ 1,5 mi</option>
-                      <option value="2000000">R$ 2 mi</option>
-                      <option value="3000000">R$ 3 mi</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
+                  {[
+                    { label: 'Valor mín.', value: precoMin, set: setPrecoMin, opts: [['200000','R$ 200 mil'],['400000','R$ 400 mil'],['600000','R$ 600 mil'],['800000','R$ 800 mil'],['1000000','R$ 1 mi'],['1500000','R$ 1,5 mi'],['2000000','R$ 2 mi']] },
+                    { label: 'Valor máx.', value: precoMax, set: setPrecoMax, opts: [['400000','R$ 400 mil'],['600000','R$ 600 mil'],['800000','R$ 800 mil'],['1000000','R$ 1 mi'],['1500000','R$ 1,5 mi'],['2000000','R$ 2 mi'],['3000000','R$ 3 mi']] },
+                  ].map(({ label, value, set, opts }) => (
+                    <div key={label} className="flex flex-col gap-1">
+                      <label className="text-xs font-semibold" style={{ color: '#6B7280' }}>{label}</label>
+                      <select value={value} onChange={e => set(e.target.value)}
+                        className="rounded-xl outline-none w-full"
+                        style={{ fontSize: 13, padding: '10px 8px', background: '#fff', border: '1.5px solid #D1D5DB', color: '#111827' }}>
+                        <option value="">Qualquer</option>
+                        {opts.map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                  <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold" style={{ color: 'transparent' }}>.</label>
                     <button onClick={handleFiltros}
                       className="flex items-center justify-center gap-2 text-white font-semibold rounded-xl w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'linear-gradient(90deg, #0E8F6E, #22D497)' }}>
+                      style={{ fontSize: 14, padding: '10px 8px', background: 'linear-gradient(90deg, #0E8F6E, #22D497)' }}>
                       <Search className="w-4 h-4" /> Buscar
                     </button>
                   </div>
