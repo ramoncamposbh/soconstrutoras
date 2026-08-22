@@ -35,4 +35,8 @@ export class BuscarEmpreendimentosDto {
   // Busca textual livre — pesquisa em nome + descricao (amenidades, características)
   @IsOptional() @IsString()
   busca?: string;
+
+  // Bairros separados por vírgula para filtro multi-seleção
+  @IsOptional() @IsString()
+  bairros?: string;
 }

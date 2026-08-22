@@ -20,6 +20,23 @@ import {
   LogOut, LayoutDashboard, Bell, Handshake, Menu,
 } from 'lucide-react';
 
+const ESTADOS_BR = [
+  { uf: 'AC', nome: 'Acre' }, { uf: 'AL', nome: 'Alagoas' },
+  { uf: 'AM', nome: 'Amazonas' }, { uf: 'AP', nome: 'Amapá' },
+  { uf: 'BA', nome: 'Bahia' }, { uf: 'CE', nome: 'Ceará' },
+  { uf: 'DF', nome: 'Dist. Federal' }, { uf: 'ES', nome: 'Espírito Santo' },
+  { uf: 'GO', nome: 'Goiás' }, { uf: 'MA', nome: 'Maranhão' },
+  { uf: 'MG', nome: 'Minas Gerais' }, { uf: 'MS', nome: 'Mato G. do Sul' },
+  { uf: 'MT', nome: 'Mato Grosso' }, { uf: 'PA', nome: 'Pará' },
+  { uf: 'PB', nome: 'Paraíba' }, { uf: 'PE', nome: 'Pernambuco' },
+  { uf: 'PI', nome: 'Piauí' }, { uf: 'PR', nome: 'Paraná' },
+  { uf: 'RJ', nome: 'Rio de Janeiro' }, { uf: 'RN', nome: 'Rio G. do Norte' },
+  { uf: 'RO', nome: 'Rondônia' }, { uf: 'RR', nome: 'Roraima' },
+  { uf: 'RS', nome: 'Rio G. do Sul' }, { uf: 'SC', nome: 'Santa Catarina' },
+  { uf: 'SE', nome: 'Sergipe' }, { uf: 'SP', nome: 'São Paulo' },
+  { uf: 'TO', nome: 'Tocantins' },
+];
+
 const MapaEmpreendimentos = dynamic(
   () => import('@/components/mapa/MapaEmpreendimentos'),
   {
@@ -199,6 +216,13 @@ export default function HomePage() {
   const [area, setArea] = useState('');
   const [precoMin, setPrecoMin] = useState('');
   const [precoMax, setPrecoMax] = useState('');
+  // Cascading dropdowns
+  const [estadoSel, setEstadoSel] = useState('');
+  const [cidadeSel, setCidadeSel] = useState('');
+  const [bairrosSel, setBairrosSel] = useState<string[]>([]);
+  const [cidadesDisp, setCidadesDisp] = useState<string[]>([]);
+  const [bairrosDisp, setBairrosDisp] = useState<string[]>([]);
+  const [bairrosOpen, setBairrosOpen] = useState(false);
   const [mensagemBusca, setMensagemBusca] = useState<{ texto: string; sugestoes: string[] } | null>(null);
   const [buscaProgresso, setBuscaProgresso] = useState<{
     pais: string; estado: string; cidade: string; regiao: string;
@@ -220,6 +244,17 @@ export default function HomePage() {
 
   useEffect(() => { buscar(); }, [buscar]);
 
+  useEffect(() => {
+    setCidadeSel(''); setCidadesDisp([]); setBairrosSel([]); setBairrosDisp([]);
+    if (!estadoSel) return;
+    empreendimentosApi.getCidades(estadoSel).then(r => setCidadesDisp(r.data ?? [])).catch(() => {});
+  }, [estadoSel]);
+
+  useEffect(() => {
+    setBairrosSel([]); setBairrosDisp([]);
+    if (!cidadeSel) return;
+    empreendimentosApi.getBairros(cidadeSel).then(r => setBairrosDisp(r.data ?? [])).catch(() => {});
+  }, [cidadeSel]);
 
   /** Mapa de regiões de BH → bairros que pertencem a cada uma */
   const REGIOES_BH: Record<string, { label: string; bairros: string[] }> = {
@@ -630,7 +665,9 @@ export default function HomePage() {
 
   const handleFiltros = () => {
     buscar({
-      cidade: cidade || undefined,
+      estado: estadoSel || undefined,
+      cidade: cidadeSel || cidade || undefined,
+      bairros: bairrosSel.length > 0 ? bairrosSel.join(',') : undefined,
       tipo: tipo || undefined,
       vagas: vagas ? parseInt(vagas) : undefined,
       quartos_min: quartos ? parseInt(quartos) : undefined,
@@ -1045,73 +1082,107 @@ export default function HomePage() {
             {filtrosAbertos && (
               <div className="p-5 rounded-2xl border"
                 style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
-                {/* Linha 1: cidade (largo) + tipo */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+
+                {/* Linha 1: Estado + Cidade */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Cidade ou bairro</label>
-                    <input
-                      value={cidade}
-                      onChange={(e) => setCidade(e.target.value)}
-                      placeholder="Ex: Savassi, Nova Lima..."
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Estado</label>
+                    <select value={estadoSel} onChange={e => setEstadoSel(e.target.value)}
                       className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 14px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}
-                    />
+                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      <option value="">Todos</option>
+                      {ESTADOS_BR.map(e => <option key={e.uf} value={e.uf}>{e.nome}</option>)}
+                    </select>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Tipo</label>
-                    <select
-                      value={tipo}
-                      onChange={(e) => setTipo(e.target.value)}
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Cidade</label>
+                    <select value={cidadeSel} onChange={e => setCidadeSel(e.target.value)}
+                      disabled={cidadesDisp.length === 0}
                       className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 14px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
-                      <option value="">Todos</option>
-                      {TIPOS_IMOVEL.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4', opacity: cidadesDisp.length === 0 ? 0.4 : 1 }}>
+                      <option value="">{estadoSel ? 'Todas' : 'Selecione o estado'}</option>
+                      {cidadesDisp.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
-                {/* Linha 2: suítes, vagas, área */}
+
+                {/* Linha 2: Bairros (multi-select) + Tipo */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                      Bairros {bairrosSel.length > 0 && <span style={{ color: '#22D497' }}>({bairrosSel.length})</span>}
+                    </label>
+                    <div className="relative">
+                      <button type="button"
+                        onClick={() => setBairrosOpen(o => !o)}
+                        disabled={bairrosDisp.length === 0}
+                        className="rounded-xl w-full text-left flex items-center justify-between"
+                        style={{ fontSize: 14, padding: '11px 12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: bairrosDisp.length === 0 ? 'rgba(255,255,255,0.3)' : '#f0fdf4', opacity: bairrosDisp.length === 0 ? 0.4 : 1 }}>
+                        <span>{bairrosSel.length > 0 ? bairrosSel.slice(0,2).join(', ') + (bairrosSel.length > 2 ? '...' : '') : cidadeSel ? 'Todos' : 'Selecione a cidade'}</span>
+                        <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ transform: bairrosOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+                      </button>
+                      {bairrosOpen && bairrosDisp.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl overflow-auto"
+                          style={{ background: '#0A2318', border: '1px solid #1B5C3E', maxHeight: 200 }}>
+                          {bairrosDisp.map(b => (
+                            <label key={b} className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-white/10">
+                              <input type="checkbox" checked={bairrosSel.includes(b)}
+                                onChange={() => setBairrosSel(prev => prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b])}
+                                style={{ accentColor: '#0E8F6E' }} />
+                              <span style={{ fontSize: 13, color: '#f0fdf4' }}>{b}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Tipo</label>
+                    <select value={tipo} onChange={e => setTipo(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      <option value="">Todos</option>
+                      {TIPOS_IMOVEL.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Linha 3: suítes, vagas, área */}
                 <div className="grid grid-cols-3 gap-3 mb-3">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Suítes</label>
-                    <select
-                      value={quartos}
-                      onChange={(e) => setQuartos(e.target.value)}
+                    <select value={quartos} onChange={e => setQuartos(e.target.value)}
                       className="rounded-xl outline-none w-full"
                       style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
-                      {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+</option>)}
+                      {[1,2,3,4].map(n => <option key={n} value={n}>{n}+</option>)}
                     </select>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Vagas</label>
-                    <select
-                      value={vagas}
-                      onChange={(e) => setVagas(e.target.value)}
+                    <select value={vagas} onChange={e => setVagas(e.target.value)}
                       className="rounded-xl outline-none w-full"
                       style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
-                      {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+</option>)}
+                      {[1,2,3,4].map(n => <option key={n} value={n}>{n}+</option>)}
                     </select>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Área mín.</label>
-                    <select
-                      value={area}
-                      onChange={(e) => setArea(e.target.value)}
+                    <select value={area} onChange={e => setArea(e.target.value)}
                       className="rounded-xl outline-none w-full"
                       style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
-                      {AREAS.map((a) => <option key={a.value} value={a.value}>{a.label}+</option>)}
+                      {AREAS.map(a => <option key={a.value} value={a.value}>{a.label}+</option>)}
                     </select>
                   </div>
                 </div>
-                {/* Linha 3: valor mín, valor máx, botão buscar */}
+
+                {/* Linha 4: valor mín, valor máx, buscar */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor mín.</label>
-                    <select
-                      value={precoMin}
-                      onChange={(e) => setPrecoMin(e.target.value)}
+                    <select value={precoMin} onChange={e => setPrecoMin(e.target.value)}
                       className="rounded-xl outline-none w-full"
                       style={{ fontSize: 14, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
@@ -1119,23 +1190,21 @@ export default function HomePage() {
                       <option value="400000">R$ 400 mil</option>
                       <option value="600000">R$ 600 mil</option>
                       <option value="800000">R$ 800 mil</option>
-                      <option value="1000000">R$ 1 milhão</option>
+                      <option value="1000000">R$ 1 mi</option>
                       <option value="1500000">R$ 1,5 mi</option>
                       <option value="2000000">R$ 2 mi</option>
                     </select>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor máx.</label>
-                    <select
-                      value={precoMax}
-                      onChange={(e) => setPrecoMax(e.target.value)}
+                    <select value={precoMax} onChange={e => setPrecoMax(e.target.value)}
                       className="rounded-xl outline-none w-full"
                       style={{ fontSize: 14, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
                       <option value="400000">R$ 400 mil</option>
                       <option value="600000">R$ 600 mil</option>
                       <option value="800000">R$ 800 mil</option>
-                      <option value="1000000">R$ 1 milhão</option>
+                      <option value="1000000">R$ 1 mi</option>
                       <option value="1500000">R$ 1,5 mi</option>
                       <option value="2000000">R$ 2 mi</option>
                       <option value="3000000">R$ 3 mi</option>
@@ -1143,9 +1212,8 @@ export default function HomePage() {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'transparent' }}>.</label>
-                    <button
-                      onClick={handleFiltros}
-                      className="flex items-center justify-center gap-2 text-white font-semibold rounded-xl transition-colors w-full"
+                    <button onClick={handleFiltros}
+                      className="flex items-center justify-center gap-2 text-white font-semibold rounded-xl w-full"
                       style={{ fontSize: 15, padding: '11px 10px', background: 'linear-gradient(90deg, #0E8F6E, #22D497)' }}>
                       <Search className="w-4 h-4" /> Buscar
                     </button>
@@ -1315,9 +1383,9 @@ export default function HomePage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ height: '38px', overflow: 'hidden' }}>
             <Image src="/logo-faicoh.png" alt="Faicoh" width={240} height={130}
-              style={{ height: '70px', width: 'auto', marginTop: '-12px', filter: 'brightness(0) invert(1)' }} />
+              style={{ height: '70px', width: 'auto', marginTop: '-12px' }} />
           </div>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>© {new Date().getFullYear()} FAICOH. Todos os direitos reservados.</p>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>© {new Date().getFullYear()} FAICOH. Todos os direitos reservados.</p>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidade', 'Termos', 'Contato'].map(l => (
               <a key={l} href="#" style={{ fontSize: 11, color: '#AAB5B2', textDecoration: 'none' }}

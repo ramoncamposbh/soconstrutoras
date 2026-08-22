@@ -72,7 +72,23 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
           <div className="card p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <p className="text-sm text-gray-500">{emp.construtora}</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm text-gray-500">{emp.construtora}</p>
+                  {emp.status && (() => {
+                    const STATUS: Record<string, { label: string; bg: string; color: string }> = {
+                      lancamento: { label: 'Lançamento', bg: '#DCFCE7', color: '#15803D' },
+                      em_obras:   { label: 'Em obras',   bg: '#FEF9C3', color: '#A16207' },
+                      pronto:     { label: 'Pronto',     bg: '#D1FAE5', color: '#065F46' },
+                      suspenso:   { label: 'Suspenso',   bg: '#F3F4F6', color: '#6B7280' },
+                    };
+                    const s = STATUS[emp.status] ?? STATUS.lancamento;
+                    return (
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: s.bg, color: s.color }}>
+                        {s.label}
+                      </span>
+                    );
+                  })()}
+                </div>
                 <h1 className="text-2xl font-bold text-gray-900">{emp.nome}</h1>
                 {/* Apenas bairro e cidade - endereco completo bloqueado */}
                 <p className="flex items-center gap-1 text-gray-500 text-sm mt-1">

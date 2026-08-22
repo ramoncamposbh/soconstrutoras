@@ -60,21 +60,53 @@ function BadgeM2({ valor }: { valor: number }) {
   );
 }
 
+const ESTADOS_BR = [
+  { uf: 'AC', nome: 'Acre' }, { uf: 'AL', nome: 'Alagoas' },
+  { uf: 'AM', nome: 'Amazonas' }, { uf: 'AP', nome: 'Amapá' },
+  { uf: 'BA', nome: 'Bahia' }, { uf: 'CE', nome: 'Ceará' },
+  { uf: 'DF', nome: 'Dist. Federal' }, { uf: 'ES', nome: 'Espírito Santo' },
+  { uf: 'GO', nome: 'Goiás' }, { uf: 'MA', nome: 'Maranhão' },
+  { uf: 'MG', nome: 'Minas Gerais' }, { uf: 'MS', nome: 'Mato G. do Sul' },
+  { uf: 'MT', nome: 'Mato Grosso' }, { uf: 'PA', nome: 'Pará' },
+  { uf: 'PB', nome: 'Paraíba' }, { uf: 'PE', nome: 'Pernambuco' },
+  { uf: 'PI', nome: 'Piauí' }, { uf: 'PR', nome: 'Paraná' },
+  { uf: 'RJ', nome: 'Rio de Janeiro' }, { uf: 'RN', nome: 'Rio G. do Norte' },
+  { uf: 'RO', nome: 'Rondônia' }, { uf: 'RR', nome: 'Roraima' },
+  { uf: 'RS', nome: 'Rio G. do Sul' }, { uf: 'SC', nome: 'Santa Catarina' },
+  { uf: 'SE', nome: 'Sergipe' }, { uf: 'SP', nome: 'São Paulo' },
+  { uf: 'TO', nome: 'Tocantins' },
+];
+
 export default function MelhorM2Page() {
-  const [cidade, setCidade] = useState('');
-  const [bairro, setBairro] = useState('');
+  const [estadoSel, setEstadoSel] = useState('');
+  const [cidadeSel, setCidadeSel] = useState('');
+  const [bairroSel, setBairroSel] = useState('');
+  const [cidadesDisp, setCidadesDisp] = useState<string[]>([]);
+  const [bairrosDisp, setBairrosDisp] = useState<string[]>([]);
   const [tipo, setTipo] = useState('');
   const [resultados, setResultados] = useState<ResultadoM2[]>([]);
   const [loading, setLoading] = useState(false);
   const [buscou, setBuscou] = useState(false);
+
+  useEffect(() => {
+    setCidadeSel(''); setCidadesDisp([]); setBairroSel(''); setBairrosDisp([]);
+    if (!estadoSel) return;
+    empreendimentosApi.getCidades(estadoSel).then(r => setCidadesDisp(r.data ?? [])).catch(() => {});
+  }, [estadoSel]);
+
+  useEffect(() => {
+    setBairroSel(''); setBairrosDisp([]);
+    if (!cidadeSel) return;
+    empreendimentosApi.getBairros(cidadeSel).then(r => setBairrosDisp(r.data ?? [])).catch(() => {});
+  }, [cidadeSel]);
 
   const buscar = useCallback(async () => {
     setLoading(true);
     setBuscou(true);
     try {
       const params: any = {};
-      if (cidade.trim()) params.cidade = cidade.trim();
-      if (bairro.trim()) params.bairro = bairro.trim();
+      if (cidadeSel) params.cidade = cidadeSel;
+      if (bairroSel) params.bairro = bairroSel;
       if (tipo) params.tipo = tipo;
       const { data } = await empreendimentosApi.melhorM2(params);
       setResultados(data);
@@ -83,7 +115,7 @@ export default function MelhorM2Page() {
     } finally {
       setLoading(false);
     }
-  }, [cidade, bairro, tipo]);
+  }, [cidadeSel, bairroSel, tipo]);
 
   // Carrega tudo ao montar
   useEffect(() => { buscar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -113,45 +145,36 @@ export default function MelhorM2Page() {
         maxWidth: 900, margin: '0 auto', padding: '1.5rem',
         display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-end',
       }}>
-        <div style={{ flex: '1 1 180px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Cidade</label>
-          <input
-            value={cidade}
-            onChange={e => setCidade(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && buscar()}
-            placeholder="Ex: Belo Horizonte"
-            style={{
-              border: '1.5px solid #e2e8f0', borderRadius: '0.75rem',
-              padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none',
-              background: '#fff',
-            }}
-          />
-        </div>
-        <div style={{ flex: '1 1 180px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Bairro</label>
-          <input
-            value={bairro}
-            onChange={e => setBairro(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && buscar()}
-            placeholder="Ex: Savassi"
-            style={{
-              border: '1.5px solid #e2e8f0', borderRadius: '0.75rem',
-              padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none',
-              background: '#fff',
-            }}
-          />
+        <div style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Estado</label>
+          <select value={estadoSel} onChange={e => setEstadoSel(e.target.value)}
+            style={{ border: '1.5px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none', background: '#fff', cursor: 'pointer' }}>
+            <option value="">Todos</option>
+            {ESTADOS_BR.map(e => <option key={e.uf} value={e.uf}>{e.nome}</option>)}
+          </select>
         </div>
         <div style={{ flex: '1 1 160px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Cidade</label>
+          <select value={cidadeSel} onChange={e => setCidadeSel(e.target.value)}
+            disabled={cidadesDisp.length === 0}
+            style={{ border: '1.5px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none', background: '#fff', cursor: 'pointer', opacity: cidadesDisp.length === 0 ? 0.5 : 1 }}>
+            <option value="">{estadoSel ? 'Todas' : 'Selecione estado'}</option>
+            {cidadesDisp.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div style={{ flex: '1 1 160px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Bairro</label>
+          <select value={bairroSel} onChange={e => setBairroSel(e.target.value)}
+            disabled={bairrosDisp.length === 0}
+            style={{ border: '1.5px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none', background: '#fff', cursor: 'pointer', opacity: bairrosDisp.length === 0 ? 0.5 : 1 }}>
+            <option value="">{cidadeSel ? 'Todos' : 'Selecione cidade'}</option>
+            {bairrosDisp.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
+        </div>
+        <div style={{ flex: '1 1 140px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Tipo de unidade</label>
-          <select
-            value={tipo}
-            onChange={e => setTipo(e.target.value)}
-            style={{
-              border: '1.5px solid #e2e8f0', borderRadius: '0.75rem',
-              padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none',
-              background: '#fff', cursor: 'pointer',
-            }}
-          >
+          <select value={tipo} onChange={e => setTipo(e.target.value)}
+            style={{ border: '1.5px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none', background: '#fff', cursor: 'pointer' }}>
             {TIPOS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>

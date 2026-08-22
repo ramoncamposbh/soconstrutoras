@@ -23,6 +23,18 @@ export class EmpreendimentosController {
     return this.service.melhorM2(q);
   }
 
+  // GET /api/v1/empreendimentos/localidades/cidades?estado=MG
+  @Get('localidades/cidades')
+  getCidades(@Query('estado') estado: string) {
+    return this.service.getCidades(estado ?? '');
+  }
+
+  // GET /api/v1/empreendimentos/localidades/bairros?cidade=Belo+Horizonte
+  @Get('localidades/bairros')
+  getBairros(@Query('cidade') cidade: string) {
+    return this.service.getBairros(cidade ?? '');
+  }
+
   // GET /api/v1/empreendimentos/:slug
   @Get(':slug')
   buscarPorSlug(@Param('slug') slug: string) {

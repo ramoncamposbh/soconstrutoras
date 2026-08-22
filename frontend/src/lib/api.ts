@@ -48,6 +48,8 @@ export const construtoraApi = {
 export const empreendimentosApi = {
   listar:        () => api.get('/empreendimentos/meus/listar'),
   buscarPublico: (params: any) => api.get('/empreendimentos', { params }),
+  getCidades: (estado: string) => api.get('/empreendimentos/localidades/cidades', { params: { estado } }),
+  getBairros: (cidade: string) => api.get('/empreendimentos/localidades/bairros', { params: { cidade } }),
   buscarSlug:    (slug: string) => api.get(`/empreendimentos/${slug}`),
   buscarPorId:   (id: string) => api.get(`/empreendimentos/meus/listar`).then(r =>
     ({ data: r.data.find((e: any) => e.id === id) })),

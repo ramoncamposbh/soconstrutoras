@@ -93,6 +93,16 @@ export class EmpreendimentosService {
       conditions.push(`e.area_max >= $${i++}`);
       params.push(filtros.area_min);
     }
+    if (filtros.bairros) {
+      const arr = filtros.bairros.split(',').map((b: string) => b.trim()).filter(Boolean);
+      if (arr.length === 1) {
+        conditions.push(`e.bairro ILIKE $${i++}`);
+        params.push(`%${arr[0]}%`);
+      } else if (arr.length > 1) {
+        conditions.push(`e.bairro = ANY($${i++}::text[])`);
+        params.push(arr);
+      }
+    }
     if (filtros.busca) {
       // Busca só na descricao (amenidades são características, não fazem parte do nome)
       // REPLACE remove hifens para "co-working" e "coworking" serem equivalentes
@@ -122,6 +132,28 @@ export class EmpreendimentosService {
       [...params, limit, offset],
     );
     return rows;
+  }
+
+  async getCidades(estado: string): Promise<string[]> {
+    if (!estado) return [];
+    const { rows } = await this.pool.query(
+      `SELECT DISTINCT cidade FROM empreendimentos
+       WHERE publicado = TRUE AND estado = $1 AND cidade IS NOT NULL
+       ORDER BY cidade`,
+      [estado.toUpperCase()],
+    );
+    return rows.map((r: any) => r.cidade);
+  }
+
+  async getBairros(cidade: string): Promise<string[]> {
+    if (!cidade) return [];
+    const { rows } = await this.pool.query(
+      `SELECT DISTINCT bairro FROM empreendimentos
+       WHERE publicado = TRUE AND cidade ILIKE $1 AND bairro IS NOT NULL AND bairro <> ''
+       ORDER BY bairro`,
+      [cidade],
+    );
+    return rows.map((r: any) => r.bairro).filter(Boolean);
   }
 
   async buscarPorSlug(slug: string) {
