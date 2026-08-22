@@ -1117,7 +1117,7 @@ export default function HomePage() {
                         onClick={() => setBairrosOpen(o => !o)}
                         disabled={bairrosDisp.length === 0}
                         className="rounded-xl w-full text-left flex items-center justify-between"
-                        style={{ fontSize: 14, padding: '11px 12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: bairrosDisp.length === 0 ? 'rgba(255,255,255,0.3)' : '#111827', opacity: bairrosDisp.length === 0 ? 0.4 : 1 }}>
+                        style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: bairrosDisp.length === 0 ? 'rgba(255,255,255,0.3)' : '#111827', opacity: bairrosDisp.length === 0 ? 0.4 : 1, WebkitAppearance: 'none', outline: 'none', cursor: 'pointer' }}>
                         <span>{bairrosSel.length > 0 ? bairrosSel.slice(0,2).join(', ') + (bairrosSel.length > 2 ? '...' : '') : cidadeSel ? 'Todos' : 'Selecione a cidade'}</span>
                         <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ transform: bairrosOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
                       </button>
