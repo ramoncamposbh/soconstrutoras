@@ -795,11 +795,16 @@ export default function HomePage() {
           </div>
 
           {/* Logo centralizada */}
-          <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-            <Image src="/logo.png" alt="SóConstrutoras" width={30} height={30} className="object-contain" priority />
-            <div className="leading-tight">
-              <span className="block font-extrabold text-[12px]" style={{ color: '#0B1D2A' }}>SÓCONSTRUTORAS</span>
-              <span className="block text-[9px]" style={{ color: '#9CA3AF' }}>Portal das Construtoras</span>
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
+            <div style={{ height: '44px', overflow: 'hidden' }}>
+              <Image
+                src="/logo-faicoh.png"
+                alt="Faicoh"
+                width={280}
+                height={150}
+                style={{ height: '82px', width: 'auto', marginTop: '-14px' }}
+                priority
+              />
             </div>
           </Link>
 
