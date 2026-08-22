@@ -324,7 +324,7 @@ export class EmpreendimentosService {
            e.cidade,
            e.estado,
            e.tipo            AS emp_tipo,
-           c.nome            AS construtora_nome,
+           c.nome_fantasia    AS construtora_nome,
            u.id              AS unidade_id,
            u.tipo            AS unidade_tipo,
            u.nome            AS unidade_nome,
@@ -343,7 +343,7 @@ export class EmpreendimentosService {
            (SELECT url FROM empreendimento_midias
             WHERE empreendimento_id = e.id
               AND tipo = 'foto'
-            ORDER BY ordem, created_at LIMIT 1
+            ORDER BY ordem LIMIT 1
            ) AS imagem,
            ROW_NUMBER() OVER (
              PARTITION BY e.id
