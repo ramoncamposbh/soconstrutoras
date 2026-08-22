@@ -287,11 +287,15 @@ export class EmpreendimentosService {
     return { deleted: true, ...emp };
   }
 
-  async melhorM2(filtros: { cidade?: string; bairro?: string; tipo?: string }) {
+  async melhorM2(filtros: { estado?: string; cidade?: string; bairro?: string; tipo?: string }) {
     const conditions: string[] = ['e.publicado = TRUE', 'u.disponivel = TRUE', 'u.preco IS NOT NULL'];
     const params: any[] = [];
     let i = 1;
 
+    if (filtros.estado) {
+      conditions.push(`e.estado = $${i++}`);
+      params.push(filtros.estado.toUpperCase());
+    }
     if (filtros.cidade) {
       conditions.push(`e.cidade ILIKE $${i++}`);
       params.push(`%${filtros.cidade}%`);

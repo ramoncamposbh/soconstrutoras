@@ -19,7 +19,7 @@ export class EmpreendimentosController {
 
   // GET /api/v1/empreendimentos/melhor-m2?cidade=BH&bairro=Savassi&tipo=apartamento
   @Get('melhor-m2')
-  melhorM2(@Query() q: { cidade?: string; bairro?: string; tipo?: string }) {
+  melhorM2(@Query() q: { estado?: string; cidade?: string; bairro?: string; tipo?: string }) {
     return this.service.melhorM2(q);
   }
 

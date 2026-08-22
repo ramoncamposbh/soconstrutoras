@@ -105,6 +105,7 @@ export default function MelhorM2Page() {
     setBuscou(true);
     try {
       const params: any = {};
+      if (estadoSel) params.estado = estadoSel;
       if (cidadeSel) params.cidade = cidadeSel;
       if (bairroSel) params.bairro = bairroSel;
       if (tipo) params.tipo = tipo;
@@ -115,7 +116,7 @@ export default function MelhorM2Page() {
     } finally {
       setLoading(false);
     }
-  }, [cidadeSel, bairroSel, tipo]);
+  }, [estadoSel, cidadeSel, bairroSel, tipo]);
 
   // Carrega tudo ao montar
   useEffect(() => { buscar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
