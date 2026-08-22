@@ -84,7 +84,7 @@ export default function Header() {
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
       {/* ── Mobile header ───────────────────────────────────── */}
-      <div className="flex sm:hidden items-center justify-between h-14 px-4 relative">
+      <div className="flex sm:hidden items-center justify-between h-[62px] px-4 relative">
 
         {/* Hamburguer esquerda */}
         <div className="relative" ref={menuRef}>
@@ -119,10 +119,10 @@ export default function Header() {
           <Image
             src="/logo-faicoh.png"
             alt="Faicoh — O Portal dos Imóveis Novos"
-            width={130}
-            height={70}
+            width={195}
+            height={105}
             className="object-contain"
-            style={{ height: '36px', width: 'auto' }}
+            style={{ height: '54px', width: 'auto' }}
             priority
           />
         </Link>
@@ -132,15 +132,15 @@ export default function Header() {
       </div>
 
       {/* ── Desktop header ──────────────────────────────────── */}
-      <div className="hidden sm:flex max-w-7xl mx-auto px-6 lg:px-8 items-center justify-between h-14">
+      <div className="hidden sm:flex max-w-7xl mx-auto px-6 lg:px-8 items-center justify-between h-[72px]">
         <Link href="/" className="flex items-center shrink-0">
           <Image
             src="/logo-faicoh.png"
             alt="Faicoh — O Portal dos Imóveis Novos"
-            width={160}
-            height={86}
+            width={240}
+            height={129}
             className="object-contain"
-            style={{ height: '44px', width: 'auto' }}
+            style={{ height: '66px', width: 'auto' }}
             priority
           />
         </Link>

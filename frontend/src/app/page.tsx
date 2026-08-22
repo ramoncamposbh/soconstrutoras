@@ -830,17 +830,24 @@ export default function HomePage() {
         style={{ background: '#0B1D2A', borderBottom: '1px solid #1A3547' }}
       >
         {/* Logo */}
-        <Link href="/" className="flex items-center shrink-0 mr-4">
-          <div style={{ background: '#fff', borderRadius: 8, padding: '3px 10px', display: 'inline-flex', alignItems: 'center' }}>
+        <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-4">
+          {/* Ícone recortado — somente a parte colorida do PNG */}
+          <div style={{ width: 54, height: 60, overflow: 'hidden', flexShrink: 0 }}>
             <Image
               src="/logo-faicoh.png"
-              alt="Faicoh — O Portal dos Imóveis Novos"
-              width={130}
-              height={70}
-              className="object-contain"
-              style={{ height: '38px', width: 'auto' }}
+              alt=""
+              width={190}
+              height={102}
+              style={{ width: '190px', height: '102px', objectFit: 'cover', objectPosition: 'left center', marginTop: '-21px' }}
               priority
             />
+          </div>
+          {/* Texto */}
+          <div style={{ lineHeight: 1.15 }}>
+            <div style={{ color: '#fff', fontWeight: 800, fontSize: 22, letterSpacing: 2 }}>FAICOH</div>
+            <div style={{ color: '#1DB899', fontSize: 10, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase' }}>
+              O Portal dos Imóveis Novos
+            </div>
           </div>
         </Link>
 
