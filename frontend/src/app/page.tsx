@@ -1315,9 +1315,9 @@ export default function HomePage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ height: '38px', overflow: 'hidden' }}>
             <Image src="/logo-faicoh.png" alt="Faicoh" width={240} height={130}
-              style={{ height: '70px', width: 'auto', marginTop: '-12px' }} />
+              style={{ height: '70px', width: 'auto', marginTop: '-12px', filter: 'brightness(0) invert(1)' }} />
           </div>
-          <p style={{ fontSize: 11, color: '#4B6072' }}>© {new Date().getFullYear()} FAICOH. Todos os direitos reservados.</p>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>© {new Date().getFullYear()} FAICOH. Todos os direitos reservados.</p>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidade', 'Termos', 'Contato'].map(l => (
               <a key={l} href="#" style={{ fontSize: 11, color: '#AAB5B2', textDecoration: 'none' }}
