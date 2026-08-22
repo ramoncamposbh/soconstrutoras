@@ -58,12 +58,11 @@ const AREAS = [
 ];
 
 const NAV_LINKS = [
-  { href: '/',             label: 'Lançamentos',    icon: Rocket },
-  { href: '/',             label: 'Empreendimentos',icon: Building2 },
-  { href: '/parceiros',    label: 'Parceiros',       icon: Handshake },
-  { href: '/favoritos',    label: 'Favoritos',      icon: Heart },
-  { href: '/simuladores',  label: 'Simuladores',    icon: Calculator },
-  { href: '/',             label: 'Comparar',       icon: Scale },
+  { href: '/',                  label: 'Lançamentos',        icon: Rocket },
+  { href: '/parceiros',         label: 'Parceiros',          icon: Handshake },
+  { href: '/favoritos',         label: 'Favoritos',          icon: Heart },
+  { href: '/simuladores',       label: 'Simuladores',        icon: Calculator },
+  { href: '/oportunidades-m2',  label: 'Oportunidades m²',  icon: Scale },
 ];
 
 export default function HomePage() {
@@ -907,12 +906,12 @@ export default function HomePage() {
         {/* Overlay gradiente direcional identidade visual */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(105deg, rgba(3,29,24,0.96) 0%, rgba(3,29,24,0.90) 40%, rgba(3,29,24,0.75) 65%, rgba(3,29,24,0.48) 100%)',
+          background: 'linear-gradient(105deg, rgba(11,29,42,0.82) 0%, rgba(11,29,42,0.70) 40%, rgba(11,29,42,0.48) 65%, rgba(11,29,42,0.22) 100%)',
         }} />
         {/* Vinheta */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(3,29,24,0.55) 100%)',
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(11,29,42,0.35) 100%)',
         }} />
         {/* Grid tecnológico discreto */}
         <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.035 }} xmlns="http://www.w3.org/2000/svg">

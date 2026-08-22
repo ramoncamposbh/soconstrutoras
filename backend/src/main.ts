@@ -29,6 +29,8 @@ async function bootstrap() {
 
   const allowedOrigins = [
     process.env.FRONTEND_URL,
+    'https://faicoh.com.br',
+    'https://www.faicoh.com.br',
     'http://localhost:3001',
     'http://localhost:3000',
   ].filter(Boolean) as string[];
