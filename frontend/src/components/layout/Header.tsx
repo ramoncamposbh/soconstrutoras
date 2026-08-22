@@ -6,14 +6,15 @@ import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
 import {
   LogIn, LayoutDashboard, Bell, Heart, UserPlus, Handshake,
-  Menu, X, Home, Handshake as HandshakeIcon, Star, Calculator,
+  Menu, X, Home, Handshake as HandshakeIcon, Star, Calculator, Ruler,
 } from 'lucide-react';
 
 const MENU_LINKS = [
-  { href: '/',          label: 'Lançamentos',    icon: Home },
-  { href: '/parceiros', label: 'Parceiros',       icon: HandshakeIcon },
-  { href: '/favoritos', label: 'Favoritos',       icon: Heart },
-  { href: '/simuladores', label: 'Simuladores',     icon: Calculator },
+  { href: '/',            label: 'Lançamentos',  icon: Home },
+  { href: '/parceiros',   label: 'Parceiros',    icon: HandshakeIcon },
+  { href: '/favoritos',   label: 'Favoritos',    icon: Heart },
+  { href: '/simuladores', label: 'Simuladores',  icon: Calculator },
+  { href: '/melhor-m2',   label: 'Melhor m²',    icon: Ruler },
 ];
 
 export default function Header() {
@@ -169,6 +170,10 @@ export default function Header() {
           <Link href="/simuladores" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
             <Calculator className="w-4 h-4" />
             Simuladores
+          </Link>
+          <Link href="/melhor-m2" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
+            <Ruler className="w-4 h-4" />
+            Melhor m²
           </Link>
           {renderNavAction()}
         </nav>

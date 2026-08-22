@@ -17,6 +17,12 @@ export class EmpreendimentosController {
     return this.service.buscarPublico(filtros);
   }
 
+  // GET /api/v1/empreendimentos/melhor-m2?cidade=BH&bairro=Savassi&tipo=apartamento
+  @Get('melhor-m2')
+  melhorM2(@Query() q: { cidade?: string; bairro?: string; tipo?: string }) {
+    return this.service.melhorM2(q);
+  }
+
   // GET /api/v1/empreendimentos/:slug
   @Get(':slug')
   buscarPorSlug(@Param('slug') slug: string) {

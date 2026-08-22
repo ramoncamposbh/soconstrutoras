@@ -15,6 +15,9 @@ export class CriarUnidadeDto {
   metragem_total?: number;
 
   @IsOptional() @IsNumber() @Min(0) @Type(() => Number)
+  area_externa?: number;
+
+  @IsOptional() @IsNumber() @Min(0) @Type(() => Number)
   quartos?: number;
 
   @IsOptional() @IsNumber() @Min(0) @Type(() => Number)

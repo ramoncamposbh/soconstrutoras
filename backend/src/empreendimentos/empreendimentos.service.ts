@@ -254,4 +254,85 @@ export class EmpreendimentosService {
     if (!emp) throw new NotFoundException('Empreendimento não encontrado.');
     return { deleted: true, ...emp };
   }
+
+  async melhorM2(filtros: { cidade?: string; bairro?: string; tipo?: string }) {
+    const conditions: string[] = ['e.publicado = TRUE', 'u.disponivel = TRUE', 'u.preco IS NOT NULL'];
+    const params: any[] = [];
+    let i = 1;
+
+    if (filtros.cidade) {
+      conditions.push(`e.cidade ILIKE $${i++}`);
+      params.push(`%${filtros.cidade}%`);
+    }
+    if (filtros.bairro) {
+      conditions.push(`e.bairro ILIKE $${i++}`);
+      params.push(`%${filtros.bairro}%`);
+    }
+    if (filtros.tipo) {
+      conditions.push(`u.tipo = $${i++}`);
+      params.push(filtros.tipo);
+    }
+
+    const where = conditions.map(c => `AND ${c}`).join('\n        ');
+
+    // area_util = metragem_privativa + area_externa * 0.5
+    // preco_m2 = preco / area_util
+    // Por empreendimento, pega a unidade com menor preco_m2
+    const { rows } = await this.pool.query(
+      `WITH ranked AS (
+         SELECT
+           e.id              AS empreendimento_id,
+           e.nome            AS empreendimento_nome,
+           e.slug,
+           e.bairro,
+           e.cidade,
+           e.estado,
+           e.tipo            AS emp_tipo,
+           c.nome            AS construtora_nome,
+           u.id              AS unidade_id,
+           u.tipo            AS unidade_tipo,
+           u.nome            AS unidade_nome,
+           u.quartos,
+           u.vagas,
+           u.preco,
+           u.metragem_privativa,
+           COALESCE(u.area_externa, 0)  AS area_externa,
+           (COALESCE(u.metragem_privativa, 0) + COALESCE(u.area_externa, 0) * 0.5)
+             AS area_util,
+           CASE
+             WHEN (COALESCE(u.metragem_privativa, 0) + COALESCE(u.area_externa, 0) * 0.5) > 0
+             THEN u.preco / (COALESCE(u.metragem_privativa, 0) + COALESCE(u.area_externa, 0) * 0.5)
+             ELSE NULL
+           END AS preco_m2,
+           (SELECT url FROM empreendimento_midias
+            WHERE empreendimento_id = e.id
+              AND tipo_midia = 'foto'
+              AND categoria = 'condominio'
+            ORDER BY ordem, created_at LIMIT 1
+           ) AS imagem,
+           ROW_NUMBER() OVER (
+             PARTITION BY e.id
+             ORDER BY (
+               CASE
+                 WHEN (COALESCE(u.metragem_privativa, 0) + COALESCE(u.area_externa, 0) * 0.5) > 0
+                 THEN u.preco / (COALESCE(u.metragem_privativa, 0) + COALESCE(u.area_externa, 0) * 0.5)
+                 ELSE NULL
+               END
+             ) ASC NULLS LAST
+           ) AS rn
+         FROM empreendimentos e
+         JOIN construtoras c ON c.id = e.construtora_id
+         JOIN unidades u ON u.empreendimento_id = e.id
+         WHERE TRUE
+           ${where}
+       )
+       SELECT * FROM ranked
+       WHERE rn = 1 AND preco_m2 IS NOT NULL
+       ORDER BY preco_m2 ASC
+       LIMIT 100`,
+      params,
+    );
+
+    return rows;
+  }
 }

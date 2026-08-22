@@ -154,12 +154,12 @@ export class UnidadesService {
     await this.verificarLimite(empreendimentoId, construtoraId);
     const { rows: [u] } = await this.pool.query(
       `INSERT INTO unidades
-         (empreendimento_id, tipo, nome, metragem_privativa, metragem_total,
+         (empreendimento_id, tipo, nome, metragem_privativa, metragem_total, area_externa,
           quartos, suites, vagas, preco, descricao, disponivel, ordem)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
       [
         empreendimentoId, dto.tipo, dto.nome ?? null,
-        dto.metragem_privativa ?? null, dto.metragem_total ?? null,
+        dto.metragem_privativa ?? null, dto.metragem_total ?? null, dto.area_externa ?? null,
         dto.quartos ?? 0, dto.suites ?? 0, dto.vagas ?? 0,
         dto.preco ?? null, dto.descricao ?? null,
         dto.disponivel ?? true, dto.ordem ?? 0,

@@ -45,6 +45,7 @@ export default function FormUnidade({
   const [nome, setNome]     = useState(unidade?.nome ?? '');
   const [mprivativa, setMp] = useState(unidade?.metragem_privativa?.toString() ?? '');
   const [mtotal, setMt]     = useState(unidade?.metragem_total?.toString() ?? '');
+  const [aexterna, setAe]  = useState((unidade as any)?.area_externa?.toString() ?? '');
   const [quartos, setQ]     = useState(unidade?.quartos?.toString() ?? '0');
   const [suites, setSu]     = useState(unidade?.suites?.toString() ?? '0');
   const [vagas, setVg]      = useState(unidade?.vagas?.toString() ?? '0');
@@ -62,6 +63,7 @@ export default function FormUnidade({
       nome: nome || undefined,
       metragem_privativa: mprivativa ? parseFloat(mprivativa) : undefined,
       metragem_total:     mtotal     ? parseFloat(mtotal)     : undefined,
+      area_externa:       aexterna   ? parseFloat(aexterna)   : undefined,
       quartos:   parseInt(quartos)   || 0,
       suites:    parseInt(suites)    || 0,
       vagas:     parseInt(vagas)     || 0,
@@ -118,6 +120,7 @@ export default function FormUnidade({
           suites: parseInt(suites) || 0, vagas: parseInt(vagas) || 0,
           metragem_privativa: mprivativa ? parseFloat(mprivativa) : undefined,
           metragem_total: mtotal ? parseFloat(mtotal) : undefined,
+          area_externa: aexterna ? parseFloat(aexterna) : undefined,
           preco: preco ? parseFloat(preco) : undefined, disponivel };
         const { data } = await unidadesApi.criar(empreendimentoId, payload);
         unidadeId = data.id;
@@ -249,6 +252,12 @@ export default function FormUnidade({
                   <label className="label">Área total (m²)</label>
                   <input className="input" type="number" min="0" step="0.01"
                     value={mtotal} onChange={(e) => setMt(e.target.value)} />
+                </div>
+                <div>
+                  <label className="label">Área externa (m²)</label>
+                  <input className="input" type="number" min="0" step="0.01"
+                    placeholder="Sacada, jardim…"
+                    value={aexterna} onChange={(e) => setAe(e.target.value)} />
                 </div>
               </div>
 

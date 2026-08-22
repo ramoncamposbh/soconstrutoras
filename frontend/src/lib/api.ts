@@ -55,6 +55,8 @@ export const empreendimentosApi = {
   atualizar:     (id: string, data: any) => api.patch(`/empreendimentos/${id}`, data),
   publicar:      (id: string) => api.patch(`/empreendimentos/${id}/publicar`),
   remover:       (id: string) => api.delete(`/empreendimentos/${id}`),
+  melhorM2:      (params: { cidade?: string; bairro?: string; tipo?: string }) =>
+    api.get('/empreendimentos/melhor-m2', { params }),
 };
 
 export const parceirosApi = {
