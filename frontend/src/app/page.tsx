@@ -197,6 +197,8 @@ export default function HomePage() {
   const [vagas, setVagas] = useState('');
   const [quartos, setQuartos] = useState('');
   const [area, setArea] = useState('');
+  const [precoMin, setPrecoMin] = useState('');
+  const [precoMax, setPrecoMax] = useState('');
   const [mensagemBusca, setMensagemBusca] = useState<{ texto: string; sugestoes: string[] } | null>(null);
   const [buscaProgresso, setBuscaProgresso] = useState<{
     pais: string; estado: string; cidade: string; regiao: string;
@@ -633,6 +635,8 @@ export default function HomePage() {
       vagas: vagas ? parseInt(vagas) : undefined,
       quartos_min: quartos ? parseInt(quartos) : undefined,
       area_min: area ? parseInt(area) : undefined,
+      preco_min: precoMin ? parseInt(precoMin) : undefined,
+      preco_max: precoMax ? parseInt(precoMax) : undefined,
     });
   };
 
@@ -850,13 +854,11 @@ export default function HomePage() {
           href="/"
           className="hidden md:flex items-center gap-2 text-white text-[13px] font-semibold shrink-0 mr-1"
           style={{
-            background: '#0E8F6E',
-            border: '1px solid #16A37F',
+            background: 'linear-gradient(90deg, #0E8F6E, #22D497)',
+            border: 'none',
             padding: '8px 20px',
             borderRadius: 12,
           }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#16A37F')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#0E8F6E')}
         >
           <Home className="w-[15px] h-[15px]" /> Início
         </Link>
@@ -1018,85 +1020,131 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* Divisor "ou use os filtros tradicionais" */}
-            <div className="flex items-center gap-3">
+            {/* Toggle "ou use os filtros tradicionais" */}
+            <button
+              onClick={() => setFiltrosAbertos(o => !o)}
+              className="flex items-center gap-3 w-full group"
+            >
               <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
-              <span className="text-[12px] font-medium whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                ou use os filtros tradicionais
+              <span className="flex items-center gap-1.5 text-[12px] font-medium whitespace-nowrap transition-colors"
+                style={{ color: filtrosAbertos ? '#4ade80' : 'rgba(255,255,255,0.55)' }}>
+                {filtrosAbertos ? 'Ocultar filtros padrão' : 'ou use os filtros tradicionais'}
+                <ChevronDown
+                  className="w-3 h-3 transition-transform duration-200"
+                  style={{ transform: filtrosAbertos ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                />
               </span>
               <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
-            </div>
+            </button>
 
-            {/* Filtros tradicionais — sempre visíveis */}
-            <div className="p-4 rounded-2xl border flex flex-wrap gap-2.5 items-end"
-              style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
+            {/* Filtros tradicionais — visíveis somente quando abertos */}
+            {filtrosAbertos && (
+              <div className="p-4 rounded-2xl border flex flex-wrap gap-2.5 items-end"
+                style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
 
-              <div className="flex flex-col gap-1 flex-1 min-w-[140px]">
-                <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Cidade ou bairro</label>
-                <input
-                  value={cidade}
-                  onChange={(e) => setCidade(e.target.value)}
-                  placeholder="Ex: Savassi, Nova Lima..."
-                  className="px-3 py-2 text-xs rounded-lg outline-none"
-                  style={{ fontSize: 16, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}
-                />
+                <div className="flex flex-col gap-1 flex-1 min-w-[140px]">
+                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Cidade ou bairro</label>
+                  <input
+                    value={cidade}
+                    onChange={(e) => setCidade(e.target.value)}
+                    placeholder="Ex: Savassi, Nova Lima..."
+                    className="px-3 py-2 text-xs rounded-lg outline-none"
+                    style={{ fontSize: 16, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Tipo</label>
+                  <select
+                    value={tipo}
+                    onChange={(e) => setTipo(e.target.value)}
+                    className="px-3 py-2 text-xs rounded-lg outline-none"
+                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
+                    <option value="">Todos</option>
+                    {TIPOS_IMOVEL.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Suítes</label>
+                  <select
+                    value={quartos}
+                    onChange={(e) => setQuartos(e.target.value)}
+                    className="px-3 py-2 text-xs rounded-lg outline-none"
+                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
+                    <option value="">Qualquer</option>
+                    {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+ suítes</option>)}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Vagas</label>
+                  <select
+                    value={vagas}
+                    onChange={(e) => setVagas(e.target.value)}
+                    className="px-3 py-2 text-xs rounded-lg outline-none"
+                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
+                    <option value="">Qualquer</option>
+                    {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+ vagas</option>)}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Área mín.</label>
+                  <select
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    className="px-3 py-2 text-xs rounded-lg outline-none"
+                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
+                    <option value="">Qualquer</option>
+                    {AREAS.map((a) => <option key={a.value} value={a.value}>{a.label}+</option>)}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Valor mín.</label>
+                  <select
+                    value={precoMin}
+                    onChange={(e) => setPrecoMin(e.target.value)}
+                    className="px-3 py-2 text-xs rounded-lg outline-none"
+                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
+                    <option value="">Qualquer</option>
+                    <option value="200000">R$ 200 mil</option>
+                    <option value="400000">R$ 400 mil</option>
+                    <option value="600000">R$ 600 mil</option>
+                    <option value="800000">R$ 800 mil</option>
+                    <option value="1000000">R$ 1 milhão</option>
+                    <option value="1500000">R$ 1,5 milhão</option>
+                    <option value="2000000">R$ 2 milhões</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Valor máx.</label>
+                  <select
+                    value={precoMax}
+                    onChange={(e) => setPrecoMax(e.target.value)}
+                    className="px-3 py-2 text-xs rounded-lg outline-none"
+                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
+                    <option value="">Qualquer</option>
+                    <option value="400000">R$ 400 mil</option>
+                    <option value="600000">R$ 600 mil</option>
+                    <option value="800000">R$ 800 mil</option>
+                    <option value="1000000">R$ 1 milhão</option>
+                    <option value="1500000">R$ 1,5 milhão</option>
+                    <option value="2000000">R$ 2 milhões</option>
+                    <option value="3000000">R$ 3 milhões</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={handleFiltros}
+                  className="flex items-center gap-1.5 px-5 py-2 text-white text-xs font-semibold rounded-lg transition-colors"
+                  style={{ background: 'linear-gradient(90deg, #0E8F6E, #22D497)' }}>
+                  <Search className="w-3.5 h-3.5" /> Buscar
+                </button>
               </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Tipo</label>
-                <select
-                  value={tipo}
-                  onChange={(e) => setTipo(e.target.value)}
-                  className="px-3 py-2 text-xs rounded-lg outline-none"
-                  style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                  <option value="">Todos</option>
-                  {TIPOS_IMOVEL.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Suítes</label>
-                <select
-                  value={quartos}
-                  onChange={(e) => setQuartos(e.target.value)}
-                  className="px-3 py-2 text-xs rounded-lg outline-none"
-                  style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                  <option value="">Qualquer</option>
-                  {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+ suítes</option>)}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Vagas</label>
-                <select
-                  value={vagas}
-                  onChange={(e) => setVagas(e.target.value)}
-                  className="px-3 py-2 text-xs rounded-lg outline-none"
-                  style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                  <option value="">Qualquer</option>
-                  {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+ vagas</option>)}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Área mín.</label>
-                <select
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                  className="px-3 py-2 text-xs rounded-lg outline-none"
-                  style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                  <option value="">Qualquer</option>
-                  {AREAS.map((a) => <option key={a.value} value={a.value}>{a.label}+</option>)}
-                </select>
-              </div>
-
-              <button
-                onClick={handleFiltros}
-                className="flex items-center gap-1.5 px-5 py-2 text-white text-xs font-semibold rounded-lg transition-colors"
-                style={{ background: '#22c55e' }}>
-                <Search className="w-3.5 h-3.5" /> Buscar
-              </button>
-            </div>
+            )}
           </div>
 
           {/* ── Coluna direita: Perfil (oculto mobile) ── */}
