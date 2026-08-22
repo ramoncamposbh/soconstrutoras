@@ -830,24 +830,21 @@ export default function HomePage() {
         style={{ background: '#0B1D2A', borderBottom: '1px solid #1A3547' }}
       >
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-4">
-          {/* Ícone recortado — somente a parte colorida do PNG */}
-          <div style={{ width: 54, height: 60, overflow: 'hidden', flexShrink: 0 }}>
+        <Link href="/" className="flex items-center gap-2 shrink-0 mr-4">
+          {/* Ícone recortado (parte colorida do PNG transparente) */}
+          <div style={{ width: 52, height: 56, overflow: 'hidden', flexShrink: 0 }}>
             <Image
               src="/logo-faicoh.png"
               alt=""
-              width={190}
-              height={102}
-              style={{ width: '190px', height: '102px', objectFit: 'cover', objectPosition: 'left center', marginTop: '-21px' }}
+              width={186}
+              height={100}
+              style={{ width: '186px', height: '100px', objectFit: 'cover', objectPosition: 'left center', marginTop: '-22px' }}
               priority
             />
           </div>
-          {/* Texto */}
-          <div style={{ lineHeight: 1.15 }}>
-            <div style={{ color: '#fff', fontWeight: 800, fontSize: 22, letterSpacing: 2 }}>FAICOH</div>
-            <div style={{ color: '#1DB899', fontSize: 10, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase' }}>
-              O Portal dos Imóveis Novos
-            </div>
+          {/* Texto branco — sem subtítulo */}
+          <div style={{ fontWeight: 800, fontSize: 22, letterSpacing: 2, color: '#fff' }}>
+            FAICOH
           </div>
         </Link>
 
@@ -935,7 +932,7 @@ export default function HomePage() {
             {/* Heading */}
             <div>
               <h1 className="text-[26px] md:text-[32px] font-bold leading-tight mb-1.5" style={{ color: '#ffffff' }}>
-                Encontre o imóvel ideal
+                TODAS CONSTRUTORAS EM UM SÓ LUGAR
               </h1>
               <h1 className="text-[26px] md:text-[32px] font-bold leading-tight" style={{ color: '#4ade80' }}>
                 conversando com nossa IA

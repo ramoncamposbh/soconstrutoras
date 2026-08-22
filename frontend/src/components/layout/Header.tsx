@@ -114,17 +114,18 @@ export default function Header() {
           )}
         </div>
 
-        {/* Logo centralizada */}
+        {/* Logo centralizada — clipa o subtítulo */}
         <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-          <Image
-            src="/logo-faicoh.png"
-            alt="Faicoh — O Portal dos Imóveis Novos"
-            width={195}
-            height={105}
-            className="object-contain"
-            style={{ height: '54px', width: 'auto' }}
-            priority
-          />
+          <div style={{ height: '44px', overflow: 'hidden' }}>
+            <Image
+              src="/logo-faicoh.png"
+              alt="Faicoh"
+              width={280}
+              height={150}
+              style={{ height: '82px', width: 'auto', marginTop: '-14px' }}
+              priority
+            />
+          </div>
         </Link>
 
         {/* Ação direita */}
@@ -133,16 +134,18 @@ export default function Header() {
 
       {/* ── Desktop header ──────────────────────────────────── */}
       <div className="hidden sm:flex max-w-7xl mx-auto px-6 lg:px-8 items-center justify-between h-[72px]">
+        {/* Logo desktop — clipa o subtítulo */}
         <Link href="/" className="flex items-center shrink-0">
-          <Image
-            src="/logo-faicoh.png"
-            alt="Faicoh — O Portal dos Imóveis Novos"
-            width={240}
-            height={129}
-            className="object-contain"
-            style={{ height: '66px', width: 'auto' }}
-            priority
-          />
+          <div style={{ height: '54px', overflow: 'hidden' }}>
+            <Image
+              src="/logo-faicoh.png"
+              alt="Faicoh"
+              width={340}
+              height={183}
+              style={{ height: '100px', width: 'auto', marginTop: '-17px' }}
+              priority
+            />
+          </div>
         </Link>
 
         <nav className="flex items-center gap-5">
