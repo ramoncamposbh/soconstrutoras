@@ -115,23 +115,16 @@ export default function Header() {
         </div>
 
         {/* Logo centralizada */}
-        <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2">
           <Image
-            src="/logo.png"
-            alt="SóConstrutoras"
-            width={28}
-            height={36}
+            src="/logo-faicoh.png"
+            alt="Faicoh — O Portal dos Imóveis Novos"
+            width={130}
+            height={70}
             className="object-contain"
+            style={{ height: '36px', width: 'auto' }}
             priority
           />
-          <div className="leading-none">
-            <span className="block font-bold text-[14px] text-gray-900 tracking-tight">
-              <span className="text-primary-600">SÓ</span>CONSTRUTORAS
-            </span>
-            <span className="block text-[8px] text-gray-400 tracking-widest uppercase">
-              Portal das Construtoras
-            </span>
-          </div>
         </Link>
 
         {/* Ação direita */}
@@ -140,23 +133,16 @@ export default function Header() {
 
       {/* ── Desktop header ──────────────────────────────────── */}
       <div className="hidden sm:flex max-w-7xl mx-auto px-6 lg:px-8 items-center justify-between h-14">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
+        <Link href="/" className="flex items-center shrink-0">
           <Image
-            src="/logo.png"
-            alt="SóConstrutoras"
-            width={32}
-            height={42}
+            src="/logo-faicoh.png"
+            alt="Faicoh — O Portal dos Imóveis Novos"
+            width={160}
+            height={86}
             className="object-contain"
+            style={{ height: '44px', width: 'auto' }}
             priority
           />
-          <div className="leading-none">
-            <span className="block font-bold text-[15px] text-gray-900 tracking-tight">
-              <span className="text-primary-600">SÓ</span>CONSTRUTORAS
-            </span>
-            <span className="block text-[9px] text-gray-400 tracking-widest uppercase">
-              Portal das Construtoras
-            </span>
-          </div>
         </Link>
 
         <nav className="flex items-center gap-5">

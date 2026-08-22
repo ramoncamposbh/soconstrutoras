@@ -830,22 +830,17 @@ export default function HomePage() {
         style={{ background: '#0B1D2A', borderBottom: '1px solid #1A3547' }}
       >
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-4">
-          <Image
-            src="/logo.png"
-            alt="SóConstrutoras"
-            width={44}
-            height={44}
-            className="object-contain"
-            priority
-          />
-          <div className="leading-tight">
-            <span className="block font-extrabold tracking-widest" style={{ color: '#FFFFFF', fontSize: 13.5 }}>
-              SÓCONSTRUTORAS
-            </span>
-            <span className="block uppercase tracking-[0.14em]" style={{ color: '#AAB5B2', fontSize: 7.5 }}>
-              Portal das Construtoras
-            </span>
+        <Link href="/" className="flex items-center shrink-0 mr-4">
+          <div style={{ background: '#fff', borderRadius: 8, padding: '3px 10px', display: 'inline-flex', alignItems: 'center' }}>
+            <Image
+              src="/logo-faicoh.png"
+              alt="Faicoh — O Portal dos Imóveis Novos"
+              width={130}
+              height={70}
+              className="object-contain"
+              style={{ height: '38px', width: 'auto' }}
+              priority
+            />
           </div>
         </Link>
 
