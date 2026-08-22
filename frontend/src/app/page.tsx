@@ -1020,22 +1020,22 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* Toggle "ou use os filtros tradicionais" */}
-            <button
-              onClick={() => setFiltrosAbertos(o => !o)}
-              className="flex items-center gap-3 w-full group"
-            >
+            {/* Toggle filtros — botão estilo Buscar */}
+            <div className="flex items-center gap-3">
               <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
-              <span className="flex items-center gap-1.5 text-[12px] font-medium whitespace-nowrap transition-colors"
-                style={{ color: filtrosAbertos ? '#4ade80' : 'rgba(255,255,255,0.55)' }}>
-                {filtrosAbertos ? 'Ocultar filtros padrão' : 'ou use os filtros tradicionais'}
+              <button
+                onClick={() => setFiltrosAbertos(o => !o)}
+                className="flex items-center gap-1.5 px-5 py-2 text-white text-xs font-semibold rounded-lg transition-all whitespace-nowrap"
+                style={{ background: 'linear-gradient(90deg, #0E8F6E, #22D497)' }}
+              >
                 <ChevronDown
-                  className="w-3 h-3 transition-transform duration-200"
+                  className="w-3.5 h-3.5 transition-transform duration-200"
                   style={{ transform: filtrosAbertos ? 'rotate(180deg)' : 'rotate(0deg)' }}
                 />
-              </span>
+                {filtrosAbertos ? 'Ocultar filtros' : 'Filtros tradicionais'}
+              </button>
               <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
-            </button>
+            </div>
 
             {/* Filtros tradicionais — visíveis somente quando abertos */}
             {filtrosAbertos && (
