@@ -1043,110 +1043,114 @@ export default function HomePage() {
 
             {/* Filtros tradicionais — visíveis somente quando abertos */}
             {filtrosAbertos && (
-              <div className="p-4 rounded-2xl border flex flex-wrap gap-2.5 items-end"
+              <div className="p-5 rounded-2xl border"
                 style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
-
-                <div className="flex flex-col gap-1 flex-1 min-w-[140px]">
-                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Cidade ou bairro</label>
-                  <input
-                    value={cidade}
-                    onChange={(e) => setCidade(e.target.value)}
-                    placeholder="Ex: Savassi, Nova Lima..."
-                    className="px-3 py-2 text-xs rounded-lg outline-none"
-                    style={{ fontSize: 16, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}
-                  />
+                {/* Linha 1: cidade (largo) + tipo */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Cidade ou bairro</label>
+                    <input
+                      value={cidade}
+                      onChange={(e) => setCidade(e.target.value)}
+                      placeholder="Ex: Savassi, Nova Lima..."
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 14px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Tipo</label>
+                    <select
+                      value={tipo}
+                      onChange={(e) => setTipo(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 14px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      <option value="">Todos</option>
+                      {TIPOS_IMOVEL.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    </select>
+                  </div>
                 </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Tipo</label>
-                  <select
-                    value={tipo}
-                    onChange={(e) => setTipo(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-lg outline-none"
-                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                    <option value="">Todos</option>
-                    {TIPOS_IMOVEL.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
+                {/* Linha 2: suítes, vagas, área */}
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Suítes</label>
+                    <select
+                      value={quartos}
+                      onChange={(e) => setQuartos(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      <option value="">Qualquer</option>
+                      {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+</option>)}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Vagas</label>
+                    <select
+                      value={vagas}
+                      onChange={(e) => setVagas(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      <option value="">Qualquer</option>
+                      {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+</option>)}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Área mín.</label>
+                    <select
+                      value={area}
+                      onChange={(e) => setArea(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      <option value="">Qualquer</option>
+                      {AREAS.map((a) => <option key={a.value} value={a.value}>{a.label}+</option>)}
+                    </select>
+                  </div>
                 </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Suítes</label>
-                  <select
-                    value={quartos}
-                    onChange={(e) => setQuartos(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-lg outline-none"
-                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                    <option value="">Qualquer</option>
-                    {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+ suítes</option>)}
-                  </select>
+                {/* Linha 3: valor mín, valor máx, botão buscar */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor mín.</label>
+                    <select
+                      value={precoMin}
+                      onChange={(e) => setPrecoMin(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 14, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      <option value="">Qualquer</option>
+                      <option value="200000">R$ 200 mil</option>
+                      <option value="400000">R$ 400 mil</option>
+                      <option value="600000">R$ 600 mil</option>
+                      <option value="800000">R$ 800 mil</option>
+                      <option value="1000000">R$ 1 milhão</option>
+                      <option value="1500000">R$ 1,5 mi</option>
+                      <option value="2000000">R$ 2 mi</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor máx.</label>
+                    <select
+                      value={precoMax}
+                      onChange={(e) => setPrecoMax(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 14, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
+                      <option value="">Qualquer</option>
+                      <option value="400000">R$ 400 mil</option>
+                      <option value="600000">R$ 600 mil</option>
+                      <option value="800000">R$ 800 mil</option>
+                      <option value="1000000">R$ 1 milhão</option>
+                      <option value="1500000">R$ 1,5 mi</option>
+                      <option value="2000000">R$ 2 mi</option>
+                      <option value="3000000">R$ 3 mi</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'transparent' }}>.</label>
+                    <button
+                      onClick={handleFiltros}
+                      className="flex items-center justify-center gap-2 text-white font-semibold rounded-xl transition-colors w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: 'linear-gradient(90deg, #0E8F6E, #22D497)' }}>
+                      <Search className="w-4 h-4" /> Buscar
+                    </button>
+                  </div>
                 </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Vagas</label>
-                  <select
-                    value={vagas}
-                    onChange={(e) => setVagas(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-lg outline-none"
-                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                    <option value="">Qualquer</option>
-                    {[1,2,3,4].map((n) => <option key={n} value={n}>{n}+ vagas</option>)}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Área mín.</label>
-                  <select
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-lg outline-none"
-                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                    <option value="">Qualquer</option>
-                    {AREAS.map((a) => <option key={a.value} value={a.value}>{a.label}+</option>)}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Valor mín.</label>
-                  <select
-                    value={precoMin}
-                    onChange={(e) => setPrecoMin(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-lg outline-none"
-                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                    <option value="">Qualquer</option>
-                    <option value="200000">R$ 200 mil</option>
-                    <option value="400000">R$ 400 mil</option>
-                    <option value="600000">R$ 600 mil</option>
-                    <option value="800000">R$ 800 mil</option>
-                    <option value="1000000">R$ 1 milhão</option>
-                    <option value="1500000">R$ 1,5 milhão</option>
-                    <option value="2000000">R$ 2 milhões</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>Valor máx.</label>
-                  <select
-                    value={precoMax}
-                    onChange={(e) => setPrecoMax(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-lg outline-none"
-                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#f0fdf4' }}>
-                    <option value="">Qualquer</option>
-                    <option value="400000">R$ 400 mil</option>
-                    <option value="600000">R$ 600 mil</option>
-                    <option value="800000">R$ 800 mil</option>
-                    <option value="1000000">R$ 1 milhão</option>
-                    <option value="1500000">R$ 1,5 milhão</option>
-                    <option value="2000000">R$ 2 milhões</option>
-                    <option value="3000000">R$ 3 milhões</option>
-                  </select>
-                </div>
-
-                <button
-                  onClick={handleFiltros}
-                  className="flex items-center gap-1.5 px-5 py-2 text-white text-xs font-semibold rounded-lg transition-colors"
-                  style={{ background: 'linear-gradient(90deg, #0E8F6E, #22D497)' }}>
-                  <Search className="w-3.5 h-3.5" /> Buscar
-                </button>
               </div>
             )}
           </div>
@@ -1309,13 +1313,11 @@ export default function HomePage() {
       {/* ══ FOOTER SIMPLES ══ */}
       <footer style={{ background: '#0B1D2A', borderTop: '1px solid #1A3547', padding: '20px 32px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0E8F6E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Building2 size={16} color="#fff" />
-            </div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#AAB5B2', letterSpacing: '0.05em' }}>SÓCONSTRUTORAS</span>
+          <div style={{ height: '38px', overflow: 'hidden' }}>
+            <Image src="/logo-faicoh.png" alt="Faicoh" width={240} height={130}
+              style={{ height: '70px', width: 'auto', marginTop: '-12px' }} />
           </div>
-          <p style={{ fontSize: 11, color: '#1A3547' }}>© {new Date().getFullYear()} SóConstrutoras. Todos os direitos reservados.</p>
+          <p style={{ fontSize: 11, color: '#4B6072' }}>© {new Date().getFullYear()} FAICOH. Todos os direitos reservados.</p>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidade', 'Termos', 'Contato'].map(l => (
               <a key={l} href="#" style={{ fontSize: 11, color: '#AAB5B2', textDecoration: 'none' }}
@@ -1378,14 +1380,9 @@ export default function HomePage() {
               style={{ background: 'linear-gradient(160deg, #0A2318 0%, #0C3525 100%)', border: '1px solid #1B5C3E' }}>
 
               {/* Logo */}
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#0E8F6E' }}>
-                  <Building2 size={15} color="#fff" />
-                </div>
-                <div>
-                  <p className="font-bold text-white text-xs tracking-widest">SÓCONSTRUTORAS</p>
-                  <p className="text-[9px] tracking-wider" style={{ color: '#22D497' }}>PORTAL DAS CONSTRUTORAS</p>
-                </div>
+              <div style={{ height: '36px', overflow: 'hidden' }}>
+                <Image src="/logo-faicoh.png" alt="Faicoh" width={220} height={120}
+                  style={{ height: '66px', width: 'auto', marginTop: '-11px' }} />
               </div>
 
               {/* Título + círculo de progresso */}
