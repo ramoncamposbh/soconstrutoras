@@ -288,7 +288,7 @@ export class EmpreendimentosService {
   }
 
   async melhorM2(filtros: { estado?: string; cidade?: string; bairro?: string; tipo?: string }) {
-    const conditions: string[] = ['e.publicado = TRUE', '(u.disponivel IS NULL OR u.disponivel = TRUE)', 'u.preco IS NOT NULL', 'u.metragem_privativa IS NOT NULL', 'u.metragem_privativa > 0'];
+    const conditions: string[] = ['e.publicado = TRUE', 'u.preco IS NOT NULL'];
     const params: any[] = [];
     let i = 1;
 
