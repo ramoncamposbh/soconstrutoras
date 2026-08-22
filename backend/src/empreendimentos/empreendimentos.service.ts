@@ -288,7 +288,7 @@ export class EmpreendimentosService {
   }
 
   async melhorM2(filtros: { estado?: string; cidade?: string; bairro?: string; tipo?: string }) {
-    const conditions: string[] = ['e.publicado = TRUE', 'u.disponivel = TRUE', 'u.preco IS NOT NULL'];
+    const conditions: string[] = ['e.publicado = TRUE', '(u.disponivel IS NULL OR u.disponivel = TRUE)', 'u.preco IS NOT NULL', 'u.metragem_privativa IS NOT NULL', 'u.metragem_privativa > 0'];
     const params: any[] = [];
     let i = 1;
 
@@ -342,8 +342,7 @@ export class EmpreendimentosService {
            END AS preco_m2,
            (SELECT url FROM empreendimento_midias
             WHERE empreendimento_id = e.id
-              AND tipo_midia = 'foto'
-              AND categoria = 'condominio'
+              AND tipo = 'foto'
             ORDER BY ordem, created_at LIMIT 1
            ) AS imagem,
            ROW_NUMBER() OVER (
