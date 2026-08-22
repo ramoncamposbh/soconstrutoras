@@ -14,7 +14,7 @@ const MENU_LINKS = [
   { href: '/parceiros',   label: 'Parceiros',    icon: HandshakeIcon },
   { href: '/favoritos',   label: 'Favoritos',    icon: Heart },
   { href: '/simuladores', label: 'Simuladores',  icon: Calculator },
-  { href: '/melhor-m2',   label: 'Melhor m²',    icon: Ruler },
+  { href: '/oportunidades-m2', label: 'Oportunidades por m²', icon: Ruler },
 ];
 
 export default function Header() {
@@ -171,9 +171,9 @@ export default function Header() {
             <Calculator className="w-4 h-4" />
             Simuladores
           </Link>
-          <Link href="/melhor-m2" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
+          <Link href="/oportunidades-m2" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
             <Ruler className="w-4 h-4" />
-            Melhor m²
+            Oportunidades por m²
           </Link>
           {renderNavAction()}
         </nav>
