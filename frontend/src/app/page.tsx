@@ -510,7 +510,7 @@ export default function HomePage() {
         const normBairros = bairros.map(normalizarTexto);
         if (normBairros.some(b => b === br || b.includes(br) || br.includes(b))) {
           regiaoKey = rKey;
-          bairrosRegiao = [...new Set([br, ...normBairros])];
+          bairrosRegiao = Array.from(new Set([br, ...normBairros]));
           break;
         }
       }
