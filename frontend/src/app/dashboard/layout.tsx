@@ -8,7 +8,7 @@ import Image from 'next/image';
 import {
   LayoutDashboard, Building2, Users, Bell, LogOut,
   ChevronRight, ChevronDown, Loader2, CreditCard, Menu, X, Store, Calculator,
-  HardHat, UserCog,
+  HardHat, UserCog, Home,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +20,7 @@ const navItems = [
   { href: '/dashboard/leads',           label: 'Leads',            icon: Bell,            roles: null },
   { href: '/dashboard/simulacoes',      label: 'Simulações',       icon: Calculator,      roles: ['admin'] },
   { href: '/dashboard/lojas',           label: 'Lojas Parceiras',  icon: Store,           roles: ['admin'] },
+  { href: '/dashboard/imoveis-usados',   label: 'Imóveis Usados',   icon: Home,            roles: ['construtora'] },
   { href: '/dashboard/assinatura',      label: 'Assinatura',       icon: CreditCard,      roles: null },
 ];
 
@@ -27,6 +28,7 @@ const navItems = [
 const construtorasSubItems = [
   { href: '/dashboard/construtoras/empreendimentos', label: 'Empreendimentos', icon: Building2 },
   { href: '/dashboard/construtoras/usuarios',        label: 'Usuários',        icon: UserCog   },
+  { href: '/dashboard/construtoras/imoveis-usados',  label: 'Imóveis Usados',  icon: Home      },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

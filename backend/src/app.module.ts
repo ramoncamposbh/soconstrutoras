@@ -17,6 +17,7 @@ import { StorageModule } from './storage/storage.module';
 import { LojasModule } from './lojas/lojas.module';
 import { SpeechModule } from './speech/speech.module';
 import { SimuladorModule } from './simulador/simulador.module';
+import { ImoveisUsadosModule } from './imoveis-usados/imoveis-usados.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { SimuladorModule } from './simulador/simulador.module';
     LojasModule,
     SpeechModule,
     SimuladorModule,
+    ImoveisUsadosModule,
   ],
 })
 export class AppModule {}
