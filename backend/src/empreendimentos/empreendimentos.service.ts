@@ -148,9 +148,9 @@ export class EmpreendimentosService {
   async getBairros(cidade: string): Promise<string[]> {
     if (!cidade) return [];
     const { rows } = await this.pool.query(
-      `SELECT DISTINCT bairro FROM empreendimentos
-       WHERE publicado = TRUE AND cidade ILIKE $1 AND bairro IS NOT NULL AND bairro <> ''
-       ORDER BY bairro`,
+      `SELECT DISTINCT TRIM(bairro) AS bairro FROM empreendimentos
+       WHERE publicado = TRUE AND cidade ILIKE $1 AND bairro IS NOT NULL AND TRIM(bairro) <> ''
+       ORDER BY 1`,
       [cidade],
     );
     return rows.map((r: any) => r.bairro).filter(Boolean);

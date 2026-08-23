@@ -126,6 +126,20 @@ export default function MelhorM2Page() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <style>{`
+        .m2-card { display:flex; align-items:center; gap:1rem; background:#fff; border-radius:1rem; padding:1.25rem 1.5rem; box-shadow:0 1px 4px rgba(0,0,0,0.07); cursor:pointer; transition:box-shadow 0.2s; }
+        .m2-card-info { flex:1; min-width:0; }
+        .m2-card-price { text-align:right; flex-shrink:0; }
+        .m2-card-details { display:flex; gap:1rem; margin-top:0.4rem; font-size:0.78rem; color:#94a3b8; flex-wrap:wrap; }
+        @media (max-width: 600px) {
+          .m2-card { flex-wrap:wrap; padding:1rem; gap:0.75rem; }
+          .m2-card-rank { order:0; }
+          .m2-card-img  { order:1; }
+          .m2-card-price { order:2; margin-left:auto; }
+          .m2-card-info  { order:3; width:100%; flex:unset; }
+          .m2-card-details { gap:0.5rem; font-size:0.75rem; }
+        }
+      `}</style>
       {/* Header */}
       <div style={{
         background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
@@ -227,17 +241,9 @@ export default function MelhorM2Page() {
                   href={`/imoveis/${r.slug}`}
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
-                  <div style={{
-                    background: '#fff', borderRadius: '1rem',
-                    padding: '1.25rem 1.5rem',
-                    display: 'flex', alignItems: 'center', gap: '1rem',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-                    border: idx === 0 ? '2px solid #22D497' : '1.5px solid #f1f5f9',
-                    transition: 'box-shadow 0.2s',
-                    cursor: 'pointer',
-                  }}>
+                  <div className="m2-card" style={{ border: idx === 0 ? '2px solid #22D497' : '1.5px solid #f1f5f9' }}>
                     {/* Ranking */}
-                    <div style={{
+                    <div className="m2-card-rank" style={{
                       width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
                       background: idx === 0 ? 'linear-gradient(135deg,#22D497,#0E8F6E)' : '#f1f5f9',
                       color: idx === 0 ? '#fff' : '#64748b',
@@ -249,44 +255,44 @@ export default function MelhorM2Page() {
 
                     {/* Imagem */}
                     {r.imagem ? (
-                      <img
-                        src={r.imagem}
-                        alt={r.empreendimento_nome}
+                      <img className="m2-card-img"
+                        src={r.imagem} alt={r.empreendimento_nome}
                         style={{ width: 72, height: 56, objectFit: 'cover', borderRadius: '0.5rem', flexShrink: 0 }}
                       />
                     ) : (
-                      <div style={{
+                      <div className="m2-card-img" style={{
                         width: 72, height: 56, borderRadius: '0.5rem', flexShrink: 0,
                         background: '#f1f5f9', display: 'flex', alignItems: 'center',
                         justifyContent: 'center', color: '#cbd5e1', fontSize: '1.5rem',
                       }}>🏢</div>
                     )}
 
-                    {/* Info principal */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {r.empreendimento_nome}
-                        {idx === 0 && <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#22D497', fontWeight: 600 }}>✦ Melhor custo-benefício</span>}
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.15rem' }}>
-                        {r.construtora_nome} · {r.bairro}{r.bairro && r.cidade ? ', ' : ''}{r.cidade}
-                      </div>
-                      <div style={{ display: 'flex', gap: '1rem', marginTop: '0.4rem', fontSize: '0.78rem', color: '#94a3b8', flexWrap: 'wrap' }}>
-                        <span>📐 {formatM2(r.metragem_privativa)} interno{r.area_externa > 0 ? ` + ${formatM2(r.area_externa)} externo` : ''}</span>
-                        <span>📊 Área útil: {formatM2(r.area_util)}</span>
-                        {r.quartos > 0 && <span>🛏 {r.quartos} qto{r.quartos > 1 ? 's' : ''}</span>}
-                        {r.vagas > 0 && <span>🚗 {r.vagas} vaga{r.vagas > 1 ? 's' : ''}</span>}
-                        <span style={{ textTransform: 'capitalize' }}>{r.unidade_tipo}</span>
-                      </div>
-                    </div>
-
-                    {/* Preço e m² */}
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    {/* Preço e m² — aparece à direita no mobile */}
+                    <div className="m2-card-price">
                       <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b' }}>
                         {formatCurrency(r.preco)}
                       </div>
                       <div style={{ marginTop: '0.35rem' }}>
                         <BadgeM2 valor={r.preco_m2} />
+                      </div>
+                    </div>
+
+                    {/* Info principal — ocupa linha inteira no mobile */}
+                    <div className="m2-card-info">
+                      <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {r.empreendimento_nome}
+                        {idx === 0 && <span style={{ marginLeft: '0.5rem', fontSize: '0.72rem', color: '#22D497', fontWeight: 600 }}>✦ Melhor custo-benefício</span>}
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.15rem' }}>
+                        {r.construtora_nome ? <>{r.construtora_nome} · </> : null}
+                        {r.bairro}{r.bairro && r.cidade ? ', ' : ''}{r.cidade}
+                      </div>
+                      <div className="m2-card-details">
+                        <span>📐 {formatM2(r.metragem_privativa)} interno{parseFloat(String(r.area_externa || 0)) > 0 ? ` + ${formatM2(r.area_externa)} externo` : ''}</span>
+                        <span>📊 Útil: {formatM2(r.area_util)}</span>
+                        {parseFloat(String(r.quartos || 0)) > 0 && <span>🛏 {r.quartos} qto{Number(r.quartos) > 1 ? 's' : ''}</span>}
+                        {parseFloat(String(r.vagas || 0)) > 0 && <span>🚗 {r.vagas} vaga{Number(r.vagas) > 1 ? 's' : ''}</span>}
+                        <span style={{ textTransform: 'capitalize' }}>{r.unidade_tipo}</span>
                       </div>
                     </div>
                   </div>
