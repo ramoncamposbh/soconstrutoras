@@ -39,7 +39,8 @@ function formatCurrency(v: number) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
 }
 
-function formatM2(v: number) {
+function formatM2(v: number | null | undefined) {
+  if (v == null || v === 0) return '—';
   return `${v.toFixed(1).replace('.', ',')} m²`;
 }
 
