@@ -1082,14 +1082,15 @@ export default function HomePage() {
             {filtrosAbertos && (
               <div className="p-5 rounded-2xl border"
                 style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
+                <style>{`.filtro-select option { background: #04241D; color: #f0fdf4; }`}</style>
 
                 {/* Linha 1: Estado + Cidade */}
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Estado</label>
                     <select value={estadoSel} onChange={e => setEstadoSel(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#111827' }}>
+                      className="filtro-select rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Todos</option>
                       {ESTADOS_BR.map(e => <option key={e.uf} value={e.uf}>{e.nome}</option>)}
                     </select>
@@ -1098,8 +1099,8 @@ export default function HomePage() {
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Cidade</label>
                     <select value={cidadeSel} onChange={e => setCidadeSel(e.target.value)}
                       disabled={cidadesDisp.length === 0}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#111827', opacity: cidadesDisp.length === 0 ? 0.4 : 1 }}>
+                      className="filtro-select rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4', opacity: cidadesDisp.length === 0 ? 0.4 : 1 }}>
                       <option value="">{estadoSel ? 'Todas' : 'Selecione o estado'}</option>
                       {cidadesDisp.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -1117,7 +1118,7 @@ export default function HomePage() {
                         onClick={() => setBairrosOpen(o => !o)}
                         disabled={bairrosDisp.length === 0}
                         className="rounded-xl w-full text-left flex items-center justify-between"
-                        style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: bairrosDisp.length === 0 ? 'rgba(255,255,255,0.3)' : '#111827', opacity: bairrosDisp.length === 0 ? 0.4 : 1, WebkitAppearance: 'none', outline: 'none', cursor: 'pointer' }}>
+                        style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: bairrosDisp.length === 0 ? 'rgba(255,255,255,0.3)' : '#f0fdf4', opacity: bairrosDisp.length === 0 ? 0.4 : 1, WebkitAppearance: 'none', outline: 'none', cursor: 'pointer' }}>
                         <span>{bairrosSel.length > 0 ? bairrosSel.slice(0,2).join(', ') + (bairrosSel.length > 2 ? '...' : '') : cidadeSel ? 'Todos' : 'Selecione a cidade'}</span>
                         <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ transform: bairrosOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
                       </button>
@@ -1139,8 +1140,8 @@ export default function HomePage() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Tipo</label>
                     <select value={tipo} onChange={e => setTipo(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#111827' }}>
+                      className="filtro-select rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Todos</option>
                       {TIPOS_IMOVEL.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                     </select>
@@ -1152,8 +1153,8 @@ export default function HomePage() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Suítes</label>
                     <select value={quartos} onChange={e => setQuartos(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#111827' }}>
+                      className="filtro-select rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
                       {[1,2,3,4].map(n => <option key={n} value={n}>{n}+</option>)}
                     </select>
@@ -1161,8 +1162,8 @@ export default function HomePage() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Vagas</label>
                     <select value={vagas} onChange={e => setVagas(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#111827' }}>
+                      className="filtro-select rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
                       {[1,2,3,4].map(n => <option key={n} value={n}>{n}+</option>)}
                     </select>
@@ -1170,8 +1171,8 @@ export default function HomePage() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Área mín.</label>
                     <select value={area} onChange={e => setArea(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 15, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#111827' }}>
+                      className="filtro-select rounded-xl outline-none w-full"
+                      style={{ fontSize: 15, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
                       {AREAS.map(a => <option key={a.value} value={a.value}>{a.label}+</option>)}
                     </select>
@@ -1183,8 +1184,8 @@ export default function HomePage() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor mín.</label>
                     <select value={precoMin} onChange={e => setPrecoMin(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 14, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#111827' }}>
+                      className="filtro-select rounded-xl outline-none w-full"
+                      style={{ fontSize: 14, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
                       <option value="200000">R$ 200 mil</option>
                       <option value="400000">R$ 400 mil</option>
@@ -1198,8 +1199,8 @@ export default function HomePage() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor máx.</label>
                     <select value={precoMax} onChange={e => setPrecoMax(e.target.value)}
-                      className="rounded-xl outline-none w-full"
-                      style={{ fontSize: 14, padding: '11px 10px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#111827' }}>
+                      className="filtro-select rounded-xl outline-none w-full"
+                      style={{ fontSize: 14, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: '#f0fdf4' }}>
                       <option value="">Qualquer</option>
                       <option value="400000">R$ 400 mil</option>
                       <option value="600000">R$ 600 mil</option>
