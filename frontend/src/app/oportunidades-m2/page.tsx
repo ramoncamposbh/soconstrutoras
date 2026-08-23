@@ -35,21 +35,23 @@ const TIPOS = [
   { value: 'comercial', label: 'Comercial' },
 ];
 
-function formatCurrency(v: number) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+function formatCurrency(v: number | string | null | undefined) {
+  const n = parseFloat(String(v ?? 0));
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n);
 }
 
-function formatM2(v: number | null | undefined) {
-  if (v == null || v === 0) return '—';
-  return `${v.toFixed(1).replace('.', ',')} m²`;
+function formatM2(v: number | string | null | undefined) {
+  const n = v == null ? NaN : parseFloat(String(v));
+  if (!isFinite(n) || n === 0) return '—';
+  return `${n.toFixed(1).replace('.', ',')} m²`;
 }
 
-function BadgeM2({ valor }: { valor: number }) {
-  let bg = '#0E8F6E';
-  if (valor > 15000) bg = '#b45309';
-  else if (valor > 10000) bg = '#d97706';
-  else if (valor > 7000) bg = '#0E8F6E';
-  else bg = '#059669';
+function BadgeM2({ valor }: { valor: number | string }) {
+  const n = parseFloat(String(valor));
+  let bg = '#059669';
+  if (n > 15000) bg = '#b45309';
+  else if (n > 10000) bg = '#d97706';
+  else if (n > 7000) bg = '#0E8F6E';
 
   return (
     <span style={{
