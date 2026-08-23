@@ -7,7 +7,7 @@
  * Deve ser importado via `dynamic` com ssr: false para evitar erros no Next.js.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -58,6 +58,10 @@ const iconeDestaque = new L.DivIcon({
   popupAnchor: [0, -42],
 });
 
+// Savassi, Belo Horizonte — posição padrão quando não há geolocalização
+const SAVASSI: [number, number] = [-19.9398, -43.9381];
+const ZOOM_CIDADE = 13;
+
 export interface EmpreendimentoMapa {
   id: string;
   nome: string;
@@ -86,15 +90,56 @@ interface Props {
   visivel?: boolean;
 }
 
-/** Componente auxiliar: re-centra o mapa quando os empreendimentos mudam */
+/**
+ * Centra o mapa na localização real do usuário (geolocalização do browser).
+ * Se a permissão for negada ou der timeout, mantém o centro inicial (Savassi).
+ * Só executa UMA vez — não interfere com fitBounds posterior.
+ */
+function CentrarNaLocalizacao() {
+  const map = useMap();
+  const tentouRef = useRef(false);
+
+  useEffect(() => {
+    if (tentouRef.current) return;
+    tentouRef.current = true;
+
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        map.setView(
+          [pos.coords.latitude, pos.coords.longitude],
+          ZOOM_CIDADE,
+          { animate: false }
+        );
+      },
+      () => { /* permissão negada — mantém Savassi */ },
+      { timeout: 5000, maximumAge: 60_000 }
+    );
+  }, [map]);
+
+  return null;
+}
+
+/**
+ * Ajusta os bounds para mostrar todos os empreendimentos.
+ * CORREÇÃO: compara os IDs reais (não a referência do array) para evitar
+ * re-executar fitBounds quando o pai re-renderiza por hover/destacado,
+ * o que causava zoom-out indesejado ao mover o mouse para a lista lateral.
+ */
 function AjustarBounds({ empreendimentos }: { empreendimentos: EmpreendimentoMapa[] }) {
   const map = useMap();
+  const prevIdsRef = useRef<string>('');
 
   useEffect(() => {
     if (empreendimentos.length === 0) return;
 
-    const coords = empreendimentos.map(e => [e.latitude, e.longitude] as [number, number]);
+    // Só re-ajusta se o CONJUNTO de empreendimentos mudou de verdade
+    const ids = empreendimentos.map(e => e.id).sort().join(',');
+    if (ids === prevIdsRef.current) return;
+    prevIdsRef.current = ids;
 
+    const coords = empreendimentos.map(e => [e.latitude, e.longitude] as [number, number]);
     if (coords.length === 1) {
       map.setView(coords[0], 14);
     } else {
@@ -120,7 +165,6 @@ function InvalidarECentralizar({
 
   useEffect(() => {
     if (!visivel) return;
-    // Pequeno delay para garantir que o DOM já aplicou display:flex
     const timer = setTimeout(() => {
       map.invalidateSize();
       if (empreendimentos.length === 0) return;
@@ -158,8 +202,8 @@ export default function MapaEmpreendimentos({
   empreendimentos,
   destacado,
   altura = '100%',
-  centroInicial = [-15.77972, -47.92972], // Brasília
-  zoomInicial = 5,
+  centroInicial = SAVASSI,
+  zoomInicial = ZOOM_CIDADE,
   visivel = true,
 }: Props) {
   const temEmpreendimentos = empreendimentos.length > 0;
@@ -179,9 +223,13 @@ export default function MapaEmpreendimentos({
           maxZoom={19}
         />
 
+        {/* Centra na localização do usuário (ou mantém Savassi) — roda 1x */}
+        <CentrarNaLocalizacao />
+
         {/* Invalida tamanho e re-centra quando o container se torna visível (mobile toggle) */}
         <InvalidarECentralizar visivel={visivel} empreendimentos={empreendimentos} />
 
+        {/* Ajusta bounds apenas quando o conjunto de empreendimentos muda de verdade */}
         {temEmpreendimentos && <AjustarBounds empreendimentos={empreendimentos} />}
 
         {empreendimentos.map((emp) => (
