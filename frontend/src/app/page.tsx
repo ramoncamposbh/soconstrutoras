@@ -1322,14 +1322,14 @@ export default function HomePage() {
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>
               <Map className="w-3.5 h-3.5" /> Ver no mapa
             </button>
-            <div className="flex md:hidden items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
+            <div className="flex md:hidden items-center gap-1 bg-gray-200 rounded-xl p-1">
               <button onClick={() => setVista('lista')}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${vista === 'lista' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                <LayoutGrid className="w-3 h-3" /> Lista
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${vista === 'lista' ? 'bg-[#0E8F6E] text-white shadow' : 'text-gray-600 hover:text-gray-800'}`}>
+                <LayoutGrid className="w-4 h-4" /> Lista
               </button>
               <button onClick={() => setVista('mapa')}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${vista === 'mapa' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                <Map className="w-3 h-3" /> Mapa
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${vista === 'mapa' ? 'bg-[#0E8F6E] text-white shadow' : 'text-gray-600 hover:text-gray-800'}`}>
+                <Map className="w-4 h-4" /> Mapa
               </button>
             </div>
           </div>
