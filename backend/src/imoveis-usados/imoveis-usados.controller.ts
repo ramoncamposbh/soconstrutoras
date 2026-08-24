@@ -4,7 +4,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ImoveisUsadosService } from './imoveis-usados.service';
 import { CriarImovelUsadoDto, AtualizarImovelUsadoDto, ConfigImovelUsadoAdminDto } from './dto/imovel-usado.dto';
 import { ForbiddenException } from '@nestjs/common';
