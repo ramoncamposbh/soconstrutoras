@@ -161,7 +161,7 @@ export class ImoveisUsadosService {
 
   // ── Upload de foto ────────────────────────────────────────────────────────
 
-  async uploadFoto(userId: string, id: string, file: Express.Multer.File) {
+  async uploadFoto(userId: string, id: string, file: { buffer: Buffer; originalname: string; mimetype: string }) {
     const cid = await this.getConstrutoraId(userId);
     await this.verificarPermissao(id, cid);
     const url = await this.storage.uploadBuffer(

@@ -85,7 +85,7 @@ export class ImoveisUsadosController {
   uploadFoto(
     @Request() req: any,
     @Param('id', ParseUUIDPipe) id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: { buffer: Buffer; originalname: string; mimetype: string },
   ) {
     return this.svc.uploadFoto(req.user.id, id, file);
   }
