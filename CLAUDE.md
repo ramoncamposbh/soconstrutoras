@@ -362,3 +362,4 @@ D:\3 -IMOVEIS\CONSTRUTORAS\ATUAIS\[Construtora]\
 - [ ] Testes automatizados: não existem ainda
 - [ ] `schema.sql` pode estar desatualizado — tabelas `unidades`, `unidade_midias`, `favoritos`, `lojas`, `parceiro_categorias` foram adicionadas posteriormente
 - [ ] Task #38 pendente: cadastrar empreendimentos Sudoeste no banco
+- [ ] `/melhor-m2` só compara empreendimentos novos (`empreendimentos`/`unidades`). Imóveis de repasse (`imoveis_usados`, página `/repasse`) ficam de fora de propósito — repasse é imóvel usado e naturalmente tem m² mais barato, misturar sem separar distorceria o ranking. Melhoria planejada: dentro do "Melhor m²" o cliente poder escolher "Imóvel novo" ou "Imóvel de repasse", com os dois rankings calculados e comparados separadamente.
