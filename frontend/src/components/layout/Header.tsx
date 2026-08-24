@@ -10,11 +10,12 @@ import {
 } from 'lucide-react';
 
 const MENU_LINKS = [
-  { href: '/',            label: 'Lançamentos',  icon: Home },
-  { href: '/parceiros',   label: 'Parceiros',    icon: HandshakeIcon },
-  { href: '/favoritos',   label: 'Favoritos',    icon: Heart },
-  { href: '/simuladores', label: 'Simuladores',  icon: Calculator },
-  { href: '/oportunidades-m2', label: 'Oportunidades por m²', icon: Ruler },
+  { href: '/',            label: 'Lançamentos',       icon: Home },
+  { href: '/repasse',     label: 'Repasse',           icon: Home },
+  { href: '/parceiros',   label: 'Parceiros',         icon: HandshakeIcon },
+  { href: '/favoritos',   label: 'Favoritos',         icon: Heart },
+  { href: '/simuladores', label: 'Simuladores',       icon: Calculator },
+  { href: '/melhor-m2',   label: 'Oportunidades m²', icon: Ruler },
 ];
 
 export default function Header() {
@@ -152,6 +153,10 @@ export default function Header() {
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
             Imóveis
           </Link>
+          <Link href="/repasse" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
+            <Home className="w-4 h-4" />
+            Repasse
+          </Link>
           <Link href="/parceiros" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
             <Handshake className="w-4 h-4" />
             Parceiros
@@ -160,9 +165,9 @@ export default function Header() {
             <Calculator className="w-4 h-4" />
             Simuladores
           </Link>
-          <Link href="/oportunidades-m2" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
+          <Link href="/melhor-m2" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
             <Ruler className="w-4 h-4" />
-            Oportunidades por m²
+            Oportunidades m²
           </Link>
           {renderNavAction()}
         </nav>

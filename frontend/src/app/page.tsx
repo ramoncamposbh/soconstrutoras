@@ -76,10 +76,11 @@ const AREAS = [
 
 const NAV_LINKS = [
   { href: '/',                  label: 'Lançamentos',        icon: Rocket },
+  { href: '/repasse',           label: 'Repasse',            icon: Home },
   { href: '/parceiros',         label: 'Parceiros',          icon: Handshake },
   { href: '/favoritos',         label: 'Favoritos',          icon: Heart },
   { href: '/simuladores',       label: 'Simuladores',        icon: Calculator },
-  { href: '/oportunidades-m2',  label: 'Oportunidades m²',  icon: Scale },
+  { href: '/melhor-m2',         label: 'Oportunidades m²',  icon: Scale },
 ];
 
 export default function HomePage() {
