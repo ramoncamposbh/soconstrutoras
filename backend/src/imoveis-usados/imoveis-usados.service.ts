@@ -153,7 +153,7 @@ export class ImoveisUsadosService {
     );
     for (const m of midias) {
       const key = m.url.split('/').slice(-2).join('/');
-      await this.storage.deleteFile(key).catch(() => {});
+      await this.storage.deletar(key);
     }
     await this.pool.query('DELETE FROM imoveis_usados WHERE id = $1', [id]);
     return { ok: true };
@@ -164,7 +164,7 @@ export class ImoveisUsadosService {
   async uploadFoto(userId: string, id: string, file: Express.Multer.File) {
     const cid = await this.getConstrutoraId(userId);
     await this.verificarPermissao(id, cid);
-    const url = await this.storage.uploadFile(
+    const url = await this.storage.uploadBuffer(
       `imoveis-usados/${id}/${Date.now()}-${file.originalname}`,
       file.buffer,
       file.mimetype,
@@ -188,7 +188,7 @@ export class ImoveisUsadosService {
     );
     if (!m || m.construtora_id !== cid) throw new ForbiddenException('Sem permissão.');
     const key = m.url.split('/').slice(-2).join('/');
-    await this.storage.deleteFile(key).catch(() => {});
+    await this.storage.deletar(key);
     await this.pool.query('DELETE FROM imovel_usado_midias WHERE id = $1', [midiaId]);
     return { ok: true };
   }
