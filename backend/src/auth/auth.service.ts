@@ -186,7 +186,7 @@ export class AuthService implements OnModuleInit {
       const p: any = await res.json();
       console.log('[Google] tokeninfo ok — sub:', p.sub, 'email:', p.email, 'aud:', p.aud);
 
-      const clientId = process.env.GOOGLE_CLIENT_ID;
+      const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
       if (clientId && p.aud !== clientId) {
         console.error('[Google] aud mismatch — esperado:', clientId, 'recebido:', p.aud);
         throw new UnauthorizedException('Token Google não autorizado para esta aplicação.');
