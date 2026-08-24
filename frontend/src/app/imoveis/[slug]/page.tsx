@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import FormularioLead from '@/components/empreendimentos/FormularioLead';
 import SecaoLocalizacao from '@/components/mapa/SecaoLocalizacao';
-import SecaoUnidades from '@/components/unidades/SecaoUnidades';
+import SecaoUnidadesGated from '@/components/unidades/SecaoUnidadesGated';
 import GaleriaEmpreendimento from '@/components/empreendimentos/GaleriaEmpreendimento';
 import { MapPin, BedDouble, Car, Maximize2, ArrowRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
@@ -151,7 +151,7 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
             {/* Botao de unidades */}
             {unidades.length > 0 && (
               <div className="border-t border-gray-100 pt-4">
-                <SecaoUnidades unidades={unidades} nomeEmpreendimento={emp.nome} />
+                <SecaoUnidadesGated unidades={unidades} nomeEmpreendimento={emp.nome} />
               </div>
             )}
 
