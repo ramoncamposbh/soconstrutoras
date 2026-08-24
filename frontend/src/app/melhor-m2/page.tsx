@@ -36,11 +36,14 @@ const TIPOS = [
 ];
 
 function formatCurrency(v: number) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+  const n = Number(v);
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number.isFinite(n) ? n : 0);
 }
 
 function formatM2(v: number) {
-  return `${v.toFixed(1).replace('.', ',')} m²`;
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '—';
+  return `${n.toFixed(1).replace('.', ',')} m²`;
 }
 
 function BadgeM2({ valor }: { valor: number }) {
