@@ -5,9 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
 import {
-  LogIn, LayoutDashboard, Bell, Heart, UserPlus, Handshake,
-  Menu, X, Home, Handshake as HandshakeIcon, Star, Calculator, Ruler,
+  LogIn, LayoutDashboard, Bell, Heart, UserPlus,
+  Menu, X, Home, Handshake, Star, Calculator, Ruler,
 } from 'lucide-react';
+
+const HandshakeIcon = Handshake;
 
 const MENU_LINKS = [
   { href: '/',            label: 'Lançamentos',       icon: Home },
