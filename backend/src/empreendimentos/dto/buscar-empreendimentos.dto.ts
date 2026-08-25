@@ -39,4 +39,8 @@ export class BuscarEmpreendimentosDto {
   // Bairros separados por vírgula para filtro multi-seleção
   @IsOptional() @IsString()
   bairros?: string;
+
+  // Filtrar apenas lançamentos dos últimos 5 meses
+  @IsOptional()
+  lancamentos?: boolean | string;
 }

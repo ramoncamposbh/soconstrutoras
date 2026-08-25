@@ -5,14 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
 import {
-  LogIn, LayoutDashboard, Bell, Heart, UserPlus,
-  Menu, X, Home, Handshake, Star, Calculator, Ruler,
+  LogIn, LayoutDashboard, Bell, Heart,
+  Menu, X, Home, Handshake, Calculator, Ruler, Rocket,
 } from 'lucide-react';
 
 const HandshakeIcon = Handshake;
 
 const MENU_LINKS = [
-  { href: '/',            label: 'Lançamentos',       icon: Home },
+  { href: '/lancamentos', label: 'Lançamentos',       icon: Rocket },
   { href: '/repasse',     label: 'Repasse',           icon: Home },
   { href: '/parceiros',   label: 'Parceiros',         icon: HandshakeIcon },
   { href: '/favoritos',   label: 'Favoritos',         icon: Heart },
@@ -152,8 +152,9 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-5">
-          <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
-            Imóveis
+          <Link href="/lancamentos" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
+            <Rocket className="w-4 h-4" />
+            Lançamentos
           </Link>
           <Link href="/repasse" className="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1.5">
             <Home className="w-4 h-4" />

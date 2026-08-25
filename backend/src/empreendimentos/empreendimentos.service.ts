@@ -110,6 +110,9 @@ export class EmpreendimentosService {
       params.push(`%${filtros.busca.replace(/-/g, '')}%`);
       i++;
     }
+    if (filtros.lancamentos === true || filtros.lancamentos === 'true') {
+      conditions.push(`e.publicado_em >= NOW() - INTERVAL '5 months'`);
+    }
 
     const where = conditions.join(' AND ');
     const limit  = Math.min(filtros.limite ?? 500, 1000);
