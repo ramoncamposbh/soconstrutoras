@@ -13,7 +13,7 @@ interface FormData { email: string; password: string; }
 
 const G  = '#0E8F6E';
 const GA = '#22D497';
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '789254389023-n278go2jmciusvfdore7fu8ujojqjdb.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '789254389023-5uf41hoogudo6bihdio669kj449fsg14.apps.googleusercontent.com';
 
 function getRedirect(role?: string) {
   if (role === 'cliente') return '/';
