@@ -123,8 +123,7 @@ export default function Header() {
     <header style={{ background: BG, borderBottom: `1px solid ${BORDER}`, position: 'sticky', top: 0, zIndex: 50 }}>
 
       {/* ── Mobile ─────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', height: 56, padding: '0 14px', position: 'relative' }}
-        className="md:hidden">
+      <div className="flex md:hidden" style={{ alignItems: 'center', height: 56, padding: '0 14px', position: 'relative' }}>
 
         {/* Hambúrguer esquerda */}
         <div ref={menuRef} style={{ position: 'relative' }}>
@@ -186,8 +185,7 @@ export default function Header() {
       </div>
 
       {/* ── Desktop ────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', height: 62, padding: '0 24px', gap: 16 }}
-        className="hidden md:flex">
+      <div className="hidden md:flex" style={{ alignItems: 'center', height: 62, padding: '0 24px', gap: 16 }}>
 
         {/* Logo ESQUERDA */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none' }}>
