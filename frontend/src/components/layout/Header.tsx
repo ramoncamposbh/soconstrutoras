@@ -16,7 +16,7 @@ const NAV_LINKS = [
   { href: '/parceiros',   label: 'Parceiros',   icon: Handshake },
   { href: '/favoritos',   label: 'Favoritos',   icon: Heart },
   { href: '/simuladores', label: 'Simuladores', icon: Calculator },
-  { href: '/melhor-m2',   label: 'Melhor M²',  icon: Ruler },
+  { href: '/melhor-m2',   label: 'Oportunidade m²',  icon: Ruler },
 ];
 
 const BG     = '#0B1D2A';

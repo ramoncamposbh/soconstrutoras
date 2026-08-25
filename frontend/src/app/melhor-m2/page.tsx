@@ -102,7 +102,7 @@ export default function MelhorM2Page() {
           <Ruler className="w-6 h-6" style={{ color: '#4ade80' }} />
         </div>
         <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>
-          MELHOR M²
+          OPORTUNIDADE POR M²
         </h1>
         <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
           AS MELHORES OPÇÕES POR VALOR DE M²
@@ -203,64 +203,69 @@ export default function MelhorM2Page() {
                 >
                   <div style={{
                     background: '#fff', borderRadius: '1rem',
-                    padding: '1.25rem 1.5rem',
-                    display: 'flex', alignItems: 'center', gap: '1rem',
+                    padding: '0.875rem 1rem',
                     boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
                     border: idx === 0 ? '2px solid #22D497' : '1.5px solid #f1f5f9',
-                    transition: 'box-shadow 0.2s',
                     cursor: 'pointer',
                   }}>
-                    {/* Ranking */}
-                    <div style={{
-                      width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                      background: idx === 0 ? 'linear-gradient(135deg,#22D497,#0E8F6E)' : '#f1f5f9',
-                      color: idx === 0 ? '#fff' : '#64748b',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: 800, fontSize: '0.9rem',
-                    }}>
-                      {idx + 1}
+                    {/* Linha 1: ranking + foto + nome + badge */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                      {/* Ranking */}
+                      <div style={{
+                        width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+                        background: idx === 0 ? 'linear-gradient(135deg,#22D497,#0E8F6E)' : '#f1f5f9',
+                        color: idx === 0 ? '#fff' : '#64748b',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontWeight: 800, fontSize: '0.8rem',
+                      }}>
+                        {idx + 1}
+                      </div>
+
+                      {/* Imagem */}
+                      {r.imagem ? (
+                        <img src={r.imagem} alt={r.empreendimento_nome}
+                          style={{ width: 60, height: 48, objectFit: 'cover', borderRadius: '0.5rem', flexShrink: 0 }} />
+                      ) : (
+                        <div style={{
+                          width: 60, height: 48, borderRadius: '0.5rem', flexShrink: 0,
+                          background: '#f1f5f9', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', fontSize: '1.25rem',
+                        }}>🏢</div>
+                      )}
+
+                      {/* Nome + localização */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {r.empreendimento_nome}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {r.construtora_nome} · {r.bairro}{r.bairro && r.cidade ? ', ' : ''}{r.cidade}
+                        </div>
+                        {idx === 0 && (
+                          <span style={{ fontSize: '0.68rem', color: '#22D497', fontWeight: 600 }}>✦ Melhor custo-benefício</span>
+                        )}
+                      </div>
+
+                      {/* Badge m² */}
+                      <div style={{ flexShrink: 0 }}>
+                        <BadgeM2 valor={r.preco_m2} />
+                      </div>
                     </div>
 
-                    {/* Imagem */}
-                    {r.imagem ? (
-                      <img
-                        src={r.imagem}
-                        alt={r.empreendimento_nome}
-                        style={{ width: 72, height: 56, objectFit: 'cover', borderRadius: '0.5rem', flexShrink: 0 }}
-                      />
-                    ) : (
-                      <div style={{
-                        width: 72, height: 56, borderRadius: '0.5rem', flexShrink: 0,
-                        background: '#f1f5f9', display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', color: '#cbd5e1', fontSize: '1.5rem',
-                      }}>🏢</div>
-                    )}
-
-                    {/* Info principal */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {r.empreendimento_nome}
-                        {idx === 0 && <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#22D497', fontWeight: 600 }}>✦ Melhor custo-benefício</span>}
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.15rem' }}>
-                        {r.construtora_nome} · {r.bairro}{r.bairro && r.cidade ? ', ' : ''}{r.cidade}
-                      </div>
-                      <div style={{ display: 'flex', gap: '1rem', marginTop: '0.4rem', fontSize: '0.78rem', color: '#94a3b8', flexWrap: 'wrap' }}>
-                        <span>📐 {formatM2(r.metragem_privativa)} interno{r.area_externa > 0 ? ` + ${formatM2(r.area_externa)} externo` : ''}</span>
-                        <span>📊 Área útil: {formatM2(r.area_util)}</span>
+                    {/* Linha 2: specs + preço */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      marginTop: '0.5rem', paddingTop: '0.5rem',
+                      borderTop: '1px solid #f1f5f9', gap: '0.5rem', flexWrap: 'wrap',
+                    }}>
+                      <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap', fontSize: '0.72rem', color: '#94a3b8' }}>
+                        <span>📐 {formatM2(r.metragem_privativa)}{r.area_externa > 0 ? ` + ${formatM2(r.area_externa)}` : ''}</span>
                         {r.quartos > 0 && <span>🛏 {r.quartos} qto{r.quartos > 1 ? 's' : ''}</span>}
                         {r.vagas > 0 && <span>🚗 {r.vagas} vaga{r.vagas > 1 ? 's' : ''}</span>}
-                        <span style={{ textTransform: 'capitalize' }}>{r.unidade_tipo}</span>
+                        <span style={{ textTransform: 'capitalize', color: '#cbd5e1' }}>{r.unidade_tipo}</span>
                       </div>
-                    </div>
-
-                    {/* Preço e m² */}
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b' }}>
+                      <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e293b', flexShrink: 0 }}>
                         {formatCurrency(r.preco)}
-                      </div>
-                      <div style={{ marginTop: '0.35rem' }}>
-                        <BadgeM2 valor={r.preco_m2} />
                       </div>
                     </div>
                   </div>
