@@ -187,18 +187,19 @@ export default function Header() {
       {/* ── Desktop ────────────────────────────────────── */}
       <div className="hidden md:flex" style={{ alignItems: 'center', height: 62, padding: '0 24px', gap: 16 }}>
 
-        {/* Logo ESQUERDA */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none' }}>
-          <div style={{ height: 50, overflow: 'hidden' }}>
+        {/* Logo ESQUERDA — ícone recortado + texto branco */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, textDecoration: 'none' }}>
+          <div style={{ width: 44, height: 48, overflow: 'hidden', flexShrink: 0 }}>
             <Image
               src="/logo-faicoh.png"
               alt="Faicoh"
-              width={320}
-              height={172}
-              style={{ height: 95, width: 'auto', marginTop: -16 }}
+              width={186}
+              height={100}
+              style={{ width: 186, height: 100, objectFit: 'cover', objectPosition: 'left center', marginTop: -20 }}
               priority
             />
           </div>
+          <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: 2, color: '#fff' }}>FAICOH</span>
         </Link>
 
         {/* Nav links */}

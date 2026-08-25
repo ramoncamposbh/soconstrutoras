@@ -8,6 +8,7 @@ import {
   User, DollarSign, Briefcase, Phone,
 } from 'lucide-react';
 import Link from 'next/link';
+import Header from '@/components/layout/Header';
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 interface Banco {
@@ -494,28 +495,14 @@ export default function SimuladoresPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="text-white py-8 px-4" style={{ background: '#04241D' }}>
-        <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-semibold hover:opacity-80" style={{ color: '#4ade80' }}>
-              <ArrowLeft className="w-4 h-4" /> Voltar ao início
-            </Link>
-            <Link href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg"
-              style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
-              <Home className="w-3.5 h-3.5" /> Tela Inicial
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl p-2.5" style={{ background: 'rgba(74,222,128,0.15)' }}>
-              <Calculator className="w-6 h-6" style={{ color: '#4ade80' }} />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Simulador Imobiliário</h1>
-              <p className="text-sm" style={{ color: '#86efac' }}>Descubra seu poder de compra em segundos</p>
-            </div>
-          </div>
+      <Header />
+      {/* Hero padrão */}
+      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <Calculator className="w-6 h-6" style={{ color: '#4ade80' }} />
         </div>
+        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
+        <p style={{ color: '#4ade80', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>DESCUBRA SEU PODER DE COMPRA EM SEGUNDOS</p>
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6">
