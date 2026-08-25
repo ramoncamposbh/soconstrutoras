@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/layout/Header';
-import { Loader2, ExternalLink, Tag } from 'lucide-react';
+import { Loader2, ExternalLink, Tag, Handshake } from 'lucide-react';
 import api from '@/lib/api';
 
 interface Loja {
@@ -59,17 +59,15 @@ export default function ParceirosPage() {
     <>
       <Header />
       {/* Hero */}
-      <div style={{
-        background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
-        padding: '3rem 1.5rem 2.5rem',
-        textAlign: 'center',
-      }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🤝</div>
-        <h1 style={{ color: '#fff', fontSize: '2rem', fontWeight: 800, margin: 0 }}>
-          Parceiros Exclusivos
+      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <Handshake className="w-6 h-6" style={{ color: '#4ade80' }} />
+        </div>
+        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>
+          PARCEIROS
         </h1>
-        <p style={{ color: '#22D497', marginTop: '0.5rem', fontSize: '1rem' }}>
-          Descontos e benefícios especiais para quem compra com a SóConstrutoras
+        <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+          OS MELHORES FORNECEDORES E EMPRESAS DO MERCADO
         </p>
       </div>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

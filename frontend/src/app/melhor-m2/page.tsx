@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { empreendimentosApi } from '@/lib/api';
+import { Ruler } from 'lucide-react';
 
 interface ResultadoM2 {
   empreendimento_id: string;
@@ -96,20 +97,15 @@ export default function MelhorM2Page() {
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Header />
       {/* Hero */}
-      <div style={{
-        background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
-        padding: '3rem 1.5rem 2.5rem',
-        textAlign: 'center',
-      }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📐</div>
-        <h1 style={{ color: '#fff', fontSize: '2rem', fontWeight: 800, margin: 0 }}>
-          Melhor m²
+      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <Ruler className="w-6 h-6" style={{ color: '#4ade80' }} />
+        </div>
+        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>
+          MELHOR M²
         </h1>
-        <p style={{ color: '#22D497', marginTop: '0.5rem', fontSize: '1rem' }}>
-          Compare empreendimentos pelo custo real por metro quadrado útil
-        </p>
-        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-          Área útil = área interna + área externa × 50%
+        <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+          AS MELHORES OPÇÕES POR VALOR DE M²
         </p>
       </div>
 

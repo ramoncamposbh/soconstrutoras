@@ -84,7 +84,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <header style={{ background: '#0B1D2A', borderBottom: '1px solid #1A3547' }} className="sticky top-0 z-50">
 
       {/* ── Mobile ───────────────────────────────────── */}
       <div className="flex sm:hidden items-center justify-between h-[62px] px-4 relative">
@@ -93,14 +93,16 @@ export default function Header() {
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen(o => !o)}
-            className="flex items-center justify-center w-10 h-10 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
+            style={{ color: 'rgba(255,255,255,0.8)' }}
+            className="flex items-center justify-center w-10 h-10 rounded-xl transition-colors"
             aria-label="Menu"
           >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
           {menuOpen && (
-            <div className="absolute left-0 top-12 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
+            <div className="absolute left-0 top-12 w-56 rounded-2xl shadow-xl py-2 z-50"
+              style={{ background: '#0F2535', border: '1px solid #1A3547' }}>
               {MENU_LINKS.map(({ href, label, icon: Icon }) => (
                 <Link
                   key={label}
@@ -108,12 +110,12 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-3 text-sm transition-colors"
                   style={{
-                    color: pathname === href ? '#0E8F6E' : '#374151',
-                    background: pathname === href ? 'rgba(14,143,110,0.06)' : 'transparent',
+                    color: pathname === href ? '#4ade80' : 'rgba(255,255,255,0.75)',
+                    background: pathname === href ? 'rgba(74,222,128,0.08)' : 'transparent',
                     fontWeight: pathname === href ? 600 : 400,
                   }}
                 >
-                  <Icon className="w-4 h-4 shrink-0" style={{ color: pathname === href ? '#0E8F6E' : '#9CA3AF' }} />
+                  <Icon className="w-4 h-4 shrink-0" style={{ color: pathname === href ? '#4ade80' : 'rgba(255,255,255,0.4)' }} />
                   {label}
                 </Link>
               ))}
@@ -140,10 +142,29 @@ export default function Header() {
       </div>
 
       {/* ── Desktop ──────────────────────────────────── */}
-      <div className="hidden sm:flex max-w-7xl mx-auto px-6 lg:px-8 items-center justify-between h-[72px]">
+      <div className="hidden sm:flex max-w-7xl mx-auto px-6 lg:px-8 items-center h-[72px] relative">
 
-        {/* Logo desktop */}
-        <Link href="/" className="flex items-center shrink-0">
+        {/* Nav esquerda */}
+        <nav className="flex items-center gap-1 flex-1">
+          {MENU_LINKS.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors"
+              style={{
+                color: pathname === href ? '#4ade80' : 'rgba(255,255,255,0.7)',
+                background: pathname === href ? 'rgba(74,222,128,0.08)' : 'transparent',
+                fontWeight: pathname === href ? 600 : 400,
+              }}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Logo centralizada absoluta */}
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2">
           <div style={{ height: '54px', overflow: 'hidden' }}>
             <Image
               src="/logo-faicoh.png"
@@ -156,24 +177,8 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-1">
-          {MENU_LINKS.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors"
-              style={{
-                color: pathname === href ? '#0E8F6E' : '#6B7280',
-                background: pathname === href ? 'rgba(14,143,110,0.07)' : 'transparent',
-                fontWeight: pathname === href ? 600 : 400,
-              }}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </Link>
-          ))}
-          <div className="ml-2">{renderNavAction()}</div>
-        </nav>
+        {/* Ação direita */}
+        <div className="flex-1 flex justify-end">{renderNavAction()}</div>
       </div>
     </header>
   );

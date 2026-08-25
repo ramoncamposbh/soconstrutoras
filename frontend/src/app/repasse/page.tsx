@@ -58,34 +58,30 @@ export default function RepassePage() {
       <Header />
 
       {/* Hero */}
-      <div style={{
-        background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
-        padding: '3rem 1.5rem 2.5rem',
-        textAlign: 'center',
-      }}>
-        <div style={{ maxWidth: 680, margin: '0 auto' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🏠</div>
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#fff', margin: 0 }}>
-            Imóveis de Repasse
-          </h1>
-          <p style={{ color: '#22D497', marginTop: '0.5rem', fontSize: 16, marginBottom: 28 }}>
-            Imóveis novos disponíveis para transferência direta com as construtoras
-          </p>
-          {/* Busca */}
-          <div style={{ position: 'relative', maxWidth: 480, margin: '0 auto' }}>
-            <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-              placeholder="Buscar por nome, bairro ou cidade..."
-              style={{
-                width: '100%', boxSizing: 'border-box',
-                background: '#fff', border: 'none', borderRadius: 12,
-                padding: '13px 14px 13px 40px', fontSize: 14, color: '#111',
-                outline: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-              }}
-            />
-          </div>
+      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <Home size={24} color="#4ade80" />
+        </div>
+        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>
+          REPASSES
+        </h1>
+        <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.875rem', margin: '0.25rem 0 1rem' }}>
+          OS IMÓVEIS DE REPASSES DAS CONSTRUTORAS.
+        </p>
+        {/* Busca */}
+        <div style={{ position: 'relative', maxWidth: 480, margin: '0 auto' }}>
+          <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+          <input
+            value={busca}
+            onChange={e => setBusca(e.target.value)}
+            placeholder="Buscar por nome, bairro ou cidade..."
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              background: '#fff', border: 'none', borderRadius: 12,
+              padding: '13px 14px 13px 40px', fontSize: 14, color: '#111',
+              outline: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            }}
+          />
         </div>
       </div>
 
