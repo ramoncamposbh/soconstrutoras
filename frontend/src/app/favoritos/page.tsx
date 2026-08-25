@@ -22,21 +22,18 @@ export default function FavoritosPage() {
   return (
     <main style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       <Header />
-      {/* Hero */}
+      {/* Faixa de título */}
       <div style={{
-        background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
-        padding: '3rem 1.5rem 2.5rem',
-        textAlign: 'center',
+        background: '#fff', borderBottom: '1px solid #E2E8F0',
+        padding: '0.65rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem',
       }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>❤️</div>
-        <h1 style={{ color: '#fff', fontSize: '2rem', fontWeight: 800, margin: 0 }}>
-          Meus Favoritos
-        </h1>
-        <p style={{ color: '#22D497', marginTop: '0.5rem', fontSize: '1rem' }}>
+        <span style={{ fontSize: '1.1rem' }}>❤️</span>
+        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0D2B22' }}>Meus Favoritos</span>
+        <span style={{ fontSize: '0.8rem', color: '#64748b', marginLeft: 'auto' }}>
           {favoritos.length === 0
             ? 'Nenhum imóvel salvo ainda'
             : `${favoritos.length} imóvel${favoritos.length > 1 ? 'is' : ''} salvo${favoritos.length > 1 ? 's' : ''}`}
-        </p>
+        </span>
       </div>
 
       {/* Content */}
