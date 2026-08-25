@@ -59,26 +59,16 @@ export default function RepassePage() {
 
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #03201A 0%, #0a4a38 100%)',
-        padding: '48px 24px 40px',
+        background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
+        padding: '3rem 1.5rem 2.5rem',
         textAlign: 'center',
       }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'rgba(34,212,151,0.15)', borderRadius: 20,
-            padding: '6px 16px', marginBottom: 16,
-          }}>
-            <Home size={14} color={GA} />
-            <span style={{ fontSize: 13, color: GA, fontWeight: 600 }}>Imóveis de Repasse</span>
-          </div>
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#fff', marginBottom: 12 }}>
-            Oportunidades de{' '}
-            <span style={{ background: `linear-gradient(90deg, ${G}, ${GA})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              repasse
-            </span>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🏠</div>
+          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#fff', margin: 0 }}>
+            Imóveis de Repasse
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, marginBottom: 28 }}>
+          <p style={{ color: '#22D497', marginTop: '0.5rem', fontSize: 16, marginBottom: 28 }}>
             Imóveis novos disponíveis para transferência direta com as construtoras
           </p>
 

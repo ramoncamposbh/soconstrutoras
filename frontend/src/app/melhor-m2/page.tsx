@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Header from '@/components/layout/Header';
 import { empreendimentosApi } from '@/lib/api';
 
 interface ResultadoM2 {
@@ -93,7 +94,8 @@ export default function MelhorM2Page() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      {/* Header */}
+      <Header />
+      {/* Hero */}
       <div style={{
         background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
         padding: '3rem 1.5rem 2.5rem',

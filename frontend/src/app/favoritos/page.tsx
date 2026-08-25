@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import Header from '@/components/layout/Header';
 import { Heart, MapPin, BedDouble, Car, Maximize2, Trash2, ChevronRight } from 'lucide-react';
 import { useFavoritos, removerFavorito } from '@/lib/favoritos';
 import { formatCurrency } from '@/lib/utils';
@@ -20,41 +21,22 @@ export default function FavoritosPage() {
 
   return (
     <main style={{ minHeight: '100vh', background: '#F9FAFB' }}>
-      {/* Header */}
+      <Header />
+      {/* Hero */}
       <div style={{
-        background: '#fff',
-        borderBottom: '1px solid #E5E7EB',
-        padding: '20px 0',
+        background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
+        padding: '3rem 1.5rem 2.5rem',
+        textAlign: 'center',
       }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/" style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14 }}>
-              Início
-            </Link>
-            <span style={{ color: '#D1D5DB' }}>/</span>
-            <span style={{ fontSize: 14, color: '#111827', fontWeight: 600 }}>Meus Favoritos</span>
-          </div>
-
-          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 12,
-              background: '#FEF2F2',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Heart size={20} fill="#EF4444" color="#EF4444" />
-            </div>
-            <div>
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#111827', margin: 0 }}>
-                Meus Favoritos
-              </h1>
-              <p style={{ fontSize: 13, color: '#6B7280', margin: 0 }}>
-                {favoritos.length === 0
-                  ? 'Nenhum imóvel salvo ainda'
-                  : `${favoritos.length} imóvel${favoritos.length > 1 ? 'is' : ''} salvo${favoritos.length > 1 ? 's' : ''}`}
-              </p>
-            </div>
-          </div>
-        </div>
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>❤️</div>
+        <h1 style={{ color: '#fff', fontSize: '2rem', fontWeight: 800, margin: 0 }}>
+          Meus Favoritos
+        </h1>
+        <p style={{ color: '#22D497', marginTop: '0.5rem', fontSize: '1rem' }}>
+          {favoritos.length === 0
+            ? 'Nenhum imóvel salvo ainda'
+            : `${favoritos.length} imóvel${favoritos.length > 1 ? 'is' : ''} salvo${favoritos.length > 1 ? 's' : ''}`}
+        </p>
       </div>
 
       {/* Content */}

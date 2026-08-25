@@ -58,16 +58,21 @@ export default function ParceirosPage() {
   return (
     <>
       <Header />
+      {/* Hero */}
+      <div style={{
+        background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
+        padding: '3rem 1.5rem 2.5rem',
+        textAlign: 'center',
+      }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🤝</div>
+        <h1 style={{ color: '#fff', fontSize: '2rem', fontWeight: 800, margin: 0 }}>
+          Parceiros Exclusivos
+        </h1>
+        <p style={{ color: '#22D497', marginTop: '0.5rem', fontSize: '1rem' }}>
+          Descontos e benefícios especiais para quem compra com a SóConstrutoras
+        </p>
+      </div>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Hero */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-            Parceiros <span className="text-primary-600">Exclusivos</span>
-          </h1>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            Descontos e benefícios especiais para quem compra com a SóConstrutoras.
-          </p>
-        </div>
 
         {categorias.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
