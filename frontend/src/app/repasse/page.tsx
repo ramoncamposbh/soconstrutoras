@@ -57,33 +57,35 @@ export default function RepassePage() {
     <div style={{ minHeight: '100vh', background: '#F8FAF9' }}>
       <Header />
 
-      {/* Faixa de título */}
+      {/* Hero */}
       <div style={{
-        background: '#fff', borderBottom: '1px solid #E2E8F0',
-        padding: '0.65rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem',
+        background: 'linear-gradient(135deg, #04241D 0%, #0D2B22 60%, #0E8F6E 100%)',
+        padding: '3rem 1.5rem 2.5rem',
+        textAlign: 'center',
       }}>
-        <span style={{ fontSize: '1.1rem' }}>🏠</span>
-        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0D2B22' }}>Imóveis de Repasse</span>
-        <span style={{ fontSize: '0.8rem', color: '#64748b', marginLeft: 'auto' }}>
-          Imóveis novos disponíveis para transferência direta com as construtoras
-        </span>
-      </div>
-
-      {/* Busca */}
-      <div style={{ background: '#F8FAF9', borderBottom: '1px solid #E2E8F0', padding: '1rem 1.5rem' }}>
-        <div style={{ position: 'relative', maxWidth: 480, margin: '0 auto' }}>
-          <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
-          <input
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-            placeholder="Buscar por nome, bairro ou cidade..."
-            style={{
-              width: '100%', boxSizing: 'border-box',
-              background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12,
-              padding: '12px 14px 12px 40px', fontSize: 14, color: '#111',
-              outline: 'none',
-            }}
-          />
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🏠</div>
+          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#fff', margin: 0 }}>
+            Imóveis de Repasse
+          </h1>
+          <p style={{ color: '#22D497', marginTop: '0.5rem', fontSize: 16, marginBottom: 28 }}>
+            Imóveis novos disponíveis para transferência direta com as construtoras
+          </p>
+          {/* Busca */}
+          <div style={{ position: 'relative', maxWidth: 480, margin: '0 auto' }}>
+            <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+            <input
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Buscar por nome, bairro ou cidade..."
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                background: '#fff', border: 'none', borderRadius: 12,
+                padding: '13px 14px 13px 40px', fontSize: 14, color: '#111',
+                outline: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+              }}
+            />
+          </div>
         </div>
       </div>
 
