@@ -224,31 +224,13 @@ function PreviewScreen({
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
-      {/* Hero */}
-      <div className="text-white py-8 px-4" style={{ background: '#04241D' }}>
-        <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <button onClick={() => onEditar(3)}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold hover:opacity-80 transition-opacity"
-              style={{ color: '#4ade80' }}>
-              <ArrowLeft className="w-4 h-4" /> Voltar
-            </button>
-            <Link href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg"
-              style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
-              <Home className="w-3.5 h-3.5" /> Tela Inicial
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl p-2.5" style={{ background: 'rgba(74,222,128,0.15)' }}>
-              <Sparkles className="w-6 h-6" style={{ color: '#4ade80' }} />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Confirme seus dados</h1>
-              <p className="text-sm" style={{ color: '#86efac' }}>Revise antes de calcular</p>
-            </div>
-          </div>
+      <Header />
+      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <Calculator className="w-6 h-6" style={{ color: '#4ade80' }} />
         </div>
+        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
+        <p style={{ color: '#4ade80', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>REVISE SEUS DADOS ANTES DE CALCULAR</p>
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-5 space-y-3">
@@ -722,37 +704,34 @@ function ResultadoView({ resultado, form, onVoltar, loading }: {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
-      <div className="text-white pt-6 pb-14 px-4" style={{ background: '#04241D' }}>
-        <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-5">
-            <button onClick={onVoltar}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold hover:opacity-80" style={{ color: '#4ade80' }}>
-              <ArrowLeft className="w-4 h-4" /> Corrigir informações
-            </button>
-            <Link href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg"
-              style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
-              <Home className="w-3.5 h-3.5" /> Tela Inicial
-            </Link>
+      <Header />
+      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <Calculator className="w-6 h-6" style={{ color: '#4ade80' }} />
+        </div>
+        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
+        <p style={{ color: '#4ade80', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>SEU SCORE IMOBILIÁRIO</p>
+        <div className="relative inline-block mt-4">
+          <svg width="180" height="100" viewBox="0 0 180 100">
+            <path d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="14" strokeLinecap="round" />
+            <path d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="white" strokeWidth="14" strokeLinecap="round"
+              strokeDasharray={`${arc} 251`} style={{ transition: 'stroke-dasharray 1s ease' }} />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
+            <span className={`text-5xl font-black ${scoreBg}`}>{sc}</span>
+            <span className="text-sm font-bold text-primary-100">{scoreLabel}</span>
           </div>
-          <div className="text-center">
-            <p className="text-primary-200 text-sm mb-1">Seu Score Imobiliário</p>
-            <div className="relative inline-block">
-              <svg width="180" height="100" viewBox="0 0 180 100">
-                <path d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="14" strokeLinecap="round" />
-                <path d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="white" strokeWidth="14" strokeLinecap="round"
-                  strokeDasharray={`${arc} 251`} style={{ transition: 'stroke-dasharray 1s ease' }} />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
-                <span className={`text-5xl font-black ${scoreBg}`}>{sc}</span>
-                <span className="text-sm font-bold text-primary-100">{scoreLabel}</span>
-              </div>
-            </div>
-          </div>
+        </div>
+        <div className="flex items-center justify-center gap-3 mt-4">
+          <button onClick={onVoltar}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold"
+            style={{ color: '#4ade80', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)', padding: '6px 14px', borderRadius: 8 }}>
+            <ArrowLeft className="w-4 h-4" /> Corrigir informações
+          </button>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 -mt-8 space-y-4">
+      <div className="max-w-lg mx-auto px-4 mt-4 space-y-4">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-5 py-3 flex items-center gap-2" style={{ background: '#04241D' }}>
             <TrendingUp className="w-4 h-4" style={{ color: '#4ade80' }} />
