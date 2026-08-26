@@ -35,14 +35,16 @@ export default function BotaoPrevisaoEntrega({ previsaoEntrega, slug }: Props) {
   return (
     <button
       onClick={() => router.push(`/auth/login?redirect=/imoveis/${slug}`)}
-      className="flex items-center gap-2 text-sm"
-      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        background: '#0E8F6E', color: '#fff',
+        border: 'none', borderRadius: 8,
+        padding: '5px 12px', fontSize: 13, fontWeight: 600,
+        cursor: 'pointer', whiteSpace: 'nowrap',
+      }}
     >
-      <Lock className="w-4 h-4" style={{ color: '#94a3b8' }} />
-      <span style={{ color: '#94a3b8' }}>
-        Previsão de entrega:{' '}
-        <span style={{ color: '#0E8F6E', fontWeight: 600 }}>fazer login</span>
-      </span>
+      <Lock size={13} />
+      Previsão de entrega
     </button>
   );
 }
