@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Lock, CalendarCheck } from 'lucide-react';
 
 interface Props {
-  previsaoEntrega: string;
+  previsaoEntrega: string | null;
   slug: string;
 }
 
@@ -27,7 +27,9 @@ export default function BotaoPrevisaoEntrega({ previsaoEntrega, slug }: Props) {
     return (
       <div className="flex items-center gap-2 text-sm">
         <CalendarCheck className="w-5 h-5 text-primary-500" />
-        <span className="font-medium">Entrega: {formatarData(previsaoEntrega)}</span>
+        <span className="font-medium">
+          Entrega: {previsaoEntrega ? formatarData(previsaoEntrega) : 'não informada'}
+        </span>
       </div>
     );
   }

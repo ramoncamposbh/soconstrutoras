@@ -147,9 +147,7 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
                   <span className="font-medium">{emp.vagas} vaga{emp.vagas !== 1 ? 's' : ''}</span>
                 </div>
               )}
-              {emp.previsao_entrega && (
-                <BotaoPrevisaoEntrega previsaoEntrega={emp.previsao_entrega} slug={emp.slug} />
-              )}
+              <BotaoPrevisaoEntrega previsaoEntrega={emp.previsao_entrega ?? null} slug={emp.slug} />
             </div>
 
             {/* Botao de unidades */}
