@@ -43,4 +43,11 @@ export class BuscarEmpreendimentosDto {
   // Filtrar apenas lançamentos dos últimos 5 meses
   @IsOptional()
   lancamentos?: boolean | string;
+
+  // Filtro por previsão de entrega (requer login no frontend)
+  @IsOptional() @IsString()
+  entrega_de?: string;
+
+  @IsOptional() @IsString()
+  entrega_ate?: string;
 }

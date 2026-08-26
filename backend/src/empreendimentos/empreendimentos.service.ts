@@ -28,15 +28,15 @@ export class EmpreendimentosService {
          (construtora_id, nome, descricao, tipo, status, endereco, bairro,
           cidade, estado, cep, latitude, longitude,
           preco_min, preco_max, area_min, area_max,
-          quartos_min, quartos_max, vagas, slug)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+          quartos_min, quartos_max, vagas, previsao_entrega, slug)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
        RETURNING *`,
       [
         construtoraId, dto.nome, dto.descricao, dto.tipo, dto.status ?? 'lancamento',
         dto.endereco, dto.bairro, dto.cidade, dto.estado, dto.cep,
         dto.latitude ?? null, dto.longitude ?? null,
         dto.preco_min, dto.preco_max, dto.area_min, dto.area_max,
-        dto.quartos_min, dto.quartos_max, dto.vagas, slug,
+        dto.quartos_min, dto.quartos_max, dto.vagas, dto.previsao_entrega ?? null, slug,
       ],
     );
     return emp;
@@ -113,6 +113,14 @@ export class EmpreendimentosService {
     if (filtros.lancamentos === true || filtros.lancamentos === 'true') {
       conditions.push(`e.publicado_em >= NOW() - INTERVAL '5 months'`);
     }
+    if (filtros.entrega_de) {
+      conditions.push(`e.previsao_entrega >= $${i++}`);
+      params.push(filtros.entrega_de);
+    }
+    if (filtros.entrega_ate) {
+      conditions.push(`e.previsao_entrega <= $${i++}`);
+      params.push(filtros.entrega_ate);
+    }
 
     const where = conditions.join(' AND ');
     const limit  = Math.min(filtros.limite ?? 500, 1000);
@@ -121,7 +129,7 @@ export class EmpreendimentosService {
     const { rows } = await this.pool.query(
       `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.bairro, e.cidade, e.estado,
               e.preco_min, e.preco_max, e.area_min, e.area_max,
-              e.quartos_min, e.quartos_max, e.vagas,
+              e.quartos_min, e.quartos_max, e.vagas, e.previsao_entrega,
               e.latitude, e.longitude, e.descricao,
               c.nome_fantasia AS construtora,
               (SELECT url FROM empreendimento_midias m

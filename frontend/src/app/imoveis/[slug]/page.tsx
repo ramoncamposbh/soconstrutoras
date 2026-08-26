@@ -5,6 +5,7 @@ import SecaoLocalizacao from '@/components/mapa/SecaoLocalizacao';
 import SecaoUnidadesGated from '@/components/unidades/SecaoUnidadesGated';
 import GaleriaEmpreendimento from '@/components/empreendimentos/GaleriaEmpreendimento';
 import { MapPin, BedDouble, Car, Maximize2, ArrowRight } from 'lucide-react';
+import BotaoPrevisaoEntrega from '@/components/empreendimentos/BotaoPrevisaoEntrega';
 import { formatCurrency } from '@/lib/utils';
 
 async function getEmpreendimento(slug: string) {
@@ -147,6 +148,13 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
                 </div>
               )}
             </div>
+
+            {/* Previsão de entrega — bloqueado sem login */}
+            {emp.previsao_entrega && (
+              <div className="border-t border-gray-100 pt-4">
+                <BotaoPrevisaoEntrega previsaoEntrega={emp.previsao_entrega} slug={emp.slug} />
+              </div>
+            )}
 
             {/* Botao de unidades */}
             {unidades.length > 0 && (

@@ -70,6 +70,7 @@ export default function EditarEmpreendimentoPage() {
     'latitude','longitude',
     'preco_min','preco_max','area_min','area_max',
     'quartos_min','quartos_max','vagas',
+    'previsao_entrega',
   ];
 
   const salvar = async (data: any) => {
@@ -188,6 +189,13 @@ export default function EditarEmpreendimentoPage() {
                   {STATUS_OBRA.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className="label">Previsão de entrega</label>
+              <input type="month" {...register('previsao_entrega')} className="input"
+                placeholder="Ex: 2026-12" />
+              <p className="text-xs text-gray-400 mt-1">Visível apenas para usuários logados no portal.</p>
             </div>
 
             <div>

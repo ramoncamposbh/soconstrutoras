@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import CardEmpreendimento from '@/components/empreendimentos/CardEmpreendimento';
 import { empreendimentosApi } from '@/lib/api';
@@ -85,6 +86,7 @@ const NAV_LINKS = [
 
 export default function HomePage() {
   const { user, isAuthenticated, logout } = useAuth();
+  const router = useRouter();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -217,6 +219,8 @@ export default function HomePage() {
   const [area, setArea] = useState('');
   const [precoMin, setPrecoMin] = useState('');
   const [precoMax, setPrecoMax] = useState('');
+  const [entregaDe, setEntregaDe] = useState('');
+  const [entregaAte, setEntregaAte] = useState('');
   // Cascading dropdowns
   const [estadoSel, setEstadoSel] = useState('');
   const [cidadeSel, setCidadeSel] = useState('');
@@ -665,6 +669,11 @@ export default function HomePage() {
   };
 
   const handleFiltros = () => {
+    const temFiltroEntrega = entregaDe || entregaAte;
+    if (temFiltroEntrega && !isAuthenticated) {
+      router.push('/auth/login?redirect=/');
+      return;
+    }
     buscar({
       estado: estadoSel || undefined,
       cidade: cidadeSel || cidade || undefined,
@@ -675,6 +684,8 @@ export default function HomePage() {
       area_min: area ? parseInt(area) : undefined,
       preco_min: precoMin ? parseInt(precoMin) : undefined,
       preco_max: precoMax ? parseInt(precoMax) : undefined,
+      entrega_de: entregaDe || undefined,
+      entrega_ate: entregaAte || undefined,
     });
   };
 
@@ -1180,7 +1191,25 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Linha 4: valor mín, valor máx, buscar */}
+                {/* Linha 4: previsão de entrega — requer login */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                      🔒 Entrega a partir de
+                    </label>
+                    <input type="month" value={entregaDe} onChange={e => setEntregaDe(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 14, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: entregaDe ? '#f0fdf4' : 'rgba(255,255,255,0.4)', colorScheme: 'dark' }} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Até</label>
+                    <input type="month" value={entregaAte} onChange={e => setEntregaAte(e.target.value)}
+                      className="rounded-xl outline-none w-full"
+                      style={{ fontSize: 14, padding: '11px 10px', background: '#04241D', border: '1px solid rgba(255,255,255,0.2)', color: entregaAte ? '#f0fdf4' : 'rgba(255,255,255,0.4)', colorScheme: 'dark' }} />
+                  </div>
+                </div>
+
+                {/* Linha 5: valor mín, valor máx, buscar */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Valor mín.</label>

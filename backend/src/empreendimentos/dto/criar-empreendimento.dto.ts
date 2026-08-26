@@ -81,4 +81,8 @@ export class CriarEmpreendimentoDto {
   @IsNumber()
   @Min(0)
   vagas?: number;
+
+  @IsOptional()
+  @IsString()
+  previsao_entrega?: string;
 }
