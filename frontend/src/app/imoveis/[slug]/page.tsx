@@ -123,7 +123,7 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
               </div>
             </div>
 
-            {/* Caracteristicas */}
+            {/* Caracteristicas + previsão de entrega na mesma linha */}
             <div className="flex flex-wrap gap-6 py-4 border-t border-gray-100">
               {emp.quartos_min && (
                 <div className="flex items-center gap-2 text-sm">
@@ -147,14 +147,10 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
                   <span className="font-medium">{emp.vagas} vaga{emp.vagas !== 1 ? 's' : ''}</span>
                 </div>
               )}
-            </div>
-
-            {/* Previsão de entrega — bloqueado sem login */}
-            {emp.previsao_entrega && (
-              <div className="border-t border-gray-100 pt-4">
+              {emp.previsao_entrega && (
                 <BotaoPrevisaoEntrega previsaoEntrega={emp.previsao_entrega} slug={emp.slug} />
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Botao de unidades */}
             {unidades.length > 0 && (
