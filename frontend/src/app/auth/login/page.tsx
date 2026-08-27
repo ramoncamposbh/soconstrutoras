@@ -211,23 +211,15 @@ function LoginContent() {
         <div className="flex lg:hidden" style={{ justifyContent: 'center', marginBottom: 32 }}>
           <Link href="/">
             <div style={{
-              background: '#fff',
+              background: '#0B1D2A',
               borderRadius: 14,
-              padding: '8px 16px',
+              padding: '8px 20px',
               display: 'inline-flex',
               alignItems: 'center',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
             }}>
-              <div style={{ height: 36, overflow: 'hidden' }}>
-                <Image
-                  src="/logo-faicoh.png"
-                  alt="Faicoh"
-                  width={702}
-                  height={226}
-                  style={{ display: 'block' }}
-                  priority
-                />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 34, width: 'auto' }} />
             </div>
           </Link>
         </div>
