@@ -168,16 +168,14 @@ export default function Header() {
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
           display: 'flex', alignItems: 'center', textDecoration: 'none',
         }}>
-          <div style={{ height: 44, overflow: 'hidden' }}>
-            <Image
-              src="/logo-faicoh.png"
-              alt="Faicoh"
-              width={280}
-              height={150}
-              style={{ height: 82, width: 'auto', marginTop: -14 }}
-              priority
-            />
-          </div>
+          <Image
+            src="/logo-faicoh.png"
+            alt="FAICOH"
+            width={130}
+            height={43}
+            style={{ height: 36, width: 'auto', objectFit: 'contain' }}
+            priority
+          />
         </Link>
 
         {/* Botão direita */}
@@ -187,19 +185,16 @@ export default function Header() {
       {/* ── Desktop ────────────────────────────────────── */}
       <div className="hidden md:flex" style={{ alignItems: 'center', height: 62, padding: '0 24px', gap: 16 }}>
 
-        {/* Logo ESQUERDA — ícone recortado + texto branco */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, textDecoration: 'none' }}>
-          <div style={{ width: 44, height: 48, overflow: 'hidden', flexShrink: 0 }}>
-            <Image
-              src="/logo-faicoh.png"
-              alt="Faicoh"
-              width={186}
-              height={100}
-              style={{ width: 186, height: 100, objectFit: 'cover', objectPosition: 'left center', marginTop: -20 }}
-              priority
-            />
-          </div>
-          <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: 2, color: '#fff' }}>FAICOH</span>
+        {/* Logo ESQUERDA */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none' }}>
+          <Image
+            src="/logo-faicoh.png"
+            alt="FAICOH"
+            width={160}
+            height={53}
+            style={{ height: 42, width: 'auto', objectFit: 'contain' }}
+            priority
+          />
         </Link>
 
         {/* Nav links */}
