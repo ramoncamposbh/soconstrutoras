@@ -171,10 +171,11 @@ export default function Header() {
           <Image
             src="/logo-faicoh.png"
             alt="FAICOH"
-            width={130}
-            height={43}
-            style={{ height: 36, width: 'auto', objectFit: 'contain' }}
+            width={702}
+            height={226}
+            style={{ height: 32, width: 'auto', objectFit: 'contain' }}
             priority
+            unoptimized
           />
         </Link>
 
@@ -190,10 +191,11 @@ export default function Header() {
           <Image
             src="/logo-faicoh.png"
             alt="FAICOH"
-            width={160}
-            height={53}
-            style={{ height: 42, width: 'auto', objectFit: 'contain' }}
+            width={702}
+            height={226}
+            style={{ height: 44, width: 'auto', objectFit: 'contain' }}
             priority
+            unoptimized
           />
         </Link>
 

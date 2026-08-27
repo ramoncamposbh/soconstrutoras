@@ -140,8 +140,8 @@ function LoginContent() {
                 <Image
                   src="/logo-faicoh.png"
                   alt="Faicoh"
-                  width={180}
-                  height={97}
+                  width={702}
+                  height={226}
                   style={{ display: 'block' }}
                   priority
                 />
@@ -222,8 +222,8 @@ function LoginContent() {
                 <Image
                   src="/logo-faicoh.png"
                   alt="Faicoh"
-                  width={180}
-                  height={97}
+                  width={702}
+                  height={226}
                   style={{ display: 'block' }}
                   priority
                 />
