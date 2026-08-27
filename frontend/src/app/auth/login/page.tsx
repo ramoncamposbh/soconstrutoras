@@ -136,7 +136,7 @@ function LoginContent() {
               alignItems: 'center',
               boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
             }}>
-              <LogoFaicoh height={34} textColor="white" />
+              <LogoFaicoh height={34} textColor="dark" />
             </div>
           </Link>
         </div>

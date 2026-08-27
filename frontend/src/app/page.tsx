@@ -846,7 +846,7 @@ export default function HomePage() {
 
           {/* Logo centralizada */}
           <Link href="/" className="absolute left-1/2 -translate-x-1/2" style={{ textDecoration: 'none' }}>
-            <LogoFaicoh height={28} textColor="white" />
+            <LogoFaicoh height={28} textColor="dark" />
           </Link>
 
           {/* Ação direita */}
