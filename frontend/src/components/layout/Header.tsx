@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import {
@@ -168,15 +167,8 @@ export default function Header() {
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
           display: 'flex', alignItems: 'center', textDecoration: 'none',
         }}>
-          <Image
-            src="/logo-faicoh.png"
-            alt="FAICOH"
-            width={702}
-            height={226}
-            style={{ height: 32, width: 'auto', objectFit: 'contain' }}
-            priority
-            unoptimized
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 32, width: 'auto' }} />
         </Link>
 
         {/* Botão direita */}
@@ -188,15 +180,8 @@ export default function Header() {
 
         {/* Logo ESQUERDA */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none' }}>
-          <Image
-            src="/logo-faicoh.png"
-            alt="FAICOH"
-            width={702}
-            height={226}
-            style={{ height: 44, width: 'auto', objectFit: 'contain' }}
-            priority
-            unoptimized
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 44, width: 'auto' }} />
         </Link>
 
         {/* Nav links */}
