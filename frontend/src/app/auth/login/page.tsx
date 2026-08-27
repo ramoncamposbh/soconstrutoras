@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
@@ -31,12 +31,18 @@ const FEATURES = [
 export default function LoginPage() {
   const { login, loginWithGoogle, user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const googleBtnRef = useRef<HTMLDivElement>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>();
 
+  const redirectAfterLogin = (role?: string) => {
+    const dest = searchParams.get('redirect');
+    router.push(dest || getRedirect(role));
+  };
+
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
-      router.push(getRedirect(user.role));
+      redirectAfterLogin(user.role);
     }
   }, [isAuthenticated, loading, user, router]);
 
@@ -48,8 +54,9 @@ export default function LoginPage() {
         client_id: GOOGLE_CLIENT_ID,
         callback: async (res: { credential: string }) => {
           try {
-            await loginWithGoogle(res.credential);
+            const u = await loginWithGoogle(res.credential);
             toast.success('Bem-vindo!');
+            redirectAfterLogin((u as any)?.role);
           } catch {
             toast.error('Erro ao entrar com Google. Tente novamente.');
           }
@@ -76,8 +83,9 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await login(data.email, data.password);
+      const u = await login(data.email, data.password);
       toast.success('Bem-vindo!');
+      redirectAfterLogin((u as any)?.role);
     } catch (err: any) {
       const msg = err?.response?.data?.message;
       if (msg?.includes('login social')) {
