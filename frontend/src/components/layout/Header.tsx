@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import LogoFaicoh from './LogoFaicoh';
 import { useAuth } from '@/lib/auth';
 import {
   LogIn, LayoutDashboard, Bell, Heart, LogOut, ChevronDown,
@@ -167,8 +168,7 @@ export default function Header() {
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
           display: 'flex', alignItems: 'center', textDecoration: 'none',
         }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 32, width: 'auto' }} />
+          <LogoFaicoh height={28} textColor="white" />
         </Link>
 
         {/* Botão direita */}
@@ -180,8 +180,7 @@ export default function Header() {
 
         {/* Logo ESQUERDA */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 44, width: 'auto' }} />
+          <LogoFaicoh height={34} textColor="white" />
         </Link>
 
         {/* Nav links */}

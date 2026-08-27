@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import CardEmpreendimento from '@/components/empreendimentos/CardEmpreendimento';
+import LogoFaicoh from '@/components/layout/LogoFaicoh';
 import { empreendimentosApi } from '@/lib/api';
 import { TIPOS_IMOVEL } from '@/lib/utils';
 import type { Empreendimento } from '@/types';
@@ -844,9 +845,8 @@ export default function HomePage() {
           </div>
 
           {/* Logo centralizada */}
-          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 32, width: 'auto' }} />
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2" style={{ textDecoration: 'none' }}>
+            <LogoFaicoh height={28} textColor="white" />
           </Link>
 
           {/* Ação direita */}
@@ -876,9 +876,8 @@ export default function HomePage() {
         style={{ background: '#0B1D2A', borderBottom: '1px solid #1A3547' }}
       >
         {/* Logo */}
-        <Link href="/" className="flex items-center shrink-0 mr-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 44, width: 'auto' }} />
+        <Link href="/" className="flex items-center shrink-0 mr-4" style={{ textDecoration: 'none' }}>
+          <LogoFaicoh height={34} textColor="white" />
         </Link>
 
         {/* Início — botão pill */}
@@ -1391,8 +1390,7 @@ export default function HomePage() {
       {/* ══ FOOTER SIMPLES ══ */}
       <footer style={{ background: '#0B1D2A', borderTop: '1px solid #1A3547', padding: '20px 32px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 36, width: 'auto' }} />
+          <LogoFaicoh height={30} textColor="white" />
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>© {new Date().getFullYear()} FAICOH. Todos os direitos reservados.</p>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidade', 'Termos', 'Contato'].map(l => (
@@ -1456,8 +1454,7 @@ export default function HomePage() {
               style={{ background: 'linear-gradient(160deg, #0A2318 0%, #0C3525 100%)', border: '1px solid #1B5C3E' }}>
 
               {/* Logo */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 32, width: 'auto' }} />
+              <LogoFaicoh height={28} textColor="white" />
 
               {/* Título + círculo de progresso */}
               <div className="flex items-center gap-4">

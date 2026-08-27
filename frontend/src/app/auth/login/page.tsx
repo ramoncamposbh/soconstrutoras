@@ -4,7 +4,7 @@ import { useEffect, useRef, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+import LogoFaicoh from '@/components/layout/LogoFaicoh';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/lib/auth';
 import { LogIn, Building2, MapPin, TrendingUp, Users } from 'lucide-react';
@@ -136,16 +136,7 @@ function LoginContent() {
               alignItems: 'center',
               boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
             }}>
-              <div style={{ height: 36, overflow: 'hidden' }}>
-                <Image
-                  src="/logo-faicoh.png"
-                  alt="Faicoh"
-                  width={702}
-                  height={226}
-                  style={{ display: 'block' }}
-                  priority
-                />
-              </div>
+              <LogoFaicoh height={34} textColor="white" />
             </div>
           </Link>
         </div>
@@ -210,17 +201,7 @@ function LoginContent() {
         {/* Logo mobile (visível só em telas < lg) */}
         <div className="flex lg:hidden" style={{ justifyContent: 'center', marginBottom: 32 }}>
           <Link href="/">
-            <div style={{
-              background: '#0B1D2A',
-              borderRadius: 14,
-              padding: '8px 20px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
-            }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-faicoh.png" alt="FAICOH" style={{ height: 34, width: 'auto' }} />
-            </div>
+            <LogoFaicoh height={36} textColor="dark" />
           </Link>
         </div>
 
