@@ -8,11 +8,11 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'FAICOH — Imóveis direto da construtora',
-  description: 'Encontre imóveis novos com atendimento especializado das melhores construtoras.',
+  title: 'FAICOH — O portal dos imóveis novos.',
+  description: 'Imóveis novos, na planta e oportunidades de todas as construtoras em um só lugar.',
   openGraph: {
-    title: 'FAICOH',
-    description: 'Imóveis novos direto da construtora',
+    title: 'FAICOH — O portal dos imóveis novos.',
+    description: 'Imóveis novos, na planta e oportunidades de todas as construtoras em um só lugar.',
     type: 'website',
   },
 };
