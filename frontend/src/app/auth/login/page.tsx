@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -28,7 +28,7 @@ const FEATURES = [
   { icon: Users,     text: 'Rede de parceiros e corretores credenciados' },
 ];
 
-export default function LoginPage() {
+function LoginContent() {
   const { login, loginWithGoogle, user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -350,5 +350,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div style={{ background: '#0B1D2A', minHeight: '100vh' }} />}>
+      <LoginContent />
+    </Suspense>
   );
 }
