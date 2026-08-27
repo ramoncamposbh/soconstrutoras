@@ -13,7 +13,7 @@ export default function LogoFaicoh({ height = 36, textColor = 'white' }: Props) 
         height,
         width: 'auto',
         filter: textColor === 'white'
-          ? 'drop-shadow(0 0 3px rgba(255,255,255,0.7))'
+          ? 'drop-shadow(1px 0 0 white) drop-shadow(-1px 0 0 white) drop-shadow(0 1px 0 white) drop-shadow(0 -1px 0 white)'
           : 'brightness(0)',
       }}
     />

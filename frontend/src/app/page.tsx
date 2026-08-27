@@ -804,7 +804,7 @@ export default function HomePage() {
       )}
 
       {/* ══ MOBILE HEADER (apenas mobile) ══ */}
-      <div className="md:hidden sticky top-0 z-50 bg-white" style={{ boxShadow: '0 1px 0 #E5E7EB' }}>
+      <div className="md:hidden sticky top-0 z-50" style={{ background: '#0B1D2A', borderBottom: '1px solid #1A3547' }}>
         {/* Linha logo + entrar */}
         <div className="flex items-center justify-between px-4 pt-3 pb-2 relative">
 
@@ -813,7 +813,7 @@ export default function HomePage() {
             <button
               onClick={() => setMenuOpen(o => !o)}
               className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: '#F0FAF7', color: '#0E8F6E' }}
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid #1A3547', color: '#AAB5B2' }}
               aria-label="Menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -822,8 +822,8 @@ export default function HomePage() {
             {menuOpen && (
               <div style={{
                 position: 'absolute', left: 0, top: 44, width: 210,
-                background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                border: '1px solid #E5E7EB', padding: '6px 0', zIndex: 9999,
+                background: '#0F2536', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                border: '1px solid #1A3547', padding: '6px 0', zIndex: 9999,
               }}>
                 {NAV_LINKS.map(({ href, label, icon: Icon }) => (
                   <Link
@@ -831,12 +831,12 @@ export default function HomePage() {
                     href={href}
                     onClick={() => setMenuOpen(false)}
                     style={{ display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '11px 16px', fontSize: 14, color: '#1F2937',
+                      padding: '11px 16px', fontSize: 14, color: '#AAB5B2',
                       textDecoration: 'none', transition: 'background 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#F0FAF7')}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                   >
-                    <Icon style={{ width: 16, height: 16, color: '#0E8F6E', flexShrink: 0 }} />
+                    <Icon style={{ width: 16, height: 16, color: '#22D497', flexShrink: 0 }} />
                     {label}
                   </Link>
                 ))}
@@ -846,7 +846,7 @@ export default function HomePage() {
 
           {/* Logo centralizada */}
           <Link href="/" className="absolute left-1/2 -translate-x-1/2" style={{ textDecoration: 'none' }}>
-            <LogoFaicoh height={28} textColor="dark" />
+            <LogoFaicoh height={28} textColor="white" />
           </Link>
 
           {/* Ação direita */}
@@ -855,7 +855,7 @@ export default function HomePage() {
               <button
                 onClick={() => setUserMenuOpen((v) => !v)}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                style={{ background: '#D1FAE5', color: '#0A6A52' }}>
+                style={{ background: '#0E8F6E', color: '#fff' }}>
                 {user?.nome?.[0]?.toUpperCase()}
               </button>
             ) : (
