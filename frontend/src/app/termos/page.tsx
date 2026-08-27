@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Termos de Serviço — SóConstrutoras',
-  description: 'Termos de serviço da plataforma SóConstrutoras / Faicoh.',
+  title: 'Termos de Serviço — FAICOH',
+  description: 'Termos de serviço da plataforma FAICOH.',
 };
 
 export default function TermosPage() {

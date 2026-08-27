@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Política de Privacidade — SóConstrutoras',
-  description: 'Política de privacidade da plataforma SóConstrutoras / Faicoh.',
+  title: 'Política de Privacidade — FAICOH',
+  description: 'Política de privacidade da plataforma FAICOH.',
 };
 
 export default function PrivacidadePage() {

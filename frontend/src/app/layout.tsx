@@ -8,10 +8,10 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SóConstrutoras — Imóveis direto da construtora',
+  title: 'FAICOH — Imóveis direto da construtora',
   description: 'Encontre imóveis novos com atendimento especializado das melhores construtoras.',
   openGraph: {
-    title: 'SóConstrutoras',
+    title: 'FAICOH',
     description: 'Imóveis novos direto da construtora',
     type: 'website',
   },

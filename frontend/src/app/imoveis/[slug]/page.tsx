@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const emp = await getEmpreendimento(params.slug);
   if (!emp) return { title: 'Imovel nao encontrado' };
   return {
-    title: `${emp.nome} — ${emp.cidade}/${emp.estado} | SoConstrutoras`,
+    title: `${emp.nome} — ${emp.cidade}/${emp.estado} | FAICOH`,
     description: emp.descricao ?? `${emp.nome} em ${emp.cidade}. ${emp.tipo} a partir de ${formatCurrency(emp.preco_min)}.`,
   };
 }
