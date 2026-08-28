@@ -56,7 +56,7 @@ export default function GaleriaEmpreendimento({ fotos, nome }: Props) {
         className="relative h-56 sm:h-80 md:h-[480px] cursor-zoom-in group"
         onClick={() => setLightboxIdx(0)}
       >
-        <Image src={fotos[0].url} alt={nome} fill className="object-cover" />
+        <Image src={fotos[0].url} alt={nome} fill className="object-cover" unoptimized />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
           <ZoomIn className="w-10 h-10 text-white opacity-0 group-hover:opacity-80 transition-opacity drop-shadow-lg" />
         </div>
@@ -76,7 +76,7 @@ export default function GaleriaEmpreendimento({ fotos, nome }: Props) {
               className="relative w-24 h-16 flex-shrink-0 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => setLightboxIdx(idx + 1)}
             >
-              <Image src={f.url} alt="" fill className="object-cover" />
+              <Image src={f.url} alt="" fill className="object-cover" unoptimized />
             </div>
           ))}
         </div>
@@ -121,6 +121,7 @@ export default function GaleriaEmpreendimento({ fotos, nome }: Props) {
                 className="object-contain"
                 sizes="(max-width: 768px) 100vw, 80vw"
                 priority
+                unoptimized
               />
             </div>
 
@@ -149,7 +150,7 @@ export default function GaleriaEmpreendimento({ fotos, nome }: Props) {
                     idx === lightboxIdx ? 'ring-2 ring-white opacity-100' : 'opacity-50 hover:opacity-80'
                   }`}
                 >
-                  <Image src={f.url} alt="" fill className="object-cover" />
+                  <Image src={f.url} alt="" fill className="object-cover" unoptimized />
                 </div>
               ))}
             </div>
