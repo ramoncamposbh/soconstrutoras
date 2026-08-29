@@ -107,6 +107,7 @@ const CONSTRUTORAS = [
   { nome: 'VERT',            script: 'cadastrar-vert'               },
   { nome: 'ZONTTI',          script: 'cadastrar-zontti'             },
   { nome: 'Zip Incorporadora', script: 'cadastrar-zip'             },
+  { nome: 'ÁRTICO',           script: 'cadastrar-artico'           },
 ];
 
 async function main() {
