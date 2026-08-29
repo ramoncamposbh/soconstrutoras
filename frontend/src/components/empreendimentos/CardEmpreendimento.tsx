@@ -106,6 +106,7 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
               fill
               className="object-cover"
               style={{ transform: hover ? 'scale(1.06)' : 'scale(1)', transition: 'transform 0.4s ease' }}
+              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center" style={{ background: '#F3F4F6' }}>
