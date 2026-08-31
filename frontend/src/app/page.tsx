@@ -447,6 +447,15 @@ export default function HomePage() {
       'cidade jardim': 'Belo Horizonte', 'santa efigenia': 'Belo Horizonte',
       horto: 'Belo Horizonte', 'santa teresa': 'Belo Horizonte',
     };
+    // Nomes acentuados corretos — usados como label E como filtro para o backend (ILIKE é sensível a acento)
+    const mapaBairrosLabel: Record<string, string> = {
+      funcionarios: 'Funcionários',
+      'santo antonio': 'Santo Antônio',
+      'santa efigenia': 'Santa Efigênia',
+      'vale do sereno': 'Vale do Sereno',
+      'cidade jardim': 'Cidade Jardim',
+      'santa teresa': 'Santa Teresa',
+    };
     // Palavras que indicam que o nome do bairro está dentro de um estabelecimento,
     // não é referência de localização (ex: "Colégio Santo Antônio" ≠ bairro "Santo Antônio")
     const prefixosEstab = [
@@ -465,7 +474,7 @@ export default function HomePage() {
       if (!filtros.cidade) filtros.cidade = v;
       if (bairrosRegiao.length === 0) {
         bairrosRegiao = [k];
-        regiaoLabel = k.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        regiaoLabel = mapaBairrosLabel[k] ?? k.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       }
       break;
     }
@@ -555,6 +564,14 @@ export default function HomePage() {
       ...(filtros._amenidades_extras ?? []),
     ];
     delete filtros._amenidades_extras;
+
+    // Passa bairro para o backend filtrar server-side — igual ao filtro tradicional.
+    // bairrosRegiao[0] é a key normalizada ('funcionarios'), mas ILIKE do PostgreSQL é
+    // sensível a acento, então usamos regiaoLabel que tem o nome acentuado correto.
+    // Para regiões com múltiplos bairros (REGIOES_BH) o filtro é só client-side.
+    if (bairrosRegiao.length === 1 && regiaoLabel) {
+      filtros.bairros = regiaoLabel;
+    }
 
     // ── Inicia modal de progresso ──
     setBuscaProgresso({
