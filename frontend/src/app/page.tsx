@@ -19,7 +19,7 @@ import {
   ChevronDown, LogIn, UserPlus, Send,
   SlidersHorizontal, Home, Rocket, X, Users,
   BarChart2, Scale, Calculator, Info,
-  LogOut, LayoutDashboard, Bell, Handshake, Menu,
+  LogOut, LayoutDashboard, Bell, Handshake, Menu, Sparkles,
 } from 'lucide-react';
 
 const ESTADOS_BR = [
@@ -230,6 +230,7 @@ export default function HomePage() {
   const [bairrosDisp, setBairrosDisp] = useState<string[]>([]);
   const [bairrosOpen, setBairrosOpen] = useState(false);
   const [mensagemBusca, setMensagemBusca] = useState<{ texto: string; sugestoes: string[] } | null>(null);
+  const [empreendimentosSugestoes, setEmpreendimentosSugestoes] = useState<any[]>([]);
   const [buscaProgresso, setBuscaProgresso] = useState<{
     pais: string; estado: string; cidade: string; regiao: string;
     totalConstrutoras: number | null; totalImoveis: number | null;
@@ -553,6 +554,7 @@ export default function HomePage() {
   const handleAiSearch = async () => {
     if (!aiText.trim()) return;
     setMensagemBusca(null);
+    setEmpreendimentosSugestoes([]);
     const { filtros, regiaoLabel, bairrosRegiao, mostraMapa } = parseAiQuery(aiText);
 
     // Se o usuário pediu "perto de / próximo ao X", abre o mapa automaticamente
@@ -645,9 +647,10 @@ export default function HomePage() {
           sugestoes: ['Tente ampliar os filtros — menos quartos, outra região ou sem filtro de preço.'],
         });
       } else if (porBairro.length === 0) {
-        // Bairro não encontrado — mostra tudo com aviso
+        // Bairro não encontrado — exibe tudo como sugestões (com divisor visual)
         const regioesSugeridas = detectarRegioes(data);
-        setEmpreendimentos(data);
+        setEmpreendimentos([]);
+        setEmpreendimentosSugestoes(data);
         setMensagemBusca({
           texto: `Não encontramos imóveis com esse perfil na região ${regiaoLabel}.`,
           sugestoes: regioesSugeridas.length > 0
@@ -655,22 +658,25 @@ export default function HomePage() {
             : ['Mostrando os imóveis disponíveis mais próximos do seu perfil:'],
         });
       } else if (porAmenidades.length > 0) {
-        // Resultado ideal: bairro + amenidades
+        // Resultado ideal: bairro + amenidades — exibe normalmente, sem sugestões
         setEmpreendimentos(porAmenidades);
+        setEmpreendimentosSugestoes([]);
       } else if (todasAmenidades.length > 0) {
-        // Pediu característica mas não confirmamos na descrição — mostra bairro com aviso
+        // Pediu característica mas não confirmamos na descrição — bairro vira sugestão
         const amenLabel = todasAmenidades.map(a =>
           a.charAt(0).toUpperCase() + a.slice(1)
         ).join(' e ');
-        setEmpreendimentos(porBairro);
+        setEmpreendimentos([]);
+        setEmpreendimentosSugestoes(porBairro);
         setMensagemBusca({
           texto: `Não confirmamos "${amenLabel}" nas descrições dos imóveis${regiaoLabel ? ` na região ${regiaoLabel}` : ''}.`,
           sugestoes: [
-            'Mostrando os imóveis disponíveis na região — consulte cada um para verificar os itens de lazer disponíveis.',
+            'Confira os imóveis disponíveis na região — consulte cada um para verificar esse item de lazer.',
           ],
         });
       } else {
         setEmpreendimentos(porBairro);
+        setEmpreendimentosSugestoes([]);
       }
     } catch {
       clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
@@ -1326,7 +1332,7 @@ export default function HomePage() {
             ) : (
               <>
                 <h2 className="text-xl font-bold text-gray-900 leading-tight">
-                  {empreendimentos.length} empreendimento{empreendimentos.length !== 1 ? 's' : ''} encontrado{empreendimentos.length !== 1 ? 's' : ''} para você
+                  {empreendimentos.length + empreendimentosSugestoes.length} empreendimento{(empreendimentos.length + empreendimentosSugestoes.length) !== 1 ? 's' : ''} encontrado{(empreendimentos.length + empreendimentosSugestoes.length) !== 1 ? 's' : ''} para você
                 </h2>
                 <p className="text-sm text-gray-400 mt-0.5">
                   Ordenados por compatibilidade com seu perfil
@@ -1379,18 +1385,52 @@ export default function HomePage() {
               <p className="text-gray-400 text-sm mt-1">Tente outros filtros ou busca por IA.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
-              {empreendimentos.map((emp) => {
-                const compat = getCompatibilidade(emp.id);
-                return (
-                  <div key={emp.id}
-                    onMouseEnter={() => setDestacado(emp.id)}
-                    onMouseLeave={() => setDestacado(null)}>
-                    <CardEmpreendimento emp={emp} compatibilidade={compat} />
+            <>
+              {empreendimentos.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
+                  {empreendimentos.map((emp) => {
+                    const compat = getCompatibilidade(emp.id);
+                    return (
+                      <div key={emp.id}
+                        onMouseEnter={() => setDestacado(emp.id)}
+                        onMouseLeave={() => setDestacado(null)}>
+                        <CardEmpreendimento emp={emp} compatibilidade={compat} />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* ── Divisor "Sugestões de imóveis" ── */}
+              {empreendimentosSugestoes.length > 0 && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px 4px' }}>
+                    <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      fontSize: 11, fontWeight: 700, color: '#0E8F6E',
+                      border: '1.5px solid #0E8F6E', borderRadius: 8,
+                      padding: '5px 14px', whiteSpace: 'nowrap', userSelect: 'none',
+                    }}>
+                      <Sparkles size={11} /> Sugestões de imóveis
+                    </div>
+                    <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
                   </div>
-                );
-              })}
-            </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 px-4 pb-4">
+                    {empreendimentosSugestoes.map((emp) => {
+                      const compat = getCompatibilidade(emp.id);
+                      return (
+                        <div key={emp.id}
+                          onMouseEnter={() => setDestacado(emp.id)}
+                          onMouseLeave={() => setDestacado(null)}>
+                          <CardEmpreendimento emp={emp} compatibilidade={compat} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </>
           )}
         </div>
 
@@ -1460,7 +1500,7 @@ export default function HomePage() {
           { label: 'País',                  valor: pais,                                                     e: 1 },
           { label: 'Estado',                valor: estado,                                                   e: 2 },
           { label: 'Cidade',                valor: cidade,                                                   e: 3 },
-          { label: 'Construtoras consultadas', valor: totalConstrutoras !== null ? `${totalConstrutoras} encontradas` : 'Verificando...', e: 4 },
+          { label: 'Construtoras com resultados', valor: totalConstrutoras !== null ? `${totalConstrutoras} encontradas` : 'Verificando...', e: 4 },
           { label: 'Imóveis consultados',   valor: totalImoveis !== null ? `${totalImoveis} disponíveis` : 'Verificando...', e: 5 },
           { label: 'Região / Bairro',       valor: regiao,                                                   e: 6 },
         ];
