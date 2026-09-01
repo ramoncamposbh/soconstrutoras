@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
             Acesso Restrito
           </h1>
           <p style={{ color: '#6B7280', fontSize: 14, marginTop: 6 }}>
-            Painel administrativo — SóConstrutoras
+            Painel administrativo — FAICOH
           </p>
         </div>
 
@@ -151,7 +151,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 12, color: '#9CA3AF', marginTop: 24 }}>
-          Acesso restrito à equipe SóConstrutoras
+          Acesso restrito à equipe FAICOH
         </p>
       </div>
     </div>

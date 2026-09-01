@@ -7,7 +7,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { authApi } from '@/lib/api';
-import Image from 'next/image';
+import LogoFaicoh from '@/components/layout/LogoFaicoh';
 import { Building2, User, ArrowLeft, LogIn } from 'lucide-react';
 
 type Perfil = 'cliente' | 'construtora' | null;
@@ -66,10 +66,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <Image src="/logo.png" alt="SóConstrutoras" width={36} height={48} className="object-contain" />
-            <span className="font-bold text-xl text-gray-900">
-              <span className="text-primary-600">SÓ</span>CONSTRUTORAS
-            </span>
+            <LogoFaicoh height={36} textColor="dark" />
           </Link>
           <p className="text-gray-500 text-sm mt-2">
             {perfil === null ? 'Criar uma conta' : perfil === 'cliente' ? 'Criar conta de cliente' : 'Cadastrar construtora'}

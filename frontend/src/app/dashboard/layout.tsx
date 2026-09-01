@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
-import Image from 'next/image';
+import LogoFaicoh from '@/components/layout/LogoFaicoh';
 import {
   LayoutDashboard, Building2, Users, Bell, LogOut,
   ChevronRight, ChevronDown, Loader2, CreditCard, Menu, X, Store, Calculator,
@@ -71,13 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <>
       <div className="p-5 border-b border-gray-100 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <Image src="/logo.png" alt="SóConstrutoras" width={28} height={36} className="object-contain" />
-          <div className="leading-none">
-            <span className="block font-bold text-[14px] text-gray-900 tracking-tight">
-              <span className="text-primary-600">SÓ</span>CONSTRUTORAS
-            </span>
-            <span className="block text-[8px] text-gray-400 tracking-widest uppercase">Portal das Construtoras</span>
-          </div>
+          <LogoFaicoh height={28} textColor="dark" />
         </Link>
         <button
           onClick={() => setSidebarAberto(false)}
@@ -204,10 +198,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Menu className="w-5 h-5" />
           </button>
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="SóConstrutoras" width={24} height={30} className="object-contain" />
-            <span className="font-bold text-[14px] text-gray-900 tracking-tight">
-              <span className="text-primary-600">SÓ</span>CONSTRUTORAS
-            </span>
+            <LogoFaicoh height={24} textColor="dark" />
           </Link>
           <div className="w-9" />
         </div>
