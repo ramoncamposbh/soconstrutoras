@@ -66,7 +66,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <LogoFaicoh height={36} />
+            <LogoFaicoh height={36} textColor="brand" />
           </Link>
           <p className="text-gray-500 text-sm mt-2">
             {perfil === null ? 'Criar uma conta' : perfil === 'cliente' ? 'Criar conta de cliente' : 'Cadastrar construtora'}
