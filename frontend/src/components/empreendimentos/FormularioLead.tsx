@@ -21,8 +21,9 @@ export default function FormularioLead({ empreendimentoId }: { empreendimentoId:
     try {
       await leadsApi.capturar(empreendimentoId, dados);
       setEnviado(true);
-    } catch {
-      toast.error('Erro ao enviar. Tente novamente.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message ?? err?.message ?? 'Erro ao enviar. Tente novamente.';
+      toast.error(Array.isArray(msg) ? msg[0] : msg);
     }
   };
 
