@@ -125,19 +125,10 @@ function LoginContent() {
           borderRadius: '50%', pointerEvents: 'none',
         }} />
 
-        {/* Logo no container branco */}
+        {/* Logo direto — sem container branco */}
         <div style={{ position: 'relative', zIndex: 1 }}>
           <Link href="/" style={{ display: 'inline-block' }}>
-            <div style={{
-              background: '#fff',
-              borderRadius: 14,
-              padding: '8px 16px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
-            }}>
-              <LogoFaicoh height={34} textColor="dark" />
-            </div>
+            <LogoFaicoh height={44} textColor="white" />
           </Link>
         </div>
 

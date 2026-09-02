@@ -60,18 +60,32 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
 
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <LogoFaicoh height={36} textColor="dark" />
-          </Link>
-          <p className="text-gray-500 text-sm mt-2">
-            {perfil === null ? 'Criar uma conta' : perfil === 'cliente' ? 'Criar conta de cliente' : 'Cadastrar construtora'}
-          </p>
-        </div>
+      {/* Banner verde topo */}
+      <div style={{
+        background: 'linear-gradient(160deg, #03201A 0%, #05342A 50%, #0a4a38 100%)',
+        padding: '28px 24px 36px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          position: 'absolute', top: '-60px', right: '-40px',
+          width: 220, height: 220,
+          background: 'radial-gradient(circle, rgba(34,212,151,0.12) 0%, transparent 65%)',
+          borderRadius: '50%', pointerEvents: 'none',
+        }} />
+        <Link href="/" style={{ display: 'inline-block' }}>
+          <LogoFaicoh height={42} textColor="white" />
+        </Link>
+        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, marginTop: 10, letterSpacing: '0.01em' }}>
+          {perfil === null ? 'Criar uma conta' : perfil === 'cliente' ? 'Criar conta de cliente' : 'Cadastrar construtora'}
+        </p>
+      </div>
+
+      <div className="flex-1 flex items-start justify-center px-4 py-8">
+      <div className="w-full max-w-md">
 
         {/* Etapa 1: Escolher perfil */}
         {perfil === null && (
@@ -251,6 +265,7 @@ export default function RegisterPage() {
           </div>
         )}
 
+      </div>
       </div>
     </div>
   );
