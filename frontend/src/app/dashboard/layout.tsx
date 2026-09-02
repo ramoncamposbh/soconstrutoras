@@ -71,7 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <>
       <div className="p-5 border-b border-gray-100 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <LogoFaicoh height={28} textColor="dark" />
+          <LogoFaicoh height={28} />
         </Link>
         <button
           onClick={() => setSidebarAberto(false)}
@@ -198,7 +198,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Menu className="w-5 h-5" />
           </button>
           <Link href="/" className="flex items-center gap-2">
-            <LogoFaicoh height={24} textColor="dark" />
+            <LogoFaicoh height={24} />
           </Link>
           <div className="w-9" />
         </div>
