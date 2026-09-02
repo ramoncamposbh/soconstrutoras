@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Ip } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Ip, HttpException, HttpStatus } from '@nestjs/common';
 import { LeadsService } from './leads.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CriarLeadDto } from './dto/criar-lead.dto';
@@ -11,12 +11,20 @@ export class LeadsController {
 
   // POST /api/v1/leads/empreendimentos/:empreendimentoId
   @Post('empreendimentos/:empreendimentoId')
-  capturar(
+  async capturar(
     @Param('empreendimentoId') empreendimentoId: string,
     @Body() dto: CriarLeadDto,
     @Ip() ip: string,
   ) {
-    return this.service.capturar(empreendimentoId, dto, ip);
+    try {
+      return await this.service.capturar(empreendimentoId, dto, ip);
+    } catch (err) {
+      // Expõe a mensagem real para diagnóstico — remover após resolver o bug
+      throw new HttpException(
+        err?.message ?? 'Erro ao capturar lead',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   // --- ROTAS AUTENTICADAS ---
