@@ -185,16 +185,29 @@ function LoginContent() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '40px 24px',
         position: 'relative',
       }}>
 
-        {/* Logo mobile (visível só em telas < lg) */}
-        <div className="flex lg:hidden" style={{ justifyContent: 'center', marginBottom: 32 }}>
-          <Link href="/">
-            <LogoFaicoh height={36} textColor="dark" />
+        {/* Banner verde mobile (visível só em telas < lg) */}
+        <div className="flex lg:hidden" style={{
+          width: '100%',
+          background: 'linear-gradient(160deg, #03201A 0%, #05342A 50%, #0a4a38 100%)',
+          padding: '28px 24px 32px',
+          textAlign: 'center',
+          marginBottom: 0,
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <Link href="/" style={{ display: 'inline-block' }}>
+            <LogoFaicoh height={40} textColor="white" />
           </Link>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, margin: '8px 0 0' }}>
+            O portal dos imóveis novos
+          </p>
         </div>
+
+        <div style={{ width: '100%', padding: '36px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         {/* Card de login */}
         <div style={{
@@ -311,6 +324,7 @@ function LoginContent() {
               ← Voltar ao site
             </Link>
           </p>
+        </div>
         </div>
       </div>
     </div>
