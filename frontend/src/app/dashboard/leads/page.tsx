@@ -13,11 +13,24 @@ export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroEmp, setFiltroEmp] = useState('');
 
-  const buscar = async (status?: string) => {
+  // Lista de empreendimentos únicos extraída dos leads carregados
+  const empreendimentos = Array.from(
+    new Map(
+      leads
+        .filter((l) => l.empreendimento && l.empreendimento_id)
+        .map((l) => [l.empreendimento_id, l.empreendimento])
+    ).entries()
+  );
+
+  const buscar = async (status?: string, empreendimento_id?: string) => {
     setLoading(true);
     try {
-      const { data } = await leadsApi.meus(status ? { status } : {});
+      const params: Record<string, string> = {};
+      if (status) params.status = status;
+      if (empreendimento_id) params.empreendimento_id = empreendimento_id;
+      const { data } = await leadsApi.meus(params);
       setLeads(data);
     } finally {
       setLoading(false);
@@ -36,11 +49,24 @@ export default function LeadsPage() {
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-gray-400" />
           <select
+            className="input w-52"
+            value={filtroEmp}
+            onChange={(e) => {
+              setFiltroEmp(e.target.value);
+              buscar(filtroStatus || undefined, e.target.value || undefined);
+            }}
+          >
+            <option value="">Todos os empreendimentos</option>
+            {empreendimentos.map(([id, nome]) => (
+              <option key={id} value={id}>{nome}</option>
+            ))}
+          </select>
+          <select
             className="input w-48"
             value={filtroStatus}
             onChange={(e) => {
               setFiltroStatus(e.target.value);
-              buscar(e.target.value || undefined);
+              buscar(e.target.value || undefined, filtroEmp || undefined);
             }}
           >
             <option value="">Todos os status</option>
