@@ -54,9 +54,9 @@ export class LeadsService {
   }
 
   /** Dashboard da construtora: todos os leads dos seus empreendimentos */
-  async listarDaConstrutora(construtoraId: string, filtros: { status?: string; empreendimento_id?: string }) {
-    const conditions = ['e.construtora_id = $1'];
-    const params: any[] = [construtoraId];
+  async listarDaConstrutora(userId: string, filtros: { status?: string; empreendimento_id?: string }) {
+    const conditions = ['c.user_id = $1'];
+    const params: any[] = [userId];
     let i = 2;
 
     if (filtros.status) {
@@ -74,6 +74,7 @@ export class LeadsService {
               la.atribuido_em, la.status AS status_atribuicao
        FROM leads l
        JOIN empreendimentos e ON e.id = l.empreendimento_id
+       JOIN construtoras c ON c.id = e.construtora_id
        LEFT JOIN lead_atribuicoes la ON la.lead_id = l.id
        LEFT JOIN parceiros p ON p.id = la.parceiro_id
        WHERE ${conditions.join(' AND ')}
