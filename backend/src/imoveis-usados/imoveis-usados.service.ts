@@ -5,7 +5,7 @@ import {
 import { Pool } from 'pg';
 import { PG_POOL } from '../database/database.module';
 import { StorageService } from '../storage/storage.service';
-import { CriarImovelUsadoDto, AtualizarImovelUsadoDto, ConfigImovelUsadoAdminDto } from './dto/imovel-usado.dto';
+import { CriarImovelUsadoDto, AtualizarImovelUsadoDto, ConfigImovelUsadoAdminDto, DistribuicaoLeadsImovelUsado } from './dto/imovel-usado.dto';
 
 @Injectable()
 export class ImoveisUsadosService {
@@ -94,8 +94,8 @@ export class ImoveisUsadosService {
     await this.verificarLimite(cid);
     const { rows: [iu] } = await this.pool.query(
       `INSERT INTO imoveis_usados
-         (construtora_id, titulo, descricao, tipo, endereco, bairro, cidade, estado, cep, area, quartos, vagas, preco, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+         (construtora_id, titulo, descricao, tipo, endereco, bairro, cidade, estado, cep, area, quartos, vagas, preco, status, distribuicao_leads)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
        RETURNING *`,
       [
         cid, dto.titulo, dto.descricao ?? null, dto.tipo ?? 'apartamento',
@@ -103,6 +103,7 @@ export class ImoveisUsadosService {
         dto.cidade ?? 'Belo Horizonte', dto.estado ?? 'MG',
         dto.cep ?? null, dto.area ?? null, dto.quartos ?? null,
         dto.vagas ?? null, dto.preco ?? null, dto.status ?? 'disponivel',
+        dto.distribuicao_leads ?? DistribuicaoLeadsImovelUsado.CONSTRUTORA,
       ],
     );
     return iu;

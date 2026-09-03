@@ -20,10 +20,14 @@ interface ImovelUsado {
 
 const TIPOS = ['apartamento','casa','cobertura','terreno','comercial'];
 const STATUS_OPT = ['disponivel','reservado','vendido'];
+const DIST_OPTS = [
+  { value: 'construtora', label: 'Direto para a construtora', desc: 'O contato vai para o e-mail da construtora' },
+  { value: 'parceiros',   label: 'Distribuir para parceiros', desc: 'Segue as regras de distribuição configuradas' },
+];
 const EMPTY = {
   titulo:'', descricao:'', tipo:'apartamento', endereco:'', bairro:'',
   cidade:'Belo Horizonte', estado:'MG', cep:'', area:'', quartos:'',
-  vagas:'', preco:'', status:'disponivel',
+  vagas:'', preco:'', status:'disponivel', distribuicao_leads:'construtora',
 };
 
 export default function ImoveisUsadosDashboard() {
@@ -66,7 +70,7 @@ export default function ImoveisUsadosDashboard() {
   const abrirModal = (im?: ImovelUsado) => {
     if (im) {
       setEditando(im);
-      setForm({ ...EMPTY, ...im, area: im.area?.toString() ?? '', quartos: im.quartos?.toString() ?? '', vagas: im.vagas?.toString() ?? '', preco: im.preco?.toString() ?? '' });
+      setForm({ ...EMPTY, ...im, area: im.area?.toString() ?? '', quartos: im.quartos?.toString() ?? '', vagas: im.vagas?.toString() ?? '', preco: im.preco?.toString() ?? '', distribuicao_leads: (im as any).distribuicao_leads ?? 'construtora' });
     } else {
       setEditando(null);
       setForm({ ...EMPTY });
@@ -306,6 +310,30 @@ export default function ImoveisUsadosDashboard() {
               <div className="col-span-2">
                 <label className="label">Descrição</label>
                 <textarea className="input" rows={3} value={form.descricao} onChange={e => setForm(p => ({ ...p, descricao: e.target.value }))} />
+              </div>
+
+              {/* Distribuição de leads */}
+              <div className="col-span-2">
+                <label className="label">Distribuição de leads</label>
+                <div className="grid grid-cols-2 gap-3 mt-1">
+                  {DIST_OPTS.map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setForm(p => ({ ...p, distribuicao_leads: opt.value }))}
+                      className={`text-left p-3 rounded-xl border-2 transition-all ${
+                        form.distribuicao_leads === opt.value
+                          ? 'border-[#0E8F6E] bg-[#0E8F6E]/5'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <p className={`text-sm font-semibold ${form.distribuicao_leads === opt.value ? 'text-[#0E8F6E]' : 'text-gray-700'}`}>
+                        {opt.label}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="flex justify-end gap-3 p-6 border-t">

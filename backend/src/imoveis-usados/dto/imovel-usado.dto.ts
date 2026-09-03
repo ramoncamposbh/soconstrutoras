@@ -15,6 +15,11 @@ export enum StatusImovelUsado {
   VENDIDO = 'vendido',
 }
 
+export enum DistribuicaoLeadsImovelUsado {
+  CONSTRUTORA = 'construtora',
+  PARCEIROS   = 'parceiros',
+}
+
 export class CriarImovelUsadoDto {
   @IsString()
   titulo: string;
@@ -54,6 +59,9 @@ export class CriarImovelUsadoDto {
 
   @IsOptional() @IsEnum(StatusImovelUsado)
   status?: StatusImovelUsado;
+
+  @IsOptional() @IsEnum(DistribuicaoLeadsImovelUsado)
+  distribuicao_leads?: DistribuicaoLeadsImovelUsado;
 }
 
 export class AtualizarImovelUsadoDto extends CriarImovelUsadoDto {}
