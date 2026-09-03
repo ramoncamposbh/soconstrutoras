@@ -69,13 +69,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const SidebarContent = () => (
     <>
-      <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
-          <LogoFaicoh height={28} textColor="dark" />
+      <div
+        className="relative flex items-center justify-between px-5 py-5 overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #04241D 0%, #0E8F6E 100%)' }}
+      >
+        {/* círculos decorativos */}
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10 pointer-events-none" />
+        <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
+
+        <Link href="/" className="relative flex flex-col gap-0.5 shrink-0">
+          <LogoFaicoh height={36} textColor="white" />
+          <span className="text-white/60 text-[10px] tracking-widest uppercase pl-0.5">Portal do Construtor</span>
         </Link>
         <button
           onClick={() => setSidebarAberto(false)}
-          className="md:hidden p-1 text-gray-400 hover:text-gray-600"
+          className="md:hidden relative p-1 text-white/70 hover:text-white"
         >
           <X className="w-5 h-5" />
         </button>
@@ -193,12 +201,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <div className="md:hidden bg-white border-b border-gray-100 px-4 h-14 flex items-center justify-between sticky top-0 z-20">
-          <button onClick={() => setSidebarAberto(true)} className="p-2 -ml-2 text-gray-500 hover:text-gray-900">
+        <div className="md:hidden sticky top-0 z-20 flex items-center justify-between px-4 h-14"
+          style={{ background: 'linear-gradient(90deg, #04241D, #0E8F6E)' }}>
+          <button onClick={() => setSidebarAberto(true)} className="p-2 -ml-2 text-white/80 hover:text-white">
             <Menu className="w-5 h-5" />
           </button>
-          <Link href="/" className="flex items-center gap-2">
-            <LogoFaicoh height={24} textColor="dark" />
+          <Link href="/">
+            <LogoFaicoh height={26} textColor="white" />
           </Link>
           <div className="w-9" />
         </div>
