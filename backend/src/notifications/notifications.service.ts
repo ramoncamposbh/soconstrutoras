@@ -74,7 +74,7 @@ export class NotificationsService {
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; margin: 0; padding: 0; }
     .container { max-width: 560px; margin: 32px auto; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
-    .header { background: #4361ee; padding: 28px 32px; color: #fff; }
+    .header { background: #0E8F6E; padding: 28px 32px; color: #fff; }
     .header h1 { margin: 0; font-size: 20px; font-weight: 700; }
     .header p { margin: 4px 0 0; font-size: 13px; opacity: 0.85; }
     .body { padding: 28px 32px; }
@@ -84,7 +84,7 @@ export class NotificationsService {
     .field { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
     .field-label { font-size: 12px; color: #64748b; min-width: 80px; padding-top: 1px; }
     .field-value { font-size: 14px; color: #1e293b; font-weight: 500; }
-    .btn { display: inline-block; background: #4361ee; color: #fff !important; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px; }
+    .btn { display: inline-block; background: #0E8F6E; color: #fff !important; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px; }
     .footer { padding: 20px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center; }
   </style>
 </head>
