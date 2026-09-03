@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
 
 export interface LeadNotificacaoPayload {
   parceiro_nome:   string;
@@ -18,37 +17,40 @@ export interface LeadNotificacaoPayload {
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
-  private readonly transporter: nodemailer.Transporter;
   private readonly from: string;
+  private readonly apiKey: string;
 
   constructor(private readonly config: ConfigService) {
-    this.from = config.get('EMAIL_FROM', 'noreply@soconstrutoras.com.br');
-
-    this.transporter = nodemailer.createTransport({
-      host:   config.get('SMTP_HOST', 'smtp.resend.com'),
-      port:   Number(config.get('SMTP_PORT', 465)),
-      secure: Number(config.get('SMTP_PORT', 465)) === 465,
-      auth: {
-        user: config.get('SMTP_USER', ''),
-        pass: config.get('SMTP_PASS', ''),
-      },
-    });
+    this.from    = config.get('EMAIL_FROM', 'lead@faicoh.com.br');
+    this.apiKey  = config.get('SMTP_PASS', '');   // API key do Resend
   }
 
   /** E-mail enviado ao parceiro quando recebe um novo lead */
   async notificarNovoCead(payload: LeadNotificacaoPayload): Promise<void> {
     const { parceiro_email, parceiro_nome } = payload;
-
     const html = this.templateNovoLead(payload);
 
     try {
-      await this.transporter.sendMail({
-        from:    `"SóConstrutoras" <${this.from}>`,
-        to:      `"${parceiro_nome}" <${parceiro_email}>`,
-        subject: `🏠 Novo lead: ${payload.lead_nome} — ${payload.empreendimento}`,
-        html,
+      const res = await fetch('https://api.resend.com/emails', {
+        method:  'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          from:    `SóConstrutoras <${this.from}>`,
+          to:      [parceiro_email],
+          subject: `🏠 Novo lead: ${payload.lead_nome} — ${payload.empreendimento}`,
+          html,
+        }),
       });
-      this.logger.log(`E-mail de lead enviado para ${parceiro_email}`);
+
+      if (!res.ok) {
+        const err = await res.text();
+        this.logger.error(`Resend API error ${res.status}: ${err}`);
+      } else {
+        this.logger.log(`E-mail de lead enviado para ${parceiro_email}`);
+      }
     } catch (err) {
       // Falha no e-mail nunca deve derrubar a atribuição do lead
       this.logger.error(`Falha ao enviar e-mail para ${parceiro_email}: ${err}`);
