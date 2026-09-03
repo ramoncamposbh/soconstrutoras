@@ -146,72 +146,20 @@ export default function ImoveisUsadosDashboard() {
     </div>
   );
 
-  const publicados  = imoveis.filter(i => i.publicado).length;
-  const disponiveis = imoveis.filter(i => i.status === 'disponivel').length;
-  const pct = limite > 0 ? Math.min((imoveis.length / limite) * 100, 100) : 0;
-
   return (
-    <div className="max-w-5xl mx-auto">
-
-      {/* ── Hero banner ── */}
-      <div
-        className="rounded-2xl mb-6 p-6 md:p-8 text-white overflow-hidden relative"
-        style={{ background: 'linear-gradient(135deg, #04241D 0%, #0E8F6E 100%)' }}
-      >
-        {/* círculos decorativos */}
-        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none" />
-
-        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-          {/* Ícone + título */}
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
-              <Home className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Imóveis Usados</h1>
-              <p className="text-white/70 text-sm mt-0.5">Permuta · gestão de imóveis recebidos</p>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="flex gap-4 md:gap-6">
-            {[
-              { label: 'Cadastrados', value: imoveis.length },
-              { label: 'Publicados',  value: publicados },
-              { label: 'Disponíveis', value: disponiveis },
-              { label: 'Limite',      value: limite },
-            ].map(s => (
-              <div key={s.label} className="text-center">
-                <p className="text-2xl font-bold">{s.value}</p>
-                <p className="text-white/60 text-xs">{s.label}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Botão */}
-          <button
-            onClick={() => abrirModal()}
-            disabled={imoveis.length >= limite}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white text-[#0E8F6E] font-semibold text-sm rounded-xl shadow hover:bg-white/90 transition disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-          >
-            <Plus className="w-4 h-4" /> Novo imóvel
-          </button>
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Imóveis Usados</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{imoveis.length}/{limite} cadastrados · permuta</p>
         </div>
-
-        {/* Barra de capacidade */}
-        <div className="relative mt-5">
-          <div className="flex justify-between text-xs text-white/60 mb-1">
-            <span>Capacidade utilizada</span>
-            <span>{imoveis.length}/{limite}</span>
-          </div>
-          <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-white rounded-full transition-all"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
+        <button
+          onClick={() => abrirModal()}
+          disabled={imoveis.length >= limite}
+          className="btn-primary flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Plus className="w-4 h-4" /> Novo imóvel
+        </button>
       </div>
 
       {/* Lista */}
