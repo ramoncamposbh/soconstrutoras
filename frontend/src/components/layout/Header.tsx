@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import LogoFaicoh from './LogoFaicoh';
 import { useAuth } from '@/lib/auth';
+import InstallPWA from '@/components/pwa/InstallPWA';
 import {
   LogIn, LayoutDashboard, Bell, Heart, LogOut, ChevronDown,
   Menu, X, Home, Handshake, Calculator, Ruler, Rocket,
@@ -46,13 +47,16 @@ export default function Header() {
   const renderUserBtn = () => {
     if (!isAuthenticated) {
       return (
-        <Link href="/auth/login" style={{
-          display: 'flex', alignItems: 'center', gap: 5,
-          background: '#0E8F6E', color: '#fff', fontSize: 12, fontWeight: 600,
-          padding: '6px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap',
-        }}>
-          <LogIn size={13} /> Entrar
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <InstallPWA />
+          <Link href="/auth/login" style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            background: '#0E8F6E', color: '#fff', fontSize: 12, fontWeight: 600,
+            padding: '6px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap',
+          }}>
+            <LogIn size={13} /> Entrar
+          </Link>
+        </div>
       );
     }
 

@@ -1,0 +1,27 @@
+{
+  "name": "FAICOH — Imóveis Novos",
+  "short_name": "FAICOH",
+  "description": "Todas as construtoras em um só lugar. Busca por IA, lançamentos e oportunidades.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#04241D",
+  "theme_color": "#04241D",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["real estate", "lifestyle", "business"]
+}
