@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import AutocompleteCidade from './AutocompleteCidade';
 
 /* ─── tipos ─────────────────────────────────────────────────────────────── */
@@ -16,6 +16,7 @@ interface Filtros {
   vagas?: number;
   area_min?: number;
   status?: string;
+  busca?: string;
 }
 
 interface Props {
@@ -30,12 +31,41 @@ const ESTAGIOS = [
   { label: 'Em Construção', value: 'em_obras'   },
   { label: 'Pronto',        value: 'pronto'     },
 ];
-const SUITES_OPT = [
-  { label: '1', value: 1 }, { label: '2', value: 2 },
-  { label: '3', value: 3 }, { label: '4+', value: 4 },
+const SUITES_OPT  = [{ label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4+', value: 4 }];
+const VAGAS_OPT   = [{ label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3+', value: 3 }];
+
+const TIPOS_IMOVEL = [
+  { label: 'Apartamento', value: 'apartamento' },
+  { label: 'Cobertura',   value: 'cobertura'   },
+  { label: 'Garden',      value: 'garden'      },
+  { label: 'Duplex',      value: 'duplex'      },
+  { label: 'Studio',      value: 'studio'      },
+  { label: 'Comercial',   value: 'comercial'   },
 ];
-const VAGAS_OPT = [
-  { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3+', value: 3 },
+
+const AREAS_OPT = [
+  { label: '50 m²',  value: 50  },
+  { label: '75 m²',  value: 75  },
+  { label: '100 m²', value: 100 },
+  { label: '150 m²', value: 150 },
+  { label: '200 m²', value: 200 },
+];
+
+const AMENIDADES = [
+  { label: 'Piscina',         value: 'piscina'        },
+  { label: 'Academia',        value: 'academia'       },
+  { label: 'Churrasqueira',   value: 'churrasqueira'  },
+  { label: 'Salão de Festas', value: 'salão de festas'},
+  { label: 'Playground',      value: 'playground'     },
+  { label: 'Quadra',          value: 'quadra'         },
+  { label: 'Spa',             value: 'spa'            },
+  { label: 'Coworking',       value: 'coworking'      },
+  { label: 'Pet Friendly',    value: 'pet'            },
+  { label: 'Área Gourmet',    value: 'gourmet'        },
+  { label: 'Varanda',         value: 'varanda'        },
+  { label: 'Garden',          value: 'garden'         },
+  { label: 'Portaria 24h',    value: 'portaria'       },
+  { label: 'Elevador',        value: 'elevador'       },
 ];
 
 function fmtPreco(v: number) {
@@ -48,10 +78,11 @@ function fmtPreco(v: number) {
 function Pill({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
     <button type="button" onClick={onClick} style={{
-      padding: '7px 18px', borderRadius: 20, fontSize: 13, fontWeight: 600,
+      padding: '7px 16px', borderRadius: 20, fontSize: 13, fontWeight: 600,
       cursor: 'pointer', border: 'none', transition: 'all 0.15s',
       background: selected ? '#04241D' : '#ede9e2',
       color: selected ? '#fff' : '#374151',
+      whiteSpace: 'nowrap',
     }}>
       {label}
     </button>
@@ -59,13 +90,11 @@ function Pill({ label, selected, onClick }: { label: string; selected: boolean; 
 }
 
 /* ─── Slider duplo ───────────────────────────────────────────────────────── */
-function RangeSlider({ min, max, onMin, onMax }: {
-  min: number; max: number; onMin: (v: number) => void; onMax: (v: number) => void;
-}) {
+function RangeSlider({ min, max, onMin, onMax }: { min: number; max: number; onMin: (v: number) => void; onMax: (v: number) => void }) {
   const minPct = (min / PRECO_MAX_ABS) * 100;
   const maxPct = (max / PRECO_MAX_ABS) * 100;
   return (
-    <div style={{ padding: '4px 0 4px' }}>
+    <div>
       <div style={{ position: 'relative', height: 4, background: '#e8e4dc', borderRadius: 4, margin: '14px 0' }}>
         <div style={{ position: 'absolute', top: 0, bottom: 0, left: `${minPct}%`, width: `${maxPct - minPct}%`, background: '#04241D', borderRadius: 4 }} />
         <input type="range" min={0} max={PRECO_MAX_ABS} step={50_000} value={min}
@@ -77,7 +106,7 @@ function RangeSlider({ min, max, onMin, onMax }: {
         {[minPct, maxPct].map((pct, i) => (
           <div key={i} style={{
             position: 'absolute', top: '50%', left: `${pct}%`,
-            transform: 'translate(-50%, -50%)', width: 18, height: 18, borderRadius: '50%',
+            transform: 'translate(-50%,-50%)', width: 18, height: 18, borderRadius: '50%',
             background: '#fff', border: '2.5px solid #04241D',
             boxShadow: '0 1px 4px rgba(0,0,0,0.18)', zIndex: 1, pointerEvents: 'none',
           }} />
@@ -92,10 +121,18 @@ function RangeSlider({ min, max, onMin, onMax }: {
   );
 }
 
+/* ─── Label de seção ─────────────────────────────────────────────────────── */
+function SL({ title }: { title: string }) {
+  return <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', margin: '18px 0 10px' }}>{title}</p>;
+}
+
 /* ─── Componente principal ───────────────────────────────────────────────── */
 export default function FiltrosBusca({ onBuscar, loading }: Props) {
   const [open, setOpen]           = useState(false);
   const [mounted, setMounted]     = useState(false);
+  const [maisAberto, setMaisAberto] = useState(false);
+
+  // filtros principais
   const [cidadeSel, setCidadeSel] = useState('');
   const [estadoSel, setEstadoSel] = useState('');
   const [suites, setSuites]       = useState<number | undefined>();
@@ -104,14 +141,20 @@ export default function FiltrosBusca({ onBuscar, loading }: Props) {
   const [precoMin, setPrecoMin]   = useState(0);
   const [precoMax, setPrecoMax]   = useState(PRECO_MAX_ABS);
 
+  // mais filtros
+  const [tipo, setTipo]           = useState('');
+  const [areaMin, setAreaMin]     = useState<number | undefined>();
+  const [amenidade, setAmenidade] = useState('');
+
   useEffect(() => { setMounted(true); }, []);
 
-  const ativos = [cidadeSel, suites, vagas,
+  const ativos = [
+    cidadeSel, suites, vagas,
     estagios.length > 0 ? true : undefined,
     precoMin > 0 || precoMax < PRECO_MAX_ABS ? true : undefined,
+    tipo, areaMin, amenidade,
   ].filter(Boolean).length;
 
-  /* Bloqueia scroll do body quando aberto */
   useEffect(() => {
     if (!mounted) return;
     document.body.style.overflow = open ? 'hidden' : '';
@@ -132,62 +175,51 @@ export default function FiltrosBusca({ onBuscar, loading }: Props) {
       cidade:      cidadeSel || undefined,
       estado:      estadoSel || undefined,
       quartos_min: suites,
-      vagas:       vagas,
+      vagas,
       status:      estagios.length === 1 ? estagios[0] : undefined,
       preco_min:   precoMin > 0 ? precoMin : undefined,
       preco_max:   precoMax < PRECO_MAX_ABS ? precoMax : undefined,
+      tipo:        tipo || undefined,
+      area_min:    areaMin,
+      busca:       amenidade || undefined,
     });
     setOpen(false);
-  }, [cidadeSel, estadoSel, suites, vagas, estagios, precoMin, precoMax, onBuscar]);
+  }, [cidadeSel, estadoSel, suites, vagas, estagios, precoMin, precoMax, tipo, areaMin, amenidade, onBuscar]);
 
   const limpar = () => {
     setCidadeSel(''); setEstadoSel('');
-    setSuites(undefined); setVagas(undefined);
-    setEstagios([]); setPrecoMin(0); setPrecoMax(PRECO_MAX_ABS);
+    setSuites(undefined); setVagas(undefined); setEstagios([]);
+    setPrecoMin(0); setPrecoMax(PRECO_MAX_ABS);
+    setTipo(''); setAreaMin(undefined); setAmenidade('');
     onBuscar({});
     setOpen(false);
   };
 
-  /* ── Portal: overlay + drawer montados direto no body ── */
   const portal = mounted ? createPortal(
     <>
       {/* Overlay */}
-      <div
-        onClick={() => setOpen(false)}
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.45)',
-          zIndex: 99998,
-          opacity: open ? 1 : 0,
-          pointerEvents: open ? 'auto' : 'none',
-          transition: 'opacity 0.3s',
-        }}
-      />
+      <div onClick={() => setOpen(false)} style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.45)', zIndex: 99998,
+        opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none',
+        transition: 'opacity 0.3s',
+      }} />
 
       {/* Drawer */}
       <div style={{
-        position: 'fixed',
-        bottom: 0, left: 0, right: 0,
-        zIndex: 99999,
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 99999,
         transform: open ? 'translateY(0)' : 'translateY(100%)',
         transition: 'transform 0.32s cubic-bezier(0.32,0.72,0,1)',
       }}>
-        {/* Centralizador desktop */}
         <div style={{
-          maxWidth: 480,
-          margin: '0 auto',
-          background: '#faf9f6',
-          borderRadius: '24px 24px 0 0',
+          maxWidth: 480, margin: '0 auto',
+          background: '#faf9f6', borderRadius: '24px 24px 0 0',
           boxShadow: '0 -8px 40px rgba(0,0,0,0.22)',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '85svh',
-          /* fallback para browsers sem svh */
-          ...(typeof CSS !== 'undefined' && CSS.supports('height', '1svh')
-            ? {} : { maxHeight: 'calc(100vh - 80px)' }),
+          display: 'flex', flexDirection: 'column',
+          maxHeight: 'calc(100vh - 60px)',
         }}>
           {/* Handle */}
-          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, paddingBottom: 4 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, paddingBottom: 4, flexShrink: 0 }}>
             <div style={{ width: 36, height: 4, borderRadius: 2, background: '#d1cec7' }} />
           </div>
 
@@ -203,48 +235,107 @@ export default function FiltrosBusca({ onBuscar, loading }: Props) {
             </button>
           </div>
 
-          {/* Conteúdo com scroll */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+          {/* Conteúdo — minHeight:0 é essencial para o flex não vazar */}
+          <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: '0 20px', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
 
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', margin: '16px 0 10px' }}>Localização</p>
+            <SL title="Localização" />
             <AutocompleteCidade value={cidadeSel}
               onChange={(c, e) => { setCidadeSel(c); setEstadoSel(e); }}
               placeholder="Cidade, bairro ou estado..." />
 
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', margin: '18px 0 10px' }}>Suítes</p>
+            <SL title="Suítes" />
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {SUITES_OPT.map(o => (
-                <Pill key={o.value} label={o.label}
-                  selected={suites === o.value}
+                <Pill key={o.value} label={o.label} selected={suites === o.value}
                   onClick={() => setSuites(suites === o.value ? undefined : o.value)} />
               ))}
             </div>
 
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', margin: '18px 0 10px' }}>Vagas</p>
+            <SL title="Vagas" />
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {VAGAS_OPT.map(o => (
-                <Pill key={o.value} label={o.label}
-                  selected={vagas === o.value}
+                <Pill key={o.value} label={o.label} selected={vagas === o.value}
                   onClick={() => setVagas(vagas === o.value ? undefined : o.value)} />
               ))}
             </div>
 
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', margin: '18px 0 10px' }}>Estágio</p>
+            <SL title="Estágio" />
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {ESTAGIOS.map(e => (
-                <Pill key={e.value} label={e.label}
-                  selected={estagios.includes(e.value)}
+                <Pill key={e.value} label={e.label} selected={estagios.includes(e.value)}
                   onClick={() => toggleEstag(e.value)} />
               ))}
             </div>
 
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', margin: '18px 0 10px' }}>Investimento</p>
+            <SL title="Investimento" />
             <RangeSlider min={precoMin} max={precoMax} onMin={setPrecoMin} onMax={setPrecoMax} />
 
-            <div style={{ height: 8 }} />
+            {/* ── Mais filtros ── */}
+            <div style={{ margin: '20px 0 0', borderTop: '1px solid #e8e4dc', paddingTop: 4 }}>
+              <button
+                type="button"
+                onClick={() => setMaisAberto(v => !v)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  width: '100%', padding: '12px 0',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                }}
+              >
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>
+                  Mais filtros
+                  {(tipo || areaMin || amenidade) && (
+                    <span style={{
+                      marginLeft: 8, fontSize: 11, fontWeight: 700,
+                      background: '#04241D', color: '#fff',
+                      padding: '2px 7px', borderRadius: 10,
+                    }}>
+                      {[tipo, areaMin, amenidade].filter(Boolean).length}
+                    </span>
+                  )}
+                </span>
+                {maisAberto
+                  ? <ChevronUp size={16} color="#9CA3AF" />
+                  : <ChevronDown size={16} color="#9CA3AF" />}
+              </button>
+
+              {maisAberto && (
+                <div>
+                  <SL title="Tipo de imóvel" />
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {TIPOS_IMOVEL.map(t => (
+                      <Pill key={t.value} label={t.label}
+                        selected={tipo === t.value}
+                        onClick={() => setTipo(tipo === t.value ? '' : t.value)} />
+                    ))}
+                  </div>
+
+                  <SL title="Área mínima" />
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {AREAS_OPT.map(a => (
+                      <Pill key={a.value} label={a.label}
+                        selected={areaMin === a.value}
+                        onClick={() => setAreaMin(areaMin === a.value ? undefined : a.value)} />
+                    ))}
+                  </div>
+
+                  <SL title="Características e lazer" />
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {AMENIDADES.map(a => (
+                      <Pill key={a.value} label={a.label}
+                        selected={amenidade === a.value}
+                        onClick={() => setAmenidade(amenidade === a.value ? '' : a.value)} />
+                    ))}
+                  </div>
+
+                  <div style={{ height: 8 }} />
+                </div>
+              )}
+            </div>
+
+            <div style={{ height: 12 }} />
           </div>
 
-          {/* Footer fixo */}
+          {/* Footer — sempre visível */}
           <div style={{
             padding: '14px 20px 28px', display: 'flex', gap: 10,
             borderTop: '1px solid #e8e4dc', background: '#faf9f6', flexShrink: 0,
@@ -275,20 +366,16 @@ export default function FiltrosBusca({ onBuscar, loading }: Props) {
 
   return (
     <>
-      {/* ── Trigger: mesmo estilo do botão antigo ── */}
+      {/* Trigger — mesmo estilo do botão antigo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.15)' }} />
-        <button
-          type="button"
-          onClick={() => setOpen(v => !v)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 20px',
-            background: 'linear-gradient(90deg, #0E8F6E, #22D497)',
-            color: '#fff', fontSize: 12, fontWeight: 700,
-            borderRadius: 8, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
-          }}
-        >
+        <button type="button" onClick={() => setOpen(v => !v)} style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '8px 20px',
+          background: 'linear-gradient(90deg, #0E8F6E, #22D497)',
+          color: '#fff', fontSize: 12, fontWeight: 700,
+          borderRadius: 8, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+        }}>
           <ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
           {open ? 'Ocultar filtros' : 'Filtros tradicionais'}
           {ativos > 0 && (
@@ -304,7 +391,6 @@ export default function FiltrosBusca({ onBuscar, loading }: Props) {
         <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.15)' }} />
       </div>
 
-      {/* Portal renderizado no body — fora de qualquer transform pai */}
       {portal}
     </>
   );
