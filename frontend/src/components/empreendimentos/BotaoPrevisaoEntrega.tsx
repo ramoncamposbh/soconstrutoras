@@ -39,7 +39,7 @@ export default function BotaoPrevisaoEntrega({ previsaoEntrega, slug }: Props) {
       onClick={() => router.push(`/auth/login?redirect=/imoveis/${slug}`)}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: 4,
-        background: '#0E8F6E', color: '#fff',
+        background: '#04241D', color: '#fff',
         border: 'none', borderRadius: 6,
         padding: '3px 8px', fontSize: 12, fontWeight: 600,
         cursor: 'pointer', whiteSpace: 'nowrap',

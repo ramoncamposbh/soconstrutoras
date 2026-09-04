@@ -58,7 +58,7 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
   const fotos = (emp.midias ?? []).filter((m: any) => m.tipo === 'foto');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: '#faf9f6' }}>
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -104,18 +104,18 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
                   <>
                     <p className="text-xs text-gray-400 mb-1">Faixa de preco</p>
                     <p className="text-xs text-gray-500 mb-0.5">De</p>
-                    <p className="text-xl font-bold text-primary-600 leading-tight">
+                    <p className="text-xl font-bold text-gray-900 leading-tight">
                       {formatCurrency(precoMinUnidades!)}
                     </p>
                     <p className="text-xs text-gray-500 mt-1 mb-0.5">ate</p>
-                    <p className="text-xl font-bold text-primary-600 leading-tight">
+                    <p className="text-xl font-bold text-gray-900 leading-tight">
                       {formatCurrency(precoMaxUnidades!)}
                     </p>
                   </>
                 ) : precoExibir ? (
                   <>
                     <p className="text-xs text-gray-400">A partir de</p>
-                    <p className="text-2xl font-bold text-primary-600">
+                    <p className="text-2xl font-bold text-gray-900">
                       {formatCurrency(precoExibir)}
                     </p>
                   </>

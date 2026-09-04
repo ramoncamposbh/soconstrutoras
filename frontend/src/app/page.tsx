@@ -884,7 +884,7 @@ export default function HomePage() {
             ) : (
               <Link href="/auth/login"
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
-                style={{ background: '#0E8F6E' }}>
+                style={{ background: '#04241D' }}>
                 Entrar
               </Link>
             )}
