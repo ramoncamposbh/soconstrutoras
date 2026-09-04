@@ -79,7 +79,7 @@ export default function DashboardPage() {
             value={adminStats.total_empreendimentos ?? 0}
             icon={LayoutGrid}
             color="bg-blue-500"
-            href="/dashboard/construtoras/empreendimentos"
+            href="/dashboard/construtoras/todos-empreendimentos"
           />
           <StatCard
             label="Total de Leads"
