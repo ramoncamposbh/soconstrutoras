@@ -1288,33 +1288,6 @@ export default function HomePage() {
       </footer>
 
 
-      {/* ══ BOTTOM NAV MOBILE ══ */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100"
-        style={{ boxShadow: '0 -1px 0 #E5E7EB' }}>
-        <div className="flex">
-          {[
-            { href: '/',              icon: Home,      label: 'Início'    },
-            { href: '/busca',         icon: Search,    label: 'Buscar'    },
-            { href: '/favoritos',     icon: Heart,     label: 'Favoritos' },
-            {
-              href: isAuthenticated
-                ? (user?.role === 'construtora' || user?.role === 'admin' ? '/dashboard' : '/')
-                : '/auth/login',
-              icon: isAuthenticated ? Users : LogIn,
-              label: isAuthenticated ? 'Painel' : 'Entrar',
-            },
-          ].map(({ href, icon: Icon, label }) => (
-            <Link key={label} href={href}
-              className="flex-1 flex flex-col items-center py-2.5 gap-1 transition-colors"
-              style={{ color: '#9CA3AF' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0E8F6E'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#9CA3AF'; }}>
-              <Icon className="w-5 h-5" strokeWidth={1.6} />
-              <span className="text-[10px] font-medium">{label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
 
       {/* ══ MODAL: Progresso da busca IA ══ */}
       {buscaProgresso && (() => {
