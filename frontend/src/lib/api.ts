@@ -153,6 +153,12 @@ export const lojasApi = {
 };
 
 export const adminApi = {
+  // Stats globais admin
+  adminStats:                  () => api.get('/construtoras/admin/stats'),
+  adminLeads:                  (params?: { construtora_id?: string; data_inicio?: string; data_fim?: string }) => {
+    const q = new URLSearchParams(params as any).toString();
+    return api.get(`/construtoras/admin/leads${q ? '?' + q : ''}`);
+  },
   // Construtoras
   listarConstrutoras:          () => api.get('/construtoras/admin/lista'),
   editarConstrutora:           (id: string, dto: any) => api.patch(`/construtoras/admin/${id}/editar`, dto),

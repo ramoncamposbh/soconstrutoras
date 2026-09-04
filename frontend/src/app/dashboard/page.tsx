@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { construtoraApi } from '@/lib/api';
-import type { DashboardStats } from '@/types';
-import { Building2, Users, Bell, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
+import { construtoraApi, adminApi } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
+import { Building2, Users, Bell, TrendingUp, Loader2, CheckCircle, LayoutGrid } from 'lucide-react';
 
 interface StatCardProps {
   label: string;
@@ -28,20 +28,29 @@ function StatCard({ label, value, icon: Icon, color, sub, href }: StatCardProps)
       </div>
     </div>
   );
-
   if (href) return <Link href={href}>{inner}</Link>;
   return inner;
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  const [stats, setStats]           = useState<any | null>(null);
+  const [adminStats, setAdminStats] = useState<any | null>(null);
+  const [loading, setLoading]       = useState(true);
 
   useEffect(() => {
-    construtoraApi.dashboard()
-      .then((res) => setStats(res.data))
-      .finally(() => setLoading(false));
-  }, []);
+    if (isAdmin) {
+      adminApi.adminStats()
+        .then(r => setAdminStats(r.data))
+        .finally(() => setLoading(false));
+    } else {
+      construtoraApi.dashboard()
+        .then(r => setStats(r.data))
+        .finally(() => setLoading(false));
+    }
+  }, [isAdmin]);
 
   if (loading) {
     return (
@@ -51,6 +60,70 @@ export default function DashboardPage() {
     );
   }
 
+  /* ── ADMIN VIEW ─────────────────────────────────────── */
+  if (isAdmin && adminStats) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Visão geral — Admin</h1>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <StatCard
+            label="Total de Construtoras"
+            value={adminStats.total_construtoras ?? 0}
+            icon={Building2}
+            color="bg-primary-500"
+            href="/dashboard/construtoras/empreendimentos"
+          />
+          <StatCard
+            label="Total de Empreendimentos"
+            value={adminStats.total_empreendimentos ?? 0}
+            icon={LayoutGrid}
+            color="bg-blue-500"
+            href="/dashboard/construtoras/empreendimentos"
+          />
+          <StatCard
+            label="Total de Leads"
+            value={adminStats.total_leads ?? 0}
+            icon={Bell}
+            color="bg-purple-500"
+            href="/dashboard/construtoras/leads"
+          />
+        </div>
+
+        {/* Leads por construtora */}
+        <div className="card p-6">
+          <h2 className="font-semibold text-gray-900 mb-4">Leads por construtora</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left py-2 text-gray-500 font-medium">Construtora</th>
+                  <th className="text-right py-2 text-gray-500 font-medium">Total leads</th>
+                  <th className="text-right py-2 text-gray-500 font-medium">Novos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(adminStats.leads_por_construtora ?? []).map((c: any) => (
+                  <tr key={c.construtora_id} className="border-b border-gray-50 hover:bg-gray-50">
+                    <td className="py-2 font-medium text-gray-800">{c.construtora_nome}</td>
+                    <td className="py-2 text-right text-gray-700">{c.total_leads}</td>
+                    <td className="py-2 text-right">
+                      {c.leads_novos > 0
+                        ? <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs">{c.leads_novos} novo{c.leads_novos !== 1 ? 's' : ''}</span>
+                        : <span className="text-gray-400">—</span>
+                      }
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── CONSTRUTORA VIEW ───────────────────────────────── */
   const taxa = stats && stats.total_leads > 0
     ? Math.round((stats.leads_convertidos / stats.total_leads) * 100)
     : 0;
@@ -93,7 +166,6 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Próximas ações */}
       <div className="card p-6">
         <h2 className="font-semibold text-gray-900 mb-4">Próximas ações recomendadas</h2>
         <div className="space-y-3">

@@ -27,6 +27,7 @@ const navItems = [
 // Sub-itens da seção Construtoras (só admin)
 const construtorasSubItems = [
   { href: '/dashboard/construtoras/empreendimentos', label: 'Empreendimentos', icon: Building2 },
+  { href: '/dashboard/construtoras/leads',           label: 'Leads',           icon: Bell      },
   { href: '/dashboard/construtoras/usuarios',        label: 'Usuários',        icon: UserCog   },
   { href: '/dashboard/construtoras/imoveis-usados',  label: 'Imóveis Usados',  icon: Home      },
 ];

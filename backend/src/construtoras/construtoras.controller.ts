@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Post, Delete, Body, Param, UseGuards, Request, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Delete, Body, Param, Query, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { ConstutorasService } from './construtoras.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -39,6 +39,25 @@ export class ConstutorasController {
   deletarAdmin(@Param('id') id: string, @Request() req: any) {
     if (req.user?.role !== 'admin') throw new ForbiddenException();
     return this.service.deletarAdmin(id);
+  }
+
+  // GET /api/v1/construtoras/admin/stats
+  @Get('admin/stats')
+  adminStats(@Request() req: any) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.adminStats();
+  }
+
+  // GET /api/v1/construtoras/admin/leads
+  @Get('admin/leads')
+  adminLeads(
+    @Request() req: any,
+    @Query('construtora_id') construtoraId?: string,
+    @Query('data_inicio') dataInicio?: string,
+    @Query('data_fim') dataFim?: string,
+  ) {
+    if (req.user?.role !== 'admin') throw new ForbiddenException();
+    return this.service.adminLeads(construtoraId, dataInicio, dataFim);
   }
 
   // GET /api/v1/construtoras/admin/lista

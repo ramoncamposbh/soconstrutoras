@@ -147,6 +147,48 @@ export class ConstutorasService {
     return { ativo: u.ativo };
   }
 
+  async adminStats() {
+    const { rows: [stats] } = await this.pool.query(`
+      SELECT
+        (SELECT COUNT(*) FROM construtoras)::int AS total_construtoras,
+        (SELECT COUNT(*) FROM empreendimentos)::int AS total_empreendimentos,
+        (SELECT COUNT(*) FROM leads)::int AS total_leads
+    `);
+    const { rows: leadsPorConstrutora } = await this.pool.query(`
+      SELECT c.id AS construtora_id, c.nome_fantasia AS construtora_nome,
+             COUNT(l.id)::int AS total_leads,
+             COUNT(l.id) FILTER (WHERE l.status = 'novo')::int AS leads_novos
+      FROM construtoras c
+      LEFT JOIN empreendimentos e ON e.construtora_id = c.id
+      LEFT JOIN leads l ON l.empreendimento_id = e.id
+      GROUP BY c.id, c.nome_fantasia
+      ORDER BY total_leads DESC
+    `);
+    return { ...stats, leads_por_construtora: leadsPorConstrutora };
+  }
+
+  async adminLeads(construtoraId?: string, dataInicio?: string, dataFim?: string) {
+    const conditions: string[] = [];
+    const params: any[] = [];
+    let i = 1;
+    if (construtoraId) { conditions.push(`e.construtora_id = $${i++}`); params.push(construtoraId); }
+    if (dataInicio)    { conditions.push(`l.created_at >= $${i++}`);      params.push(dataInicio); }
+    if (dataFim)       { conditions.push(`l.created_at <= $${i++}`);      params.push(dataFim + ' 23:59:59'); }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const { rows } = await this.pool.query(`
+      SELECT l.id, l.nome, l.email, l.telefone, l.status, l.created_at,
+             e.nome AS empreendimento_nome,
+             c.nome_fantasia AS construtora_nome, c.id AS construtora_id
+      FROM leads l
+      JOIN empreendimentos e ON e.id = l.empreendimento_id
+      JOIN construtoras c ON c.id = e.construtora_id
+      ${where}
+      ORDER BY l.created_at DESC
+      LIMIT 500
+    `, params);
+    return rows;
+  }
+
   async dashboard(userId: string) {
     const { rows: [c] } = await this.pool.query(
       'SELECT id FROM construtoras WHERE user_id = $1',
