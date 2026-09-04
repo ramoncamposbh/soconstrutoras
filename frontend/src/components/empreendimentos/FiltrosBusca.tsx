@@ -238,6 +238,18 @@ export default function FiltrosBusca({ onBuscar, loading }: Props) {
           {/* Conteúdo — minHeight:0 é essencial para o flex não vazar */}
           <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: '0 20px', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
 
+            {/* Fechar — atalho acima da 1ª seção */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10 }}>
+              <button type="button" onClick={() => setOpen(false)} style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: 600, color: '#9CA3AF',
+                padding: '4px 0',
+              }}>
+                <X size={14} /> Fechar
+              </button>
+            </div>
+
             <SL title="Localização" />
             <AutocompleteCidade value={cidadeSel}
               onChange={(c, e) => { setCidadeSel(c); setEstadoSel(e); }}
