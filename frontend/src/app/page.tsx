@@ -788,7 +788,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen" style={{ background: '#faf9f6' }}>
 
       {/* ══ MENU GLOBAL DO USUÁRIO ══ */}
       {userMenuOpen && isAuthenticated && (
@@ -1001,7 +1001,7 @@ export default function HomePage() {
             {/* Campo IA */}
             <div className="bg-white rounded-2xl p-3 shadow-2xl">
               <div className="flex gap-2.5 items-start">
-                <MessageCircle className="w-5 h-5 mt-1 shrink-0" style={{ color: '#22c55e' }} />
+                <MessageCircle className="w-5 h-5 mt-1 shrink-0" style={{ color: '#0E8F6E' }} />
                 <textarea
                   ref={textareaRef}
                   value={aiText}
@@ -1021,7 +1021,7 @@ export default function HomePage() {
                 />
                 <button onClick={handleAiSearch}
                   className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors mt-0.5"
-                  style={{ background: '#22c55e' }}>
+                  style={{ background: '#04241D' }}>
                   <Send className="w-4 h-4 text-white" />
                 </button>
               </div>
@@ -1311,7 +1311,7 @@ export default function HomePage() {
                 </div>
                 <Link href="/auth/register"
                   className="inline-flex items-center gap-1.5 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
-                  style={{ background: '#22c55e' }}>
+                  style={{ background: '#04241D' }}>
                   <UserPlus className="w-3.5 h-3.5" /> Criar perfil grátis
                 </Link>
               </div>
@@ -1321,7 +1321,7 @@ export default function HomePage() {
       </section>
 
       {/* ══ BARRA DE RESULTADOS ══ */}
-      <div className="bg-white border-b border-gray-100 px-4 md:px-8 py-4 shrink-0">
+      <div className="px-4 md:px-8 py-4 shrink-0" style={{ background: '#fff', borderBottom: '1px solid #ece9e3' }}>
         <div className="max-w-6xl mx-auto flex items-start justify-between gap-4">
           <div>
             {loading ? (
@@ -1368,10 +1368,10 @@ export default function HomePage() {
       </div>
 
       {/* ══ CARDS + MAPA ══ */}
-      <div className={`flex md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:border md:border-gray-200 md:overflow-hidden pb-16 md:pb-0 ${vista === 'mapa' ? 'h-[calc(100vh-180px)]' : ''}`}>
+      <div className={`flex md:h-[calc(100vh-370px)] md:min-h-[380px] md:mx-4 md:mt-2 md:rounded-xl md:overflow-hidden pb-16 md:pb-0 ${vista === 'mapa' ? 'h-[calc(100vh-180px)]' : ''}`} style={{ border: '1px solid #e8e4dc' }}>
 
         {/* Cards */}
-        <div className={`w-full md:w-[55%] xl:w-[52%] overflow-y-auto bg-[#f9fafb] md:shrink-0 ${vista === 'mapa' ? 'hidden md:block' : 'block'}`}>
+        <div className={`w-full md:w-[55%] xl:w-[52%] overflow-y-auto md:shrink-0 ${vista === 'mapa' ? 'hidden md:block' : 'block'}`} style={{ background: '#faf9f6' }}>
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
               {Array.from({ length: 6 }).map((_, i) => (

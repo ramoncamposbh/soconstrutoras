@@ -13,7 +13,7 @@ import type { Empreendimento } from '@/types';
 
 // ─── Paleta brand ──────────────────────────────────────────────────────────
 const G = '#0E8F6E';
-const GD = '#0A6A52';
+const GD = '#04241D';
 
 // ─── Status badge ──────────────────────────────────────────────────────────
 const STATUS_LABEL: Record<string, { label: string; bg: string; text: string }> = {
@@ -92,7 +92,7 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
         href={`/imoveis/${emp.slug}`}
         className="group block bg-white rounded-[16px] overflow-hidden"
         style={{
-          border: hover ? `1.5px solid ${G}` : '1.5px solid #E5E7EB',
+          border: hover ? `1.5px solid ${G}` : '1.5px solid #e8e4dc',
           boxShadow: hover ? '0 8px 32px rgba(14,143,110,0.14)' : '0 1px 4px rgba(0,0,0,0.06)',
           transition: 'all 0.2s',
         }}
@@ -225,10 +225,11 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
             </div>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 4,
-              fontSize: 11.5, fontWeight: 700, color: G,
+              fontSize: 11.5, fontWeight: 700, color: hover ? '#fff' : '#04241D',
               padding: '6px 12px', borderRadius: 8,
-              border: `1.5px solid ${hover ? G : '#E5E7EB'}`,
-              transition: 'border-color 0.2s',
+              background: hover ? '#04241D' : 'transparent',
+              border: `1.5px solid ${hover ? '#04241D' : '#e8e4dc'}`,
+              transition: 'all 0.2s',
             }}>
               Ver detalhes <ChevronRight size={12} />
             </div>
