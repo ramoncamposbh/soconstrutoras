@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/api';
-import { Bell, Filter, Loader2, Search, X } from 'lucide-react';
+import { Bell, Filter, Loader2, Search, X, ArrowUpDown } from 'lucide-react';
 
 interface Lead {
   id: string;
@@ -40,6 +40,7 @@ export default function AdminLeadsPage() {
   const [dataInicio, setDataInicio]       = useState('');
   const [dataFim, setDataFim]             = useState('');
   const [busca, setBusca]                 = useState('');
+  const [sortBy, setSortBy]               = useState<'data_desc'|'data_asc'|'nome_asc'|'nome_desc'>('data_desc');
 
   const buscarLeads = useCallback(async () => {
     setLoading(true);
@@ -67,11 +68,17 @@ export default function AdminLeadsPage() {
     setConstrutoraId(''); setDataInicio(''); setDataFim(''); setBusca('');
   };
 
-  const leadsFiltrados = leads.filter(l =>
+  const leadsFiltrados = [...leads.filter(l =>
     !busca || [l.nome, l.email, l.telefone, l.empreendimento_nome].some(v =>
       v?.toLowerCase().includes(busca.toLowerCase())
     )
-  );
+  )].sort((a, b) => {
+    if (sortBy === 'data_desc') return b.created_at.localeCompare(a.created_at);
+    if (sortBy === 'data_asc')  return a.created_at.localeCompare(b.created_at);
+    if (sortBy === 'nome_asc')  return a.nome.localeCompare(b.nome);
+    if (sortBy === 'nome_desc') return b.nome.localeCompare(a.nome);
+    return 0;
+  });
 
   const total     = leadsFiltrados.length;
   const totalNovos = leadsFiltrados.filter(l => l.status === 'novo').length;
@@ -109,7 +116,7 @@ export default function AdminLeadsPage() {
             </button>
           )}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <select
             value={construtoraId}
             onChange={e => setConstrutoraId(e.target.value)}
@@ -136,6 +143,19 @@ export default function AdminLeadsPage() {
             className="input text-sm"
             placeholder="Data fim"
           />
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="w-4 h-4 text-gray-400 shrink-0" />
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as any)}
+              className="input text-sm flex-1"
+            >
+              <option value="data_desc">Data ↓ recente</option>
+              <option value="data_asc">Data ↑ antigo</option>
+              <option value="nome_asc">Nome A→Z</option>
+              <option value="nome_desc">Nome Z→A</option>
+            </select>
+          </div>
         </div>
         <div className="flex gap-2 mt-3">
           <div className="relative flex-1">

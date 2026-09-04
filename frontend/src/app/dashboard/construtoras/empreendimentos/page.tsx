@@ -7,8 +7,10 @@ import {
   ChevronRight, ChevronDown, Folder, FolderOpen,
   Building2, Users, Search, Loader2, HardHat,
   Shield, ShieldOff, AlertTriangle, Pencil, Trash2,
-  X, CheckCircle, FileText, User, Eye, EyeOff,
+  X, CheckCircle, FileText, User, Eye, EyeOff, ArrowUpDown,
 } from 'lucide-react';
+
+type SortKey = 'nome_asc' | 'nome_desc' | 'data_desc' | 'data_asc';
 
 interface Construtora {
   id: string; nome_fantasia: string; logo_url: string | null;
@@ -232,6 +234,7 @@ export default function AdminConstrutorasArvorePage() {
   const [items, setItems]     = useState<Construtora[]>([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca]     = useState('');
+  const [sortBy, setSortBy]   = useState<SortKey>('nome_asc');
 
   // Modal editar
   const [editandoId, setEditandoId] = useState<string | null>(null);
@@ -285,13 +288,23 @@ export default function AdminConstrutorasArvorePage() {
   };
 
   const filtrados = useMemo(() => {
-    if (!busca) return items;
     const q = busca.toLowerCase();
-    return items.filter(c =>
-      (c.nome_fantasia ?? '').toLowerCase().includes(q) ||
-      c.email.toLowerCase().includes(q),
-    );
-  }, [items, busca]);
+    const lista = busca
+      ? items.filter(c =>
+          (c.nome_fantasia ?? '').toLowerCase().includes(q) ||
+          c.email.toLowerCase().includes(q),
+        )
+      : items;
+    return [...lista].sort((a, b) => {
+      const nA = (a.nome_fantasia ?? a.nome ?? '');
+      const nB = (b.nome_fantasia ?? b.nome ?? '');
+      if (sortBy === 'nome_asc')  return nA.localeCompare(nB);
+      if (sortBy === 'nome_desc') return nB.localeCompare(nA);
+      if (sortBy === 'data_desc') return (b.created_at ?? '').localeCompare(a.created_at ?? '');
+      if (sortBy === 'data_asc')  return (a.created_at ?? '').localeCompare(b.created_at ?? '');
+      return 0;
+    });
+  }, [items, busca, sortBy]);
 
   const nomeConfirmar = confirmarId ? (items.find(c => c.id === confirmarId)?.nome_fantasia ?? '') : '';
 
@@ -393,12 +406,27 @@ export default function AdminConstrutorasArvorePage() {
         </div>
       </div>
 
-      {/* Busca */}
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input type="text" placeholder="Buscar construtora ou e-mail..."
-          value={busca} onChange={e => setBusca(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100" />
+      {/* Busca + Ordenação */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input type="text" placeholder="Buscar construtora ou e-mail..."
+            value={busca} onChange={e => setBusca(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100" />
+        </div>
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="w-4 h-4 text-gray-400 shrink-0" />
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as SortKey)}
+            className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary-400 bg-white"
+          >
+            <option value="nome_asc">Nome A→Z</option>
+            <option value="nome_desc">Nome Z→A</option>
+            <option value="data_desc">Mais recente</option>
+            <option value="data_asc">Mais antigo</option>
+          </select>
+        </div>
       </div>
 
       {/* Legenda */}

@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { adminApi } from '@/lib/api';
-import { LayoutGrid, Loader2, Search, Building2, CheckCircle, Clock } from 'lucide-react';
+import { LayoutGrid, Loader2, Search, Building2, CheckCircle, Clock, ArrowUpDown } from 'lucide-react';
 
 interface Empreendimento {
   id: string;
@@ -16,7 +16,10 @@ interface Empreendimento {
   construtora_id: string;
   total_leads: number;
   total_unidades: number;
+  created_at?: string;
 }
+
+type SortKey = 'nome_asc' | 'nome_desc' | 'data_desc' | 'data_asc';
 
 const STATUS_LABEL: Record<string, string> = {
   lancamento: 'Na Planta',
@@ -28,6 +31,7 @@ export default function TodosEmpreendimentosPage() {
   const [empreendimentos, setEmpreendimentos] = useState<Empreendimento[]>([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca]     = useState('');
+  const [sortBy, setSortBy]   = useState<SortKey>('nome_asc');
 
   useEffect(() => {
     adminApi.listarEmpreendimentos()
@@ -35,11 +39,20 @@ export default function TodosEmpreendimentosPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtrados = empreendimentos.filter(e =>
-    !busca || [e.nome, e.construtora_nome, e.cidade].some(v =>
-      v?.toLowerCase().includes(busca.toLowerCase())
-    )
-  );
+  const filtrados = useMemo(() => {
+    const lista = empreendimentos.filter(e =>
+      !busca || [e.nome, e.construtora_nome, e.cidade].some(v =>
+        v?.toLowerCase().includes(busca.toLowerCase())
+      )
+    );
+    return [...lista].sort((a, b) => {
+      if (sortBy === 'nome_asc')  return a.nome.localeCompare(b.nome);
+      if (sortBy === 'nome_desc') return b.nome.localeCompare(a.nome);
+      if (sortBy === 'data_desc') return (b.created_at ?? '').localeCompare(a.created_at ?? '');
+      if (sortBy === 'data_asc')  return (a.created_at ?? '').localeCompare(b.created_at ?? '');
+      return 0;
+    });
+  }, [empreendimentos, busca, sortBy]);
 
   const publicados = filtrados.filter(e => e.publicado).length;
 
@@ -66,17 +79,32 @@ export default function TodosEmpreendimentosPage() {
         </div>
       </div>
 
-      {/* Busca */}
+      {/* Busca + Ordenação */}
       <div className="card p-4 mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-            placeholder="Buscar por nome, construtora ou cidade..."
-            className="input pl-9 text-sm w-full"
-          />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Buscar por nome, construtora ou cidade..."
+              className="input pl-9 text-sm w-full"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="w-4 h-4 text-gray-400 shrink-0" />
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as SortKey)}
+              className="input text-sm"
+            >
+              <option value="nome_asc">Nome A→Z</option>
+              <option value="nome_desc">Nome Z→A</option>
+              <option value="data_desc">Mais recente</option>
+              <option value="data_asc">Mais antigo</option>
+            </select>
+          </div>
         </div>
       </div>
 

@@ -90,35 +90,6 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Leads por construtora */}
-        <div className="card p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Leads por construtora</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-2 text-gray-500 font-medium">Construtora</th>
-                  <th className="text-right py-2 text-gray-500 font-medium">Total leads</th>
-                  <th className="text-right py-2 text-gray-500 font-medium">Novos</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(adminStats.leads_por_construtora ?? []).map((c: any) => (
-                  <tr key={c.construtora_id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2 font-medium text-gray-800">{c.construtora_nome}</td>
-                    <td className="py-2 text-right text-gray-700">{c.total_leads}</td>
-                    <td className="py-2 text-right">
-                      {c.leads_novos > 0
-                        ? <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs">{c.leads_novos} novo{c.leads_novos !== 1 ? 's' : ''}</span>
-                        : <span className="text-gray-400">—</span>
-                      }
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
     );
   }
