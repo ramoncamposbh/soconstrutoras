@@ -125,9 +125,8 @@ export default function HomePage() {
       toast('🎤 Fale agora...', { duration: 3000 });
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
-        setAiText(transcript);
         setIsListening(false);
-        setTimeout(() => handleAiSearch(), 400);
+        handleAiSearch(transcript);
       };
       recognition.onerror = (e: any) => {
         setIsListening(false);
@@ -179,7 +178,7 @@ export default function HomePage() {
           }
           const { text } = await res.json();
           toast.dismiss(tid);
-          if (text) { setAiText(text); toast.success('✓ Pronto!'); setTimeout(() => handleAiSearch(), 400); }
+          if (text) { toast.success('✓ Pronto!'); handleAiSearch(text); }
           else toast.error('Não foi possível entender. Tente novamente.');
         } catch (err: any) {
           toast.dismiss(tid);
@@ -552,11 +551,13 @@ export default function HomePage() {
   /** Aguarda N ms (helper para animação sequencial) */
   const esperar = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-  const handleAiSearch = async () => {
-    if (!aiText.trim()) return;
+  const handleAiSearch = async (textoOverride?: string) => {
+    const texto = textoOverride ?? aiText;
+    if (!texto.trim()) return;
+    if (textoOverride) setAiText(textoOverride);
     setMensagemBusca(null);
     setEmpreendimentosSugestoes([]);
-    const { filtros, regiaoLabel, bairrosRegiao, mostraMapa } = parseAiQuery(aiText);
+    const { filtros, regiaoLabel, bairrosRegiao, mostraMapa } = parseAiQuery(texto);
 
     // Se o usuário pediu "perto de / próximo ao X", abre o mapa automaticamente
     if (mostraMapa) setVista('mapa');
@@ -1051,13 +1052,31 @@ export default function HomePage() {
               <button
                 onClick={() => {
                   if (!navigator.geolocation) { toast.error('Geolocalização não disponível.'); return; }
+                  toast('Obtendo localização...', { icon: '📍' });
                   navigator.geolocation.getCurrentPosition(
-                    (pos) => {
+                    async (pos) => {
                       const { latitude, longitude } = pos.coords;
-                      setAiText(`Imóveis perto de mim (lat ${latitude.toFixed(4)}, lng ${longitude.toFixed(4)})`);
-                      toast.success('Localização obtida!');
+                      try {
+                        const r = await fetch(
+                          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=pt-BR`,
+                          { headers: { 'User-Agent': 'faicoh.com.br' } }
+                        );
+                        const geo = await r.json();
+                        const bairro = geo.address?.suburb || geo.address?.neighbourhood || geo.address?.district || '';
+                        const cidade = geo.address?.city || geo.address?.town || geo.address?.municipality || '';
+                        const estado = geo.address?.state || '';
+                        const texto = bairro
+                          ? `Imóveis no ${bairro}, ${cidade}`
+                          : cidade
+                          ? `Imóveis em ${cidade}, ${estado}`
+                          : `Imóveis perto de mim`;
+                        toast.success(`Localização: ${bairro || cidade}`);
+                        handleAiSearch(texto);
+                      } catch {
+                        handleAiSearch(`Imóveis perto de mim`);
+                      }
                     },
-                    () => toast.error('Não foi possível obter sua localização.')
+                    () => toast.error('Permissão de localização negada.')
                   );
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
