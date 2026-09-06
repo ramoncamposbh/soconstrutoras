@@ -13,6 +13,7 @@ interface Lead {
   created_at: string;
   empreendimento_id: string;
   empreendimento_nome: string;
+  pais: string;
   estado: string;
   cidade: string;
   construtora_nome: string;
@@ -39,10 +40,11 @@ export default function AdminLeadsPage() {
   const [loading, setLoading]           = useState(false);
 
   // Filtros
-  const [construtoraId, setConstrutoraId]       = useState('');
-  const [empreendimentoId, setEmpreendimentoId] = useState('');
+  const [paisFiltro, setPaisFiltro]             = useState('');
   const [estadoFiltro, setEstadoFiltro]         = useState('');
   const [cidadeFiltro, setCidadeFiltro]         = useState('');
+  const [construtoraId, setConstrutoraId]       = useState('');
+  const [empreendimentoId, setEmpreendimentoId] = useState('');
   const [dataInicio, setDataInicio]             = useState('');
   const [dataFim, setDataFim]                   = useState('');
   const [busca, setBusca]                       = useState('');
@@ -74,47 +76,55 @@ export default function AdminLeadsPage() {
   }, [buscarLeads]);
 
   const limparFiltros = () => {
+    setPaisFiltro(''); setEstadoFiltro(''); setCidadeFiltro('');
     setConstrutoraId(''); setEmpreendimentoId('');
-    setEstadoFiltro(''); setCidadeFiltro('');
     setDataInicio(''); setDataFim(''); setBusca('');
   };
 
-  const temFiltroAtivo = construtoraId || empreendimentoId || estadoFiltro || cidadeFiltro || dataInicio || dataFim;
+  const temFiltroAtivo = paisFiltro || estadoFiltro || cidadeFiltro || construtoraId || empreendimentoId || dataInicio || dataFim;
 
-  // Listas derivadas dos leads carregados (em cascata)
-  const empreendimentosDisponiveis = useMemo(() => {
-    const fonte = leads.filter(l =>
-      (!construtoraId || l.construtora_id === construtoraId) &&
-      (!estadoFiltro  || l.estado === estadoFiltro) &&
-      (!cidadeFiltro  || l.cidade === cidadeFiltro)
-    );
-    const mapa = new Map<string, string>();
-    fonte.forEach(l => { if (l.empreendimento_id) mapa.set(l.empreendimento_id, l.empreendimento_nome); });
-    return Array.from(mapa.entries()).sort((a, b) => a[1].localeCompare(b[1]));
-  }, [leads, construtoraId, estadoFiltro, cidadeFiltro]);
+  // Listas derivadas dos leads (em cascata: País → Estado → Cidade → Construtora → Empreendimento)
+  const paisesDisponiveis = useMemo(() => {
+    const s = new Set<string>();
+    leads.forEach(l => { if (l.pais) s.add(l.pais); });
+    return Array.from(s).sort();
+  }, [leads]);
 
   const estadosDisponiveis = useMemo(() => {
     const s = new Set<string>();
-    leads.filter(l => !construtoraId || l.construtora_id === construtoraId)
+    leads.filter(l => !paisFiltro || l.pais === paisFiltro)
          .forEach(l => { if (l.estado) s.add(l.estado); });
     return Array.from(s).sort();
-  }, [leads, construtoraId]);
+  }, [leads, paisFiltro]);
 
   const cidadesDisponiveis = useMemo(() => {
     const s = new Set<string>();
     leads.filter(l =>
-      (!construtoraId || l.construtora_id === construtoraId) &&
-      (!estadoFiltro  || l.estado === estadoFiltro)
+      (!paisFiltro   || l.pais   === paisFiltro) &&
+      (!estadoFiltro || l.estado === estadoFiltro)
     ).forEach(l => { if (l.cidade) s.add(l.cidade); });
     return Array.from(s).sort();
-  }, [leads, construtoraId, estadoFiltro]);
+  }, [leads, paisFiltro, estadoFiltro]);
+
+  const empreendimentosDisponiveis = useMemo(() => {
+    const fonte = leads.filter(l =>
+      (!paisFiltro    || l.pais   === paisFiltro) &&
+      (!estadoFiltro  || l.estado === estadoFiltro) &&
+      (!cidadeFiltro  || l.cidade === cidadeFiltro) &&
+      (!construtoraId || l.construtora_id === construtoraId)
+    );
+    const mapa = new Map<string, string>();
+    fonte.forEach(l => { if (l.empreendimento_id) mapa.set(l.empreendimento_id, l.empreendimento_nome); });
+    return Array.from(mapa.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+  }, [leads, paisFiltro, estadoFiltro, cidadeFiltro, construtoraId]);
 
   const leadsFiltrados = useMemo(() => {
     return [...leads.filter(l =>
+      (!paisFiltro       || l.pais            === paisFiltro) &&
+      (!estadoFiltro     || l.estado          === estadoFiltro) &&
+      (!cidadeFiltro     || l.cidade          === cidadeFiltro) &&
       (!construtoraId    || l.construtora_id   === construtoraId) &&
       (!empreendimentoId || l.empreendimento_id === empreendimentoId) &&
-      (!estadoFiltro     || l.estado === estadoFiltro) &&
-      (!cidadeFiltro     || l.cidade === cidadeFiltro) &&
       (!busca || [l.nome, l.email, l.telefone, l.empreendimento_nome, l.cidade].some(v =>
         v?.toLowerCase().includes(busca.toLowerCase())
       ))
@@ -164,11 +174,49 @@ export default function AdminLeadsPage() {
           )}
         </div>
 
-        {/* Linha 1: Construtora + Empreendimento */}
+        {/* Linha 1: Localização — País | Estado | Cidade */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+            <select
+              value={paisFiltro}
+              onChange={e => { setPaisFiltro(e.target.value); setEstadoFiltro(''); setCidadeFiltro(''); }}
+              className="input text-sm flex-1"
+            >
+              <option value="">Todos os países</option>
+              {paisesDisponiveis.map(p => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          </div>
+          <select
+            value={estadoFiltro}
+            onChange={e => { setEstadoFiltro(e.target.value); setCidadeFiltro(''); }}
+            className="input text-sm"
+          >
+            <option value="">Todos os estados</option>
+            {estadosDisponiveis.map(est => (
+              <option key={est} value={est}>{est}</option>
+            ))}
+          </select>
+          <select
+            value={cidadeFiltro}
+            onChange={e => setCidadeFiltro(e.target.value)}
+            className="input text-sm"
+            disabled={cidadesDisponiveis.length === 0}
+          >
+            <option value="">Todas as cidades</option>
+            {cidadesDisponiveis.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Linha 2: Construtora + Empreendimento */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <select
             value={construtoraId}
-            onChange={e => { setConstrutoraId(e.target.value); setEmpreendimentoId(''); setEstadoFiltro(''); setCidadeFiltro(''); }}
+            onChange={e => { setConstrutoraId(e.target.value); setEmpreendimentoId(''); }}
             className="input text-sm"
           >
             <option value="">Todas as construtoras</option>
@@ -186,34 +234,6 @@ export default function AdminLeadsPage() {
             <option value="">Todos os empreendimentos</option>
             {empreendimentosDisponiveis.map(([id, nome]) => (
               <option key={id} value={id}>{nome}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Linha 2: Localização (Estado + Cidade) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-            <select
-              value={estadoFiltro}
-              onChange={e => { setEstadoFiltro(e.target.value); setCidadeFiltro(''); }}
-              className="input text-sm flex-1"
-            >
-              <option value="">Todos os estados</option>
-              {estadosDisponiveis.map(est => (
-                <option key={est} value={est}>{est}</option>
-              ))}
-            </select>
-          </div>
-          <select
-            value={cidadeFiltro}
-            onChange={e => setCidadeFiltro(e.target.value)}
-            className="input text-sm"
-            disabled={cidadesDisponiveis.length === 0}
-          >
-            <option value="">Todas as cidades</option>
-            {cidadesDisponiveis.map(c => (
-              <option key={c} value={c}>{c}</option>
             ))}
           </select>
         </div>

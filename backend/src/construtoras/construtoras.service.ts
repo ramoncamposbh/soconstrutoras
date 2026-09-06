@@ -178,7 +178,7 @@ export class ConstutorasService {
     const { rows } = await this.pool.query(`
       SELECT l.id, l.nome, l.email, l.telefone, l.status, l.created_at,
              e.id AS empreendimento_id, e.nome AS empreendimento_nome,
-             e.estado, e.cidade,
+             'Brasil' AS pais, e.estado, e.cidade,
              c.nome_fantasia AS construtora_nome, c.id AS construtora_id
       FROM leads l
       JOIN empreendimentos e ON e.id = l.empreendimento_id
