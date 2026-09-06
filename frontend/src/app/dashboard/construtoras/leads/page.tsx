@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { adminApi } from '@/lib/api';
 import { Bell, Filter, Loader2, Search, X, ArrowUpDown } from 'lucide-react';
 
@@ -11,6 +11,7 @@ interface Lead {
   telefone: string;
   status: string;
   created_at: string;
+  empreendimento_id: string;
   empreendimento_nome: string;
   construtora_nome: string;
   construtora_id: string;
@@ -36,11 +37,12 @@ export default function AdminLeadsPage() {
   const [loading, setLoading]           = useState(false);
 
   // Filtros
-  const [construtoraId, setConstrutoraId] = useState('');
-  const [dataInicio, setDataInicio]       = useState('');
-  const [dataFim, setDataFim]             = useState('');
-  const [busca, setBusca]                 = useState('');
-  const [sortBy, setSortBy]               = useState<'data_desc'|'data_asc'|'nome_asc'|'nome_desc'>('data_desc');
+  const [construtoraId, setConstrutoraId]     = useState('');
+  const [empreendimentoId, setEmpreendimentoId] = useState('');
+  const [dataInicio, setDataInicio]           = useState('');
+  const [dataFim, setDataFim]                 = useState('');
+  const [busca, setBusca]                     = useState('');
+  const [sortBy, setSortBy]                   = useState<'data_desc'|'data_asc'|'nome_asc'|'nome_desc'>('data_desc');
 
   const buscarLeads = useCallback(async () => {
     setLoading(true);
@@ -65,13 +67,24 @@ export default function AdminLeadsPage() {
   }, [buscarLeads]);
 
   const limparFiltros = () => {
-    setConstrutoraId(''); setDataInicio(''); setDataFim(''); setBusca('');
+    setConstrutoraId(''); setEmpreendimentoId(''); setDataInicio(''); setDataFim(''); setBusca('');
   };
 
+  // Lista de empreendimentos derivada dos leads carregados (filtrada por construtora selecionada)
+  const empreendimentosDisponiveis = useMemo(() => {
+    const fonte = construtoraId
+      ? leads.filter(l => l.construtora_id === construtoraId)
+      : leads;
+    const mapa = new Map<string, string>();
+    fonte.forEach(l => { if (l.empreendimento_id) mapa.set(l.empreendimento_id, l.empreendimento_nome); });
+    return Array.from(mapa.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+  }, [leads, construtoraId]);
+
   const leadsFiltrados = [...leads.filter(l =>
-    !busca || [l.nome, l.email, l.telefone, l.empreendimento_nome].some(v =>
+    (!empreendimentoId || l.empreendimento_id === empreendimentoId) &&
+    (!busca || [l.nome, l.email, l.telefone, l.empreendimento_nome].some(v =>
       v?.toLowerCase().includes(busca.toLowerCase())
-    )
+    ))
   )].sort((a, b) => {
     if (sortBy === 'data_desc') return b.created_at.localeCompare(a.created_at);
     if (sortBy === 'data_asc')  return a.created_at.localeCompare(b.created_at);
@@ -110,16 +123,16 @@ export default function AdminLeadsPage() {
         <div className="flex items-center gap-2 mb-3">
           <Filter className="w-4 h-4 text-gray-400" />
           <span className="text-sm font-medium text-gray-700">Filtros</span>
-          {(construtoraId || dataInicio || dataFim) && (
+          {(construtoraId || empreendimentoId || dataInicio || dataFim) && (
             <button onClick={limparFiltros} className="ml-auto flex items-center gap-1 text-xs text-gray-500 hover:text-red-500">
               <X className="w-3 h-3" /> Limpar
             </button>
           )}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <select
             value={construtoraId}
-            onChange={e => setConstrutoraId(e.target.value)}
+            onChange={e => { setConstrutoraId(e.target.value); setEmpreendimentoId(''); }}
             className="input text-sm"
           >
             <option value="">Todas as construtoras</option>
@@ -127,6 +140,16 @@ export default function AdminLeadsPage() {
               <option key={c.construtora_id} value={c.construtora_id}>
                 {c.construtora_nome} ({c.total_leads} leads)
               </option>
+            ))}
+          </select>
+          <select
+            value={empreendimentoId}
+            onChange={e => setEmpreendimentoId(e.target.value)}
+            className="input text-sm"
+          >
+            <option value="">Todos os empreendimentos</option>
+            {empreendimentosDisponiveis.map(([id, nome]) => (
+              <option key={id} value={id}>{nome}</option>
             ))}
           </select>
           <input

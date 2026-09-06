@@ -177,7 +177,7 @@ export class ConstutorasService {
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
     const { rows } = await this.pool.query(`
       SELECT l.id, l.nome, l.email, l.telefone, l.status, l.created_at,
-             e.nome AS empreendimento_nome,
+             e.id AS empreendimento_id, e.nome AS empreendimento_nome,
              c.nome_fantasia AS construtora_nome, c.id AS construtora_id
       FROM leads l
       JOIN empreendimentos e ON e.id = l.empreendimento_id
