@@ -183,7 +183,7 @@ export default function AdminLeadsPage() {
               onChange={e => { setPaisFiltro(e.target.value); setEstadoFiltro(''); setCidadeFiltro(''); }}
               className="input text-sm flex-1"
             >
-              <option value="">Todos os países</option>
+              <option value="">País</option>
               {paisesDisponiveis.map(p => (
                 <option key={p} value={p}>{p}</option>
               ))}
@@ -194,7 +194,7 @@ export default function AdminLeadsPage() {
             onChange={e => { setEstadoFiltro(e.target.value); setCidadeFiltro(''); }}
             className="input text-sm"
           >
-            <option value="">Todos os estados</option>
+            <option value="">Estado</option>
             {estadosDisponiveis.map(est => (
               <option key={est} value={est}>{est}</option>
             ))}
@@ -205,7 +205,7 @@ export default function AdminLeadsPage() {
             className="input text-sm"
             disabled={cidadesDisponiveis.length === 0}
           >
-            <option value="">Todas as cidades</option>
+            <option value="">Cidade</option>
             {cidadesDisponiveis.map(c => (
               <option key={c} value={c}>{c}</option>
             ))}
