@@ -84,6 +84,7 @@ const NAV_LINKS = [
   { href: '/favoritos',         label: 'Favoritos',          icon: Heart },
   { href: '/simuladores',       label: 'Simuladores',        icon: Calculator },
   { href: '/melhor-m2',         label: 'Oportunidades m²',  icon: Scale },
+  { href: '/comparar',          label: 'Comparar',           icon: BarChart2 },
 ];
 
 export default function HomePage() {
