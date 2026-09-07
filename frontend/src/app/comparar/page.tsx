@@ -83,13 +83,29 @@ function fmtQuartos(min?: number, max?: number): string | null {
 }
 
 /* ── Sub-componentes ─────────────────────────────────────────────────── */
+/* Estilo shared para a primeira coluna — sticky no scroll horizontal */
+const stickyLabel: React.CSSProperties = {
+  position: 'sticky',
+  left: 0,
+  background: '#fff',
+  zIndex: 2,
+  boxShadow: '2px 0 6px -2px rgba(0,0,0,0.06)',
+};
+
+const stickySection: React.CSSProperties = {
+  position: 'sticky',
+  left: 0,
+  background: '#f9fafb',
+  zIndex: 2,
+};
+
 function SectionRow({ label, cols }: { label: string; cols: number }) {
   return (
     <tr>
       <td
         colSpan={cols + 1}
         className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border-t border-b border-gray-100"
-        style={{ background: '#f9fafb', color: '#6b7280' }}
+        style={{ background: '#f9fafb', color: '#6b7280', ...stickySection }}
       >
         {label}
       </td>
@@ -108,12 +124,15 @@ function DataRow({
 }) {
   return (
     <tr className="hover:bg-gray-50 transition-colors">
-      <td className="px-4 py-3 text-xs font-medium text-gray-600 border-b border-gray-50 whitespace-nowrap align-middle">
+      <td
+        className="px-3 py-3 text-xs font-medium text-gray-600 border-b border-gray-50 whitespace-nowrap align-middle"
+        style={stickyLabel}
+      >
         {label}
         {bestLabel && bestId && (
           <span
-            className="ml-1.5 text-white font-semibold px-1.5 py-0.5 rounded"
-            style={{ fontSize: 9, background: '#0E8F6E' }}
+            className="ml-1 text-white font-semibold px-1.5 py-0.5 rounded block mt-0.5"
+            style={{ fontSize: 9, background: '#0E8F6E', display: 'inline-block' }}
           >
             {bestLabel}
           </span>
@@ -124,7 +143,7 @@ function DataRow({
         return (
           <td
             key={i}
-            className="px-4 py-3 text-sm text-center border-b border-gray-50 align-middle"
+            className="px-3 py-3 text-xs text-center border-b border-gray-50 align-middle"
             style={isBest ? { color: '#0E8F6E', fontWeight: 600, background: '#f0faf7' } : { color: '#374151' }}
           >
             {v != null ? v : <span style={{ color: '#d1d5db' }}>—</span>}
@@ -142,11 +161,14 @@ function AmenidadeRow({ label, slots, amenidadeKey }: {
 }) {
   return (
     <tr className="hover:bg-gray-50 transition-colors">
-      <td className="px-4 py-3 text-xs font-medium text-gray-600 border-b border-gray-50 whitespace-nowrap">
+      <td
+        className="px-3 py-3 text-xs font-medium text-gray-600 border-b border-gray-50 whitespace-nowrap"
+        style={stickyLabel}
+      >
         {label}
       </td>
       {slots.map((emp, i) => (
-        <td key={i} className="px-4 py-3 border-b border-gray-50 text-center">
+        <td key={i} className="px-3 py-3 border-b border-gray-50 text-center">
           {emp ? (
             temAmenidade(emp, amenidadeKey) ? (
               <Check className="w-4 h-4 mx-auto" style={{ color: '#0E8F6E' }} />
@@ -320,20 +342,23 @@ function CompararInner() {
             ) : (
               <>
                 {/* Tabela de comparação */}
-                <div className="card overflow-x-auto">
-                  <table className="w-full border-collapse" style={{ minWidth: 560 }}>
+                <div className="card overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                  <table className="border-collapse" style={{ width: '100%', minWidth: 520 }}>
                     <colgroup>
-                      <col style={{ width: 140, minWidth: 120 }} />
-                      <col style={{ width: '22%' }} />
-                      <col style={{ width: '22%' }} />
-                      <col style={{ width: '22%' }} />
-                      <col style={{ width: '22%' }} />
+                      <col style={{ width: 110, minWidth: 100 }} />
+                      <col style={{ width: 130, minWidth: 120 }} />
+                      <col style={{ width: 130, minWidth: 120 }} />
+                      <col style={{ width: 130, minWidth: 120 }} />
+                      <col style={{ width: 130, minWidth: 120 }} />
                     </colgroup>
 
                     {/* Cabeçalho: fotos + nomes */}
                     <thead>
                       <tr>
-                        <th className="p-3 border-b border-gray-100" />
+                        <th
+                          className="p-3 border-b border-gray-100"
+                          style={{ ...stickyLabel, zIndex: 3 }}
+                        />
                         {slots.map((emp, i) => (
                           <th
                             key={i}
@@ -452,7 +477,7 @@ function CompararInner() {
 
                       {/* CTAs */}
                       <tr>
-                        <td className="p-4 border-t border-gray-100" />
+                        <td className="p-4 border-t border-gray-100" style={stickyLabel} />
                         {slots.map((emp, i) => (
                           <td key={i} className="p-4 border-t border-gray-100 text-center">
                             {emp && (
