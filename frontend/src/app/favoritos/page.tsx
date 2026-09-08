@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/layout/Header';
-import { Heart, MapPin, BedDouble, Car, Maximize2, Trash2, ChevronRight } from 'lucide-react';
+import { Heart, MapPin, BedDouble, Car, Maximize2, Trash2, ChevronRight, LogIn } from 'lucide-react';
 import { useFavoritos, removerFavorito } from '@/lib/favoritos';
 import { formatCurrency } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
 
 const G = '#0E8F6E';
 
@@ -17,7 +18,51 @@ const STATUS_LABEL: Record<string, { label: string; bg: string; text: string }> 
 };
 
 export default function FavoritosPage() {
+  const { isAuthenticated, loading } = useAuth();
   const favoritos = useFavoritos();
+
+  // Exige login — não mostrar favoritos de localStorage para visitantes
+  if (!loading && !isAuthenticated) {
+    return (
+      <main style={{ minHeight: '100vh', background: '#F9FAFB' }}>
+        <Header />
+        <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+            <Heart className="w-6 h-6" style={{ color: '#4ade80' }} />
+          </div>
+          <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>FAVORITOS</h1>
+          <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+            OS IMÓVEIS QUE VOCÊ TEVE INTERESSE
+          </p>
+        </div>
+        <div style={{ maxWidth: 480, margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
+          <div style={{ background: '#fff', borderRadius: 20, border: '1.5px solid #E5E7EB', padding: '48px 32px' }}>
+            <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <Heart size={28} color="#FCA5A5" />
+            </div>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+              Faça login para ver seus favoritos
+            </h2>
+            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 28 }}>
+              Seus imóveis favoritos ficam salvos na sua conta e podem ser acessados de qualquer dispositivo.
+            </p>
+            <Link
+              href="/auth/login?redirect=/favoritos"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: G, color: '#fff', padding: '12px 28px', borderRadius: 12, textDecoration: 'none', fontWeight: 700, fontSize: 14 }}
+            >
+              <LogIn size={16} /> Entrar na conta
+            </Link>
+            <p style={{ marginTop: 16, fontSize: 13, color: '#6B7280' }}>
+              Não tem conta?{' '}
+              <Link href="/auth/register?redirect=/favoritos" style={{ color: G, fontWeight: 600 }}>
+                Cadastre-se grátis
+              </Link>
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main style={{ minHeight: '100vh', background: '#F9FAFB' }}>
