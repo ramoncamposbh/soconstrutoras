@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
-import { authApi } from '@/lib/api';
+import { authApi, leadsApi } from '@/lib/api';
 import LogoFaicoh from '@/components/layout/LogoFaicoh';
 import { Building2, User, ArrowLeft, LogIn } from 'lucide-react';
 
@@ -28,6 +28,7 @@ interface FormConstrutora {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [perfil, setPerfil] = useState<Perfil>(null);
 
   const clienteForm = useForm<FormCliente>();
@@ -39,7 +40,17 @@ export default function RegisterPage() {
       const isHttps = window.location.protocol === 'https:';
       Cookies.set('token', res.access_token, { expires: 7, secure: isHttps, sameSite: 'lax' });
       toast.success('Conta criada! Bem-vindo.');
-      router.push('/');
+
+      // Auto-captura lead se veio de uma página de empreendimento
+      const leadId = searchParams.get('lead');
+      if (leadId) {
+        try {
+          await leadsApi.capturar(leadId, { nome: data.nome, email: data.email, telefone: '' });
+        } catch { /* silencia */ }
+      }
+
+      const redirect = searchParams.get('redirect');
+      router.push(redirect || '/');
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? 'Erro ao criar conta.';
       toast.error(Array.isArray(msg) ? msg[0] : msg);

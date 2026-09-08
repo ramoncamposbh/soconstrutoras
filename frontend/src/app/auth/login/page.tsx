@@ -7,6 +7,7 @@ import Link from 'next/link';
 import LogoFaicoh from '@/components/layout/LogoFaicoh';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/lib/auth';
+import { leadsApi } from '@/lib/api';
 import { LogIn, Building2, MapPin, TrendingUp, Users } from 'lucide-react';
 
 interface FormData { email: string; password: string; }
@@ -33,6 +34,8 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const googleBtnRef = useRef<HTMLDivElement>(null);
+  // Sinaliza que o login ocorreu nesta sessão (não era autenticado antes)
+  const freshLoginRef = useRef(false);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>();
 
   const redirectAfterLogin = (role?: string) => {
@@ -42,7 +45,16 @@ function LoginContent() {
 
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
-      redirectAfterLogin(user.role);
+      // Só captura lead se o usuário acabou de fazer login (não estava logado ao entrar na página)
+      const leadId = searchParams.get('lead');
+      if (leadId && freshLoginRef.current) {
+        freshLoginRef.current = false;
+        leadsApi.capturar(leadId, { nome: user.nome, email: user.email, telefone: '' })
+          .catch(() => { /* silencia — lead não é crítico */ })
+          .finally(() => redirectAfterLogin(user.role));
+      } else {
+        redirectAfterLogin(user.role);
+      }
     }
   }, [isAuthenticated, loading, user, router]);
 
@@ -85,6 +97,8 @@ function LoginContent() {
     try {
       const u = await login(data.email, data.password);
       toast.success('Bem-vindo!');
+      // Marca que foi um login fresco (para capturar lead no useEffect)
+      freshLoginRef.current = true;
       redirectAfterLogin((u as any)?.role);
     } catch (err: any) {
       const msg = err?.response?.data?.message;

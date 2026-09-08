@@ -1,12 +1,19 @@
 import { notFound } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import FormularioLead from '@/components/empreendimentos/FormularioLead';
 import SecaoLocalizacao from '@/components/mapa/SecaoLocalizacao';
 import SecaoUnidadesGated from '@/components/unidades/SecaoUnidadesGated';
 import GaleriaEmpreendimento from '@/components/empreendimentos/GaleriaEmpreendimento';
-import { MapPin, BedDouble, Car, Maximize2, ArrowRight } from 'lucide-react';
+import { MapPin, BedDouble, Car, Maximize2 } from 'lucide-react';
 import BotaoPrevisaoEntrega from '@/components/empreendimentos/BotaoPrevisaoEntrega';
 import { formatCurrency } from '@/lib/utils';
+
+// Gate de login/cadastro — importado dinamicamente (usa hooks client-side)
+const GateEmpreendimento = dynamic(
+  () => import('@/components/empreendimentos/GateEmpreendimento'),
+  { ssr: false },
+);
 
 async function getEmpreendimento(slug: string) {
   try {
@@ -36,10 +43,10 @@ async function getUnidades(empreendimentoId: string) {
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const emp = await getEmpreendimento(params.slug);
-  if (!emp) return { title: 'Imovel nao encontrado' };
+  if (!emp) return { title: 'Imóvel não encontrado' };
   return {
     title: `${emp.nome} — ${emp.cidade}/${emp.estado} | FAICOH`,
-    description: emp.descricao ?? `${emp.nome} em ${emp.cidade}. ${emp.tipo} a partir de ${formatCurrency(emp.preco_min)}.`,
+    description: emp.descricao ?? `${emp.nome} em ${emp.cidade}. Cadastre-se para ver preços e plantas.`,
   };
 }
 
@@ -57,134 +64,148 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
 
   const fotos = (emp.midias ?? []).filter((m: any) => m.tipo === 'foto');
 
+  const STATUS: Record<string, { label: string; bg: string; color: string }> = {
+    lancamento: { label: 'Lançamento', bg: '#DCFCE7', color: '#15803D' },
+    em_obras:   { label: 'Em obras',   bg: '#FEF9C3', color: '#A16207' },
+    pronto:     { label: 'Pronto',     bg: '#D1FAE5', color: '#065F46' },
+    suspenso:   { label: 'Suspenso',   bg: '#F3F4F6', color: '#6B7280' },
+  };
+  const statusInfo = emp.status ? (STATUS[emp.status] ?? STATUS.lancamento) : null;
+
   return (
     <div className="min-h-screen" style={{ background: '#faf9f6' }}>
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Coluna principal */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Galeria com lightbox */}
-          <div className="card overflow-hidden">
-            <GaleriaEmpreendimento fotos={fotos} nome={emp.nome} />
-          </div>
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
 
-          {/* Dados principais */}
-          <div className="card p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm text-gray-500">{emp.construtora}</p>
-                  {emp.status && (() => {
-                    const STATUS: Record<string, { label: string; bg: string; color: string }> = {
-                      lancamento: { label: 'Lançamento', bg: '#DCFCE7', color: '#15803D' },
-                      em_obras:   { label: 'Em obras',   bg: '#FEF9C3', color: '#A16207' },
-                      pronto:     { label: 'Pronto',     bg: '#D1FAE5', color: '#065F46' },
-                      suspenso:   { label: 'Suspenso',   bg: '#F3F4F6', color: '#6B7280' },
-                    };
-                    const s = STATUS[emp.status] ?? STATUS.lancamento;
-                    return (
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: s.bg, color: s.color }}>
-                        {s.label}
-                      </span>
-                    );
-                  })()}
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900">{emp.nome}</h1>
-                {/* Apenas bairro e cidade - endereco completo bloqueado */}
-                <p className="flex items-center gap-1 text-gray-500 text-sm mt-1">
-                  <MapPin className="w-4 h-4" />
-                  {emp.bairro ? `${emp.bairro}, ` : ''}{emp.cidade} — {emp.estado}
-                </p>
-              </div>
+        {/* ── 1. GALERIA (pública) ─────────────────────────────── */}
+        <div className="card overflow-hidden">
+          <GaleriaEmpreendimento fotos={fotos} nome={emp.nome} />
+        </div>
 
-              {/* Faixa de preco */}
-              <div className="text-right flex-shrink-0 ml-4">
-                {temFaixa ? (
-                  <>
-                    <p className="text-xs text-gray-400 mb-1">Faixa de preco</p>
-                    <p className="text-xs text-gray-500 mb-0.5">De</p>
-                    <p className="text-xl font-bold text-gray-900 leading-tight">
-                      {formatCurrency(precoMinUnidades!)}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1 mb-0.5">ate</p>
-                    <p className="text-xl font-bold text-gray-900 leading-tight">
-                      {formatCurrency(precoMaxUnidades!)}
-                    </p>
-                  </>
-                ) : precoExibir ? (
-                  <>
-                    <p className="text-xs text-gray-400">A partir de</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {formatCurrency(precoExibir)}
-                    </p>
-                  </>
-                ) : null}
-              </div>
-            </div>
-
-            {/* Caracteristicas + previsão de entrega na mesma linha */}
-            <div className="flex flex-wrap gap-6 py-4 border-t border-gray-100">
-              {emp.quartos_min && (
-                <div className="flex items-center gap-2 text-sm">
-                  <BedDouble className="w-5 h-5 text-primary-500" />
-                  <span className="font-medium">
-                    {emp.quartos_min === emp.quartos_max
-                      ? `${emp.quartos_min} quartos`
-                      : `${emp.quartos_min} a ${emp.quartos_max} quartos`}
+        {/* ── 2. INFO BÁSICA (pública) ─────────────────────────── */}
+        <div className="card p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-sm text-gray-500">{emp.construtora}</p>
+                {statusInfo && (
+                  <span style={{
+                    fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
+                    background: statusInfo.bg, color: statusInfo.color,
+                  }}>
+                    {statusInfo.label}
                   </span>
-                </div>
-              )}
-              {emp.area_min && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Maximize2 className="w-5 h-5 text-primary-500" />
-                  <span className="font-medium">{emp.area_min}–{emp.area_max} m²</span>
-                </div>
-              )}
-              {emp.vagas != null && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Car className="w-5 h-5 text-primary-500" />
-                  <span className="font-medium">{emp.vagas} vaga{emp.vagas !== 1 ? 's' : ''}</span>
-                </div>
-              )}
-              <BotaoPrevisaoEntrega previsaoEntrega={emp.previsao_entrega ?? null} slug={emp.slug} />
+                )}
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">{emp.nome}</h1>
+              <p className="flex items-center gap-1 text-gray-500 text-sm mt-1">
+                <MapPin className="w-4 h-4" />
+                {emp.bairro ? `${emp.bairro}, ` : ''}{emp.cidade} — {emp.estado}
+              </p>
             </div>
 
-            {/* Botao de unidades */}
-            {unidades.length > 0 && (
-              <div className="border-t border-gray-100 pt-4">
-                <SecaoUnidadesGated unidades={unidades} nomeEmpreendimento={emp.nome} />
-              </div>
-            )}
-
-            {/* Descricao */}
-            {emp.descricao && (
-              <div className="border-t border-gray-100 pt-4 mt-4">
-                <h2 className="font-semibold mb-2">Sobre o empreendimento</h2>
-                <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
-                  {emp.descricao}
-                </p>
-              </div>
-            )}
+            {/* Preço — visível publicamente para contexto */}
+            <div className="text-right flex-shrink-0 ml-4">
+              {temFaixa ? (
+                <>
+                  <p className="text-xs text-gray-400 mb-1">Faixa de preço</p>
+                  <p className="text-xs text-gray-500 mb-0.5">De</p>
+                  <p className="text-xl font-bold text-gray-900 leading-tight">
+                    {formatCurrency(precoMinUnidades!)}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1 mb-0.5">até</p>
+                  <p className="text-xl font-bold text-gray-900 leading-tight">
+                    {formatCurrency(precoMaxUnidades!)}
+                  </p>
+                </>
+              ) : precoExibir ? (
+                <>
+                  <p className="text-xs text-gray-400">A partir de</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {formatCurrency(precoExibir)}
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-gray-400">Consulte o valor</p>
+              )}
+            </div>
           </div>
 
-          {/* Localizacao — sem endereco completo, bloqueado */}
-          <SecaoLocalizacao
-            latitude={emp.latitude}
-            longitude={emp.longitude}
-            bairro={emp.bairro}
-            cidade={emp.cidade}
-            estado={emp.estado}
-            cep={emp.cep}
-          />
-        </div>
-
-        {/* Sidebar — formulario de lead */}
-        <div className="lg:col-span-1">
-          <div className="card p-6 sticky top-24">
-            <FormularioLead empreendimentoId={emp.id} />
+          {/* Specs */}
+          <div className="flex flex-wrap gap-6 py-4 border-t border-gray-100">
+            {emp.quartos_min && (
+              <div className="flex items-center gap-2 text-sm">
+                <BedDouble className="w-5 h-5 text-primary-500" />
+                <span className="font-medium">
+                  {emp.quartos_min === emp.quartos_max
+                    ? `${emp.quartos_min} quartos`
+                    : `${emp.quartos_min} a ${emp.quartos_max} quartos`}
+                </span>
+              </div>
+            )}
+            {emp.area_min && (
+              <div className="flex items-center gap-2 text-sm">
+                <Maximize2 className="w-5 h-5 text-primary-500" />
+                <span className="font-medium">{emp.area_min}–{emp.area_max} m²</span>
+              </div>
+            )}
+            {emp.vagas != null && (
+              <div className="flex items-center gap-2 text-sm">
+                <Car className="w-5 h-5 text-primary-500" />
+                <span className="font-medium">{emp.vagas} vaga{emp.vagas !== 1 ? 's' : ''}</span>
+              </div>
+            )}
+            <BotaoPrevisaoEntrega previsaoEntrega={emp.previsao_entrega ?? null} slug={emp.slug} />
           </div>
         </div>
+
+        {/* ── 3. CONTEÚDO PROTEGIDO (exige login/cadastro) ────── */}
+        <GateEmpreendimento
+          empId={emp.id}
+          slug={emp.slug}
+          nomeEmpreendimento={emp.nome}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Coluna principal */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Unidades */}
+              {unidades.length > 0 && (
+                <div className="card p-6">
+                  <SecaoUnidadesGated unidades={unidades} nomeEmpreendimento={emp.nome} />
+                </div>
+              )}
+
+              {/* Descrição */}
+              {emp.descricao && (
+                <div className="card p-6">
+                  <h2 className="font-semibold mb-2">Sobre o empreendimento</h2>
+                  <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+                    {emp.descricao}
+                  </p>
+                </div>
+              )}
+
+              {/* Localização */}
+              <SecaoLocalizacao
+                latitude={emp.latitude}
+                longitude={emp.longitude}
+                bairro={emp.bairro}
+                cidade={emp.cidade}
+                estado={emp.estado}
+                cep={emp.cep}
+              />
+            </div>
+
+            {/* Sidebar — formulário de contato */}
+            <div className="lg:col-span-1">
+              <div className="card p-6 sticky top-24">
+                <FormularioLead empreendimentoId={emp.id} />
+              </div>
+            </div>
+          </div>
+        </GateEmpreendimento>
+
       </div>
     </div>
   );
