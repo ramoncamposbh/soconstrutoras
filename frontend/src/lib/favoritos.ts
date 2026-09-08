@@ -62,7 +62,8 @@ export function useFavoritos(): Empreendimento[] {
         setLista(lsLer());
       }
     } else {
-      setLista(lsLer());
+      // Visitante não logado — lista sempre vazia (não lê localStorage)
+      setLista([]);
     }
   }, []);
 
@@ -92,7 +93,8 @@ export function useEhFavorito(id: string): boolean {
       }
       return;
     }
-    setFav(lsLer().some(f => f.id === id));
+    // Visitante não logado — nunca favorito
+    setFav(false);
   }, [id]);
 
   useEffect(() => {
@@ -132,9 +134,8 @@ export async function toggleFavorito(emp: Empreendimento): Promise<boolean> {
       return adicionado;
     }
   } else {
-    const adicionado = lsToggle(emp);
-    emitir();
-    return adicionado;
+    // Visitante não logado — não salva em lugar nenhum
+    return false;
   }
 }
 

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { toggleFavorito, useEhFavorito } from '@/lib/favoritos';
+import { useAuth } from '@/lib/auth';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -61,7 +63,19 @@ interface Props {
 
 export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
   const [hover, setHover] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const favorito = useEhFavorito(emp.id);
+
+  const handleFavorito = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      // Redireciona para login sem salvar no localStorage
+      router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    toggleFavorito(emp);
+  };
 
   const s = STATUS_LABEL[emp.status] ?? STATUS_LABEL.lancamento;
   const motivos = getMotivos(emp.id);
@@ -143,7 +157,7 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
 
           {/* Favorito */}
           <button
-            onClick={(e) => { e.preventDefault(); toggleFavorito(emp); }}
+            onClick={handleFavorito}
             style={{
               position: 'absolute', top: 10, right: 10,
               width: 32, height: 32, borderRadius: '50%',
