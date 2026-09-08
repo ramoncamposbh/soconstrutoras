@@ -48,6 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     Cookies.remove('token');
+    // Limpa favoritos do localStorage para não vazar dados entre usuários
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sc_favoritos');
+    }
     setUser(null);
     window.location.href = '/auth/login';
   };

@@ -33,18 +33,16 @@ function isLogado() {
 }
 
 // ── API helpers ────────────────────────────────────────────────────────────
+// Retorna IDs ou lança erro (para distinguir falha de lista vazia)
 async function apiIds(): Promise<string[]> {
-  try {
-    const r = await favoritosApi.listarIds();
-    return Array.isArray(r.data) ? r.data : [];
-  } catch { return []; }
+  const r = await favoritosApi.listarIds();
+  return Array.isArray(r.data) ? r.data : [];
 }
 
+// Retorna lista ou lança erro (para distinguir falha de lista vazia)
 async function apiListar(): Promise<Empreendimento[]> {
-  try {
-    const r = await favoritosApi.listar();
-    return Array.isArray(r.data) ? r.data : [];
-  } catch { return []; }
+  const r = await favoritosApi.listar();
+  return Array.isArray(r.data) ? r.data : [];
 }
 
 // ── Hook: lista completa ───────────────────────────────────────────────────
@@ -53,13 +51,14 @@ export function useFavoritos(): Empreendimento[] {
 
   const carregar = useCallback(async () => {
     if (isLogado()) {
-      const apiLista = await apiListar();
-      if (apiLista.length > 0) {
-        // API funcionou — espelha no localStorage para fallback offline
+      try {
+        // Para usuário logado, a API é fonte de verdade.
+        // Lista vazia = nenhum favorito (não cai no localStorage de outro usuário).
+        const apiLista = await apiListar();
         localStorage.setItem(LS_KEY, JSON.stringify(apiLista));
         setLista(apiLista);
-      } else {
-        // API retornou vazio ou falhou — usa localStorage como fallback
+      } catch {
+        // Só usa localStorage se a API falhar por erro de rede / offline
         setLista(lsLer());
       }
     } else {
@@ -83,12 +82,15 @@ export function useEhFavorito(id: string): boolean {
 
   const checar = useCallback(async () => {
     if (isLogado()) {
-      const ids = await apiIds();
-      // Se API retornou IDs, usa API; senão, checa localStorage
-      if (ids.length >= 0) {
+      try {
+        // API é fonte de verdade para usuário logado
+        const ids = await apiIds();
         setFav(ids.includes(id));
-        return;
+      } catch {
+        // Offline: usa localStorage como fallback
+        setFav(lsLer().some(f => f.id === id));
       }
+      return;
     }
     setFav(lsLer().some(f => f.id === id));
   }, [id]);
