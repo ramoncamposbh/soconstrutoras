@@ -64,6 +64,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
+  // Evita flash de conteúdo protegido enquanto o redirect acontece
+  if (!isAuthenticated || user?.role === 'cliente') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+      </div>
+    );
+  }
+
   const itemsVisiveis = navItems.filter(
     (item) => item.roles === null || (user?.role && item.roles.includes(user.role)),
   );
