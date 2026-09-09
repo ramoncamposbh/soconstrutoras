@@ -107,11 +107,8 @@ export function useEhFavorito(id: string): boolean {
 }
 
 // ── Toggle (adicionar/remover) ─────────────────────────────────────────────
-// toggleFavorito é chamada de CardEmpreendimento que já verifica isAuthenticated
-// antes de chamar — aqui apenas executa a operação na API
+// CardEmpreendimento já verifica isAuthenticated antes de chamar — executa direto na API
 export async function toggleFavorito(emp: Empreendimento): Promise<boolean> {
-  if (!isLogadoCookie()) return false;
-
   try {
     const ids = await apiIds();
     const era = ids.includes(emp.id);
