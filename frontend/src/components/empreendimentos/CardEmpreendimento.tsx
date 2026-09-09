@@ -65,17 +65,28 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
   const [hover, setHover] = useState(false);
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const favorito = useEhFavorito(emp.id);
+  const favoritoReal = useEhFavorito(emp.id);
+  const [favOtimista, setFavOtimista] = useState<boolean | null>(null);
 
-  const handleFavorito = (e: React.MouseEvent) => {
+  // Usa o valor otimista se disponível, senão o da API
+  const favorito = favOtimista !== null ? favOtimista : favoritoReal;
+
+  const handleFavorito = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      // Redireciona para login sem salvar no localStorage
       router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
-    toggleFavorito(emp);
+    // Atualização otimista: muda cor imediatamente
+    const novoEstado = !favorito;
+    setFavOtimista(novoEstado);
+    try {
+      await toggleFavorito(emp);
+    } catch {
+      // Reverte se a API falhar
+      setFavOtimista(!novoEstado);
+    }
   };
 
   const s = STATUS_LABEL[emp.status] ?? STATUS_LABEL.lancamento;
