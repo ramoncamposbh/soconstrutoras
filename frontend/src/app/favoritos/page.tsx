@@ -164,6 +164,7 @@ export default function FavoritosPage() {
                         alt={emp.nome}
                         fill
                         className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div style={{
