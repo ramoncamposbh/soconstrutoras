@@ -7,6 +7,7 @@ import SecaoUnidadesGated from '@/components/unidades/SecaoUnidadesGated';
 import GaleriaEmpreendimento from '@/components/empreendimentos/GaleriaEmpreendimento';
 import { MapPin, BedDouble, Car, Maximize2 } from 'lucide-react';
 import BotaoPrevisaoEntrega from '@/components/empreendimentos/BotaoPrevisaoEntrega';
+import DistanciasEmpreendimento from '@/components/empreendimentos/DistanciasEmpreendimento';
 import { formatCurrency } from '@/lib/utils';
 
 // Gate de login/cadastro — importado dinamicamente (usa hooks client-side)
@@ -158,6 +159,9 @@ export default async function PaginaEmpreendimento({ params }: { params: { slug:
             )}
             <BotaoPrevisaoEntrega previsaoEntrega={emp.previsao_entrega ?? null} slug={emp.slug} />
           </div>
+
+          {/* Distâncias OSRM do perfil do usuário */}
+          <DistanciasEmpreendimento latitude={emp.latitude} longitude={emp.longitude} />
         </div>
 
         {/* ── 3. CONTEÚDO PROTEGIDO (exige login/cadastro) ────── */}
