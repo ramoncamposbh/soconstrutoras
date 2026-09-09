@@ -23,6 +23,7 @@ export class AuthService implements OnModuleInit {
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id  VARCHAR(255)`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS apple_id   VARCHAR(255)`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS perfil_imobiliario JSONB`,
       `ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`,
       `DO $$ BEGIN
          IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename='users' AND indexname='users_google_id_idx')

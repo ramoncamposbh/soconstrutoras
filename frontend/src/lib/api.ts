@@ -30,13 +30,15 @@ api.interceptors.response.use(
 export default api;
 
 export const authApi = {
-  login:          (data: { email: string; password: string }) => api.post('/auth/login', data),
-  register:       (data: any) => api.post('/auth/register', data),
-  me:             () => api.get('/auth/me'),
-  loginComGoogle: (credential: string) =>
+  login:               (data: { email: string; password: string }) => api.post('/auth/login', data),
+  register:            (data: any) => api.post('/auth/register', data),
+  me:                  () => api.get('/auth/me'),
+  loginComGoogle:      (credential: string) =>
     api.post('/auth/google/token', { credential }),
-  loginComApple:  (idToken: string, user?: any) =>
+  loginComApple:       (idToken: string, user?: any) =>
     api.post('/auth/apple/token', { id_token: idToken, user }),
+  getPerfilImobiliario:  () => api.get('/auth/perfil-imobiliario'),
+  savePerfilImobiliario: (perfil: any) => api.put('/auth/perfil-imobiliario', perfil),
 };
 
 export const construtoraApi = {

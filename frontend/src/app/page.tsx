@@ -160,13 +160,32 @@ export default function HomePage() {
   const [perfil, setPerfil] = useState<PerfilImobiliario>(PERFIL_VAZIO);
   const [perfilDraft, setPerfilDraft] = useState<PerfilImobiliario>(PERFIL_VAZIO);
 
-  // Carrega perfil do localStorage
+  // Carrega perfil: prioriza servidor (sincroniza entre dispositivos), fallback localStorage
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(PERFIL_KEY);
-      if (saved) { const p = { ...PERFIL_VAZIO, ...JSON.parse(saved) }; setPerfil(p); setPerfilDraft(p); }
-    } catch { /* ignora */ }
-  }, []);
+    const carregar = async () => {
+      // 1. Carrega localStorage como estado inicial (instantâneo)
+      try {
+        const saved = localStorage.getItem(PERFIL_KEY);
+        if (saved) { const p = { ...PERFIL_VAZIO, ...JSON.parse(saved) }; setPerfil(p); setPerfilDraft(p); }
+      } catch { /* ignora */ }
+
+      // 2. Se autenticado, busca do servidor (pode ter perfil de outro dispositivo)
+      if (isAuthenticated) {
+        try {
+          const res = await import('@/lib/api').then(m => m.authApi.getPerfilImobiliario());
+          if (res.data) {
+            const p = { ...PERFIL_VAZIO, ...res.data };
+            setPerfil(p);
+            setPerfilDraft(p);
+            localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+            window.dispatchEvent(new CustomEvent('perfil-changed', { detail: p }));
+          }
+        } catch { /* ignora — usa localStorage */ }
+      }
+    };
+    carregar();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   const salvarPerfil = async () => {
     setGeocodingLoading(true);
@@ -189,6 +208,13 @@ export default function HomePage() {
     localStorage.setItem(PERFIL_KEY, JSON.stringify(draft));
     // Publica o perfil para o CardEmpreendimento usar
     window.dispatchEvent(new CustomEvent('perfil-changed', { detail: draft }));
+    // Salva no servidor (sincroniza entre dispositivos)
+    if (isAuthenticated) {
+      try {
+        const { authApi } = await import('@/lib/api');
+        await authApi.savePerfilImobiliario(draft);
+      } catch { /* ignora — já está no localStorage */ }
+    }
     setGeocodingLoading(false);
     setModalPerfil(false);
     toast.success('Perfil salvo!');
