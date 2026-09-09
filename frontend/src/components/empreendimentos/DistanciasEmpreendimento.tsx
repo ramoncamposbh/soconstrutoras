@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Navigation, MapPin, Loader2 } from 'lucide-react';
 import type { PerfilImobiliario } from '@/app/page';
+import { useAuth } from '@/lib/auth';
 
 interface Props {
   latitude: number | null | undefined;
@@ -52,6 +53,7 @@ async function calcularDistanciasDeLocais(
 }
 
 export default function DistanciasEmpreendimento({ latitude, longitude }: Props) {
+  const { isAuthenticated } = useAuth();
   const [distancias, setDistancias] = useState<{ label: string; min: number }[]>([]);
 
   // ── Calculador manual ──
@@ -61,7 +63,8 @@ export default function DistanciasEmpreendimento({ latitude, longitude }: Props)
   const [erroManual, setErroManual] = useState('');
 
   useEffect(() => {
-    if (!latitude || !longitude) return;
+    // Distâncias do perfil só para usuários logados
+    if (!latitude || !longitude || !isAuthenticated) { setDistancias([]); return; }
     const calcular = async (perfil?: PerfilImobiliario | null) => {
       const p = perfil ?? (() => {
         try { return JSON.parse(localStorage.getItem('sc_perfil') || 'null'); } catch { return null; }
@@ -74,7 +77,7 @@ export default function DistanciasEmpreendimento({ latitude, longitude }: Props)
     const h = (e: Event) => calcular((e as CustomEvent).detail);
     window.addEventListener('perfil-changed', h);
     return () => window.removeEventListener('perfil-changed', h);
-  }, [latitude, longitude]);
+  }, [latitude, longitude, isAuthenticated]);
 
   const calcularManual = async () => {
     if (!enderecoManual.trim() || !latitude || !longitude) return;

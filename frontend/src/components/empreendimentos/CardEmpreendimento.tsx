@@ -102,9 +102,12 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
   const [favOtimista, setFavOtimista] = useState<boolean | null>(null);
   const [distancias, setDistancias] = useState<{label: string; min: number}[]>([]);
 
-  // Calcula distâncias OSRM se o empreendimento tem coordenadas e o usuário tem perfil
+  // Calcula distâncias OSRM — só se logado, tem coordenadas e tem perfil
   useEffect(() => {
     const cacheKey = emp.id;
+
+    if (!isAuthenticated) { setDistancias([]); _distCache.delete(cacheKey); return; }
+
     if (_distCache.has(cacheKey)) { setDistancias(_distCache.get(cacheKey)!); return; }
 
     const calcular = async (p?: PerfilImobiliario | null) => {
@@ -119,12 +122,12 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
     calcular();
 
     const h = (e: Event) => {
-      _distCache.delete(cacheKey); // invalida cache ao mudar perfil
+      _distCache.delete(cacheKey);
       calcular((e as CustomEvent).detail);
     };
     window.addEventListener('perfil-changed', h);
     return () => window.removeEventListener('perfil-changed', h);
-  }, [emp.id, emp.latitude, emp.longitude]);
+  }, [emp.id, emp.latitude, emp.longitude, isAuthenticated]);
 
   // Usa o valor otimista se disponível, senão o da API
   const favorito = favOtimista !== null ? favOtimista : favoritoReal;
