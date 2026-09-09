@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Cookies from 'js-cookie';
 import { useAuth } from './auth';
 import { favoritosApi } from './api';
 import type { Empreendimento } from '@/types';
@@ -21,16 +20,30 @@ function emitir() {
   if (typeof window !== 'undefined') window.dispatchEvent(new Event('favoritos-changed'));
 }
 
-// Verifica cookie APENAS para toggleFavorito (função não-hook)
-function isLogadoCookie() {
-  if (typeof window === 'undefined') return false;
-  return !!Cookies.get('token');
+// ── Cache compartilhado de IDs (evita N chamadas, uma por card) ───────────
+let _idsCache: string[] = [];
+let _idsCacheTs = 0;
+let _idsFetching: Promise<string[]> | null = null;
+
+async function apiIdsCached(forceRefresh = false): Promise<string[]> {
+  const agora = Date.now();
+  // Usa cache se tem menos de 60s e não é refresh forçado
+  if (!forceRefresh && agora - _idsCacheTs < 60_000) return _idsCache;
+  // Deduplicação: se já está buscando, aguarda a mesma Promise
+  if (!_idsFetching) {
+    _idsFetching = favoritosApi.listarIds()
+      .then(r => {
+        _idsCache = Array.isArray(r.data) ? r.data : [];
+        _idsCacheTs = Date.now();
+        return _idsCache;
+      })
+      .finally(() => { _idsFetching = null; });
+  }
+  return _idsFetching;
 }
 
-// ── API helpers ────────────────────────────────────────────────────────────
-async function apiIds(): Promise<string[]> {
-  const r = await favoritosApi.listarIds();
-  return Array.isArray(r.data) ? r.data : [];
+function invalidarCache() {
+  _idsCacheTs = 0;
 }
 
 async function apiListar(): Promise<Empreendimento[]> {
@@ -39,28 +52,22 @@ async function apiListar(): Promise<Empreendimento[]> {
 }
 
 // ── Hook: lista completa ───────────────────────────────────────────────────
-// Usa useAuth como fonte de verdade — não lê localStorage para visitantes
 export function useFavoritos(): Empreendimento[] {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [lista, setLista] = useState<Empreendimento[]>([]);
 
   const carregar = useCallback(async () => {
-    if (authLoading) return; // Aguarda auth resolver
-
+    if (authLoading) return;
     if (!isAuthenticated) {
-      // Visitante — limpa localStorage órfão e mostra vazio
       if (typeof window !== 'undefined') localStorage.removeItem(LS_KEY);
       setLista([]);
       return;
     }
-
-    // Usuário autenticado — API é fonte de verdade
     try {
       const apiLista = await apiListar();
       localStorage.setItem(LS_KEY, JSON.stringify(apiLista));
       setLista(apiLista);
     } catch {
-      // Falha de rede — mostra vazio (não cai em localStorage de outro usuário)
       setLista([]);
     }
   }, [isAuthenticated, authLoading]);
@@ -75,21 +82,16 @@ export function useFavoritos(): Empreendimento[] {
   return lista;
 }
 
-// ── Hook: true se favoritado ───────────────────────────────────────────────
+// ── Hook: true se favoritado — usa cache compartilhado ────────────────────
 export function useEhFavorito(id: string): boolean {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [fav, setFav] = useState(false);
 
   const checar = useCallback(async () => {
     if (authLoading) return;
-
-    if (!isAuthenticated) {
-      setFav(false);
-      return;
-    }
-
+    if (!isAuthenticated) { setFav(false); return; }
     try {
-      const ids = await apiIds();
+      const ids = await apiIdsCached();
       setFav(ids.includes(id));
     } catch {
       setFav(false);
@@ -106,30 +108,50 @@ export function useEhFavorito(id: string): boolean {
   return fav;
 }
 
-// ── Toggle (adicionar/remover) ─────────────────────────────────────────────
-// CardEmpreendimento já verifica isAuthenticated antes de chamar — executa direto na API
+// ── Toggle — atualiza cache local imediatamente, sincroniza API em background
 export async function toggleFavorito(emp: Empreendimento): Promise<boolean> {
   try {
-    const ids = await apiIds();
+    const ids = await apiIdsCached();
     const era = ids.includes(emp.id);
+
+    // Atualiza cache local imediatamente (antes da API responder)
+    if (era) {
+      _idsCache = _idsCache.filter(i => i !== emp.id);
+      lsRemover(emp.id);
+    } else {
+      _idsCache = [..._idsCache, emp.id];
+    }
+    _idsCacheTs = Date.now(); // marca cache como fresco
+
+    // Notifica componentes com o cache já atualizado
+    emitir();
+
+    // Sincroniza com API em background
     if (era) {
       await favoritosApi.remover(emp.id);
-      lsRemover(emp.id);
     } else {
       await favoritosApi.adicionar(emp.id);
     }
-    emitir();
+
+    // Invalida cache para próxima leitura buscar do servidor
+    invalidarCache();
+
     return !era;
   } catch {
+    // Em caso de erro, invalida cache para forçar re-fetch correto
+    invalidarCache();
+    emitir();
     return false;
   }
 }
 
 // ── Remover ────────────────────────────────────────────────────────────────
 export async function removerFavorito(id: string): Promise<void> {
-  if (isLogadoCookie()) {
-    try { await favoritosApi.remover(id); } catch { /* ignora */ }
-  }
+  // Atualiza cache local
+  _idsCache = _idsCache.filter(i => i !== id);
   lsRemover(id);
   emitir();
+  // API em background
+  try { await favoritosApi.remover(id); } catch { /* ignora */ }
+  invalidarCache();
 }
