@@ -87,11 +87,64 @@ const NAV_LINKS = [
   { href: '/comparar',          label: 'Comparar',           icon: BarChart2 },
 ];
 
+// ── Perfil imobiliário ────────────────────────────────────────────────────
+const PERFIL_KEY = 'sc_perfil';
+interface PerfilImobiliario {
+  orcamento: string;
+  localTrabalho: string;
+  distanciaMax: string;
+  tipoFamilia: string;
+  preferencias: string[];
+}
+const PREFERENCIAS_OPCOES = [
+  'Pet Friendly','Vista definitiva','Condomínio clube','Lazer completo',
+  'Segurança 24h','Piscina','Quadra esportiva','Academia','Salão de festas',
+  'Churrasqueira','Playground','Coworking',
+];
+function perfilItens(p: PerfilImobiliario): string[] {
+  const itens: string[] = [];
+  if (p.tipoFamilia) itens.push(p.tipoFamilia);
+  if (p.localTrabalho) itens.push(`Trabalha em ${p.localTrabalho}`);
+  if (p.orcamento) itens.push(`Orçamento até ${p.orcamento}`);
+  if (p.distanciaMax) itens.push(`Até ${p.distanciaMax} min de deslocamento`);
+  itens.push(...p.preferencias);
+  return itens;
+}
+function perfilPct(p: PerfilImobiliario): number {
+  let pts = 0;
+  if (p.orcamento) pts += 25;
+  if (p.localTrabalho) pts += 20;
+  if (p.distanciaMax) pts += 15;
+  if (p.tipoFamilia) pts += 15;
+  pts += Math.min(p.preferencias.length * 5, 25);
+  return Math.min(pts, 100);
+}
+
 export default function HomePage() {
   const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [modalPerfil, setModalPerfil] = useState(false);
+  const [perfil, setPerfil] = useState<PerfilImobiliario>({
+    orcamento: '', localTrabalho: '', distanciaMax: '', tipoFamilia: '', preferencias: [],
+  });
+  const [perfilDraft, setPerfilDraft] = useState<PerfilImobiliario>(perfil);
+
+  // Carrega perfil do localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PERFIL_KEY);
+      if (saved) { const p = JSON.parse(saved); setPerfil(p); setPerfilDraft(p); }
+    } catch { /* ignora */ }
+  }, []);
+
+  const salvarPerfil = () => {
+    setPerfil(perfilDraft);
+    localStorage.setItem(PERFIL_KEY, JSON.stringify(perfilDraft));
+    setModalPerfil(false);
+    toast.success('Perfil salvo!');
+  };
   const menuRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
   const [isIOSDevice, setIsIOSDevice] = useState(false);
@@ -793,6 +846,119 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ background: '#faf9f6' }}>
 
+      {/* ══ MODAL PERFIL IMOBILIÁRIO ══ */}
+      {modalPerfil && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={() => setModalPerfil(false)}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 28, width: '100%', maxWidth: 460, maxHeight: '90vh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 800, color: '#04241D' }}>Seu perfil imobiliário</h2>
+              <button onClick={() => setModalPerfil(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>
+                  Tipo de família
+                </label>
+                <select value={perfilDraft.tipoFamilia} onChange={e => setPerfilDraft(d => ({ ...d, tipoFamilia: e.target.value }))}
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 13, color: '#111827', background: '#fff' }}>
+                  <option value="">Selecione...</option>
+                  <option>Solteiro(a)</option>
+                  <option>Casal sem filhos</option>
+                  <option>Casal com 1 filho</option>
+                  <option>Família com dois filhos</option>
+                  <option>Família com 3+ filhos</option>
+                  <option>Investidor</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>
+                  Orçamento máximo
+                </label>
+                <select value={perfilDraft.orcamento} onChange={e => setPerfilDraft(d => ({ ...d, orcamento: e.target.value }))}
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 13, color: '#111827', background: '#fff' }}>
+                  <option value="">Selecione...</option>
+                  <option>R$ 300 mil</option>
+                  <option>R$ 500 mil</option>
+                  <option>R$ 800 mil</option>
+                  <option>R$ 1 mi</option>
+                  <option>R$ 1,5 mi</option>
+                  <option>R$ 2 mi</option>
+                  <option>Acima de R$ 2 mi</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>
+                  Local de trabalho (bairro ou cidade)
+                </label>
+                <input value={perfilDraft.localTrabalho} onChange={e => setPerfilDraft(d => ({ ...d, localTrabalho: e.target.value }))}
+                  placeholder="Ex: Savassi, Centro, São Paulo"
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 13, color: '#111827', outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>
+                  Distância máxima ao trabalho
+                </label>
+                <select value={perfilDraft.distanciaMax} onChange={e => setPerfilDraft(d => ({ ...d, distanciaMax: e.target.value }))}
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 13, color: '#111827', background: '#fff' }}>
+                  <option value="">Selecione...</option>
+                  <option>10</option>
+                  <option>20</option>
+                  <option>30</option>
+                  <option>45</option>
+                  <option>60</option>
+                </select>
+                {perfilDraft.distanciaMax && <span style={{ fontSize: 11, color: '#9CA3AF' }}>minutos</span>}
+              </div>
+
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 8 }}>
+                  Preferências
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {PREFERENCIAS_OPCOES.map(op => {
+                    const sel = perfilDraft.preferencias.includes(op);
+                    return (
+                      <button key={op} onClick={() => setPerfilDraft(d => ({
+                        ...d,
+                        preferencias: sel ? d.preferencias.filter(p => p !== op) : [...d.preferencias, op],
+                      }))}
+                        style={{
+                          padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                          border: `1.5px solid ${sel ? '#0E8F6E' : '#E5E7EB'}`,
+                          background: sel ? '#F0FAF7' : '#fff',
+                          color: sel ? '#0E8F6E' : '#6B7280',
+                          transition: 'all 0.15s',
+                        }}>
+                        {op}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+              <button onClick={() => setModalPerfil(false)}
+                style={{ flex: 1, padding: '12px', borderRadius: 12, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 14, fontWeight: 600, color: '#6B7280', cursor: 'pointer' }}>
+                Cancelar
+              </button>
+              <button onClick={salvarPerfil}
+                style={{ flex: 2, padding: '12px', borderRadius: 12, border: 'none', background: '#0E8F6E', fontSize: 14, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+                Salvar perfil
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ══ MENU GLOBAL DO USUÁRIO ══ */}
       {userMenuOpen && isAuthenticated && (
         <>
@@ -1106,43 +1272,54 @@ export default function HomePage() {
             style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.12)' }}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-semibold text-white">Seu perfil imobiliário</h3>
-              <button className="text-[10px] transition-colors" style={{ color: '#4ade80' }}>Editar ✏️</button>
+              <button onClick={() => { setPerfilDraft(perfil); setModalPerfil(true); }} className="text-[10px] transition-colors" style={{ color: '#4ade80' }}>Editar ✏️</button>
             </div>
 
             {isAuthenticated ? (
-              <>
-                {/* Gauge */}
-                <div className="flex justify-center mb-3">
-                  <div className="relative w-[88px] h-[88px]">
-                    <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="9" />
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="#22c55e" strokeWidth="9"
-                        strokeDasharray="251.2" strokeDashoffset={251.2 * 0.17} strokeLinecap="round" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-bold text-white">83%</span>
-                      <span className="text-[8px]" style={{ color: '#4ade80' }}>Perfil encontrado</span>
+              (() => {
+                const pct = perfilPct(perfil);
+                const itens = perfilItens(perfil);
+                const temPerfil = pct > 0;
+                return (
+                  <>
+                    {/* Gauge */}
+                    <div className="flex justify-center mb-3">
+                      <div className="relative w-[88px] h-[88px]">
+                        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="9" />
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="#22c55e" strokeWidth="9"
+                            strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - pct / 100)} strokeLinecap="round" />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className="text-2xl font-bold text-white">{pct}%</span>
+                          <span className="text-[8px]" style={{ color: '#4ade80' }}>Perfil encontrado</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <ul className="space-y-1.5 mb-3 flex-1">
-                  {['Família com dois filhos','Trabalha na Savassi','Renda familiar informada',
-                    'Orçamento até R$ 1,6 mi','Até 20 min de deslocamento','Pet Friendly','Vista definitiva','Condomínio clube',
-                  ].map((item) => (
-                    <li key={item} className="flex items-center gap-1.5 text-[11px]" style={{ color: '#bbf7d0' }}>
-                      <CheckCircle className="w-3 h-3 shrink-0" style={{ color: '#22c55e' }} /> {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="rounded-xl p-3 border" style={{ background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.1)' }}>
-                  <p className="text-[11px] font-semibold text-white mb-0.5">Falta pouco!</p>
-                  <p className="text-[10px] mb-2" style={{ color: '#86efac' }}>Complete seu perfil para resultados ainda melhores.</p>
-                  <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                    <div className="h-1.5 rounded-full" style={{ width: '83%', background: '#22c55e' }} />
-                  </div>
-                  <span className="text-[9px] mt-1 block text-right" style={{ color: '#4ade80' }}>83%</span>
-                </div>
-              </>
+                    {temPerfil ? (
+                      <ul className="space-y-1.5 mb-3 flex-1">
+                        {itens.map((item) => (
+                          <li key={item} className="flex items-center gap-1.5 text-[11px]" style={{ color: '#bbf7d0' }}>
+                            <CheckCircle className="w-3 h-3 shrink-0" style={{ color: '#22c55e' }} /> {item}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-[11px] text-center mb-3 flex-1" style={{ color: '#86efac' }}>
+                        Clique em <strong>Editar</strong> para preencher seu perfil e receber recomendações personalizadas.
+                      </p>
+                    )}
+                    <div className="rounded-xl p-3 border" style={{ background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.1)' }}>
+                      <p className="text-[11px] font-semibold text-white mb-0.5">{pct >= 100 ? 'Perfil completo!' : 'Falta pouco!'}</p>
+                      <p className="text-[10px] mb-2" style={{ color: '#86efac' }}>Complete seu perfil para resultados ainda melhores.</p>
+                      <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, background: '#22c55e' }} />
+                      </div>
+                      <span className="text-[9px] mt-1 block text-right" style={{ color: '#4ade80' }}>{pct}%</span>
+                    </div>
+                  </>
+                );
+              })()
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center py-6 gap-3">
                 <div className="w-14 h-14 rounded-full flex items-center justify-center"
