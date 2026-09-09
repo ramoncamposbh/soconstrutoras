@@ -89,34 +89,64 @@ const NAV_LINKS = [
 
 // ── Perfil imobiliário ────────────────────────────────────────────────────
 const PERFIL_KEY = 'sc_perfil';
-interface PerfilImobiliario {
+export interface PerfilImobiliario {
   orcamento: string;
-  localTrabalho: string;
-  distanciaMax: string;
   tipoFamilia: string;
+  distanciaMax: string;
   preferencias: string[];
+  // Locais com endereço + coords geocodificadas
+  trabalho1: string; localTrabalho1Label: string; coordTrabalho1?: [number,number];
+  trabalho2: string; localTrabalho2Label: string; coordTrabalho2?: [number,number];
+  escola1: string;   localEscola1Label: string;   coordEscola1?: [number,number];
+  escola2: string;   localEscola2Label: string;   coordEscola2?: [number,number];
 }
+const PERFIL_VAZIO: PerfilImobiliario = {
+  orcamento: '', tipoFamilia: '', distanciaMax: '', preferencias: [],
+  trabalho1: '', localTrabalho1Label: 'Trabalho dele',
+  trabalho2: '', localTrabalho2Label: 'Trabalho dela',
+  escola1:   '', localEscola1Label:   'Escola — Filho 1',
+  escola2:   '', localEscola2Label:   'Escola — Filho 2',
+};
 const PREFERENCIAS_OPCOES = [
   'Pet Friendly','Vista definitiva','Condomínio clube','Lazer completo',
   'Segurança 24h','Piscina','Quadra esportiva','Academia','Salão de festas',
   'Churrasqueira','Playground','Coworking',
 ];
+
+async function geocodificar(endereco: string): Promise<[number,number]|null> {
+  try {
+    const q = encodeURIComponent(endereco + ', Belo Horizonte, MG, Brasil');
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`, {
+      headers: { 'Accept-Language': 'pt-BR' },
+    });
+    const data = await r.json();
+    if (data.length > 0) return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+    return null;
+  } catch { return null; }
+}
+
 function perfilItens(p: PerfilImobiliario): string[] {
   const itens: string[] = [];
   if (p.tipoFamilia) itens.push(p.tipoFamilia);
-  if (p.localTrabalho) itens.push(`Trabalha em ${p.localTrabalho}`);
   if (p.orcamento) itens.push(`Orçamento até ${p.orcamento}`);
   if (p.distanciaMax) itens.push(`Até ${p.distanciaMax} min de deslocamento`);
+  if (p.trabalho1) itens.push(`Trabalho: ${p.trabalho1}`);
+  if (p.trabalho2) itens.push(`Trabalho: ${p.trabalho2}`);
+  if (p.escola1)   itens.push(`Escola: ${p.escola1}`);
+  if (p.escola2)   itens.push(`Escola: ${p.escola2}`);
   itens.push(...p.preferencias);
   return itens;
 }
 function perfilPct(p: PerfilImobiliario): number {
   let pts = 0;
-  if (p.orcamento) pts += 25;
-  if (p.localTrabalho) pts += 20;
-  if (p.distanciaMax) pts += 15;
-  if (p.tipoFamilia) pts += 15;
-  pts += Math.min(p.preferencias.length * 5, 25);
+  if (p.orcamento) pts += 20;
+  if (p.tipoFamilia) pts += 10;
+  if (p.distanciaMax) pts += 10;
+  if (p.trabalho1) pts += 15;
+  if (p.trabalho2) pts += 15;
+  if (p.escola1)   pts += 10;
+  if (p.escola2)   pts += 10;
+  pts += Math.min(p.preferencias.length * 2, 10);
   return Math.min(pts, 100);
 }
 
@@ -126,22 +156,40 @@ export default function HomePage() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalPerfil, setModalPerfil] = useState(false);
-  const [perfil, setPerfil] = useState<PerfilImobiliario>({
-    orcamento: '', localTrabalho: '', distanciaMax: '', tipoFamilia: '', preferencias: [],
-  });
-  const [perfilDraft, setPerfilDraft] = useState<PerfilImobiliario>(perfil);
+  const [geocodingLoading, setGeocodingLoading] = useState(false);
+  const [perfil, setPerfil] = useState<PerfilImobiliario>(PERFIL_VAZIO);
+  const [perfilDraft, setPerfilDraft] = useState<PerfilImobiliario>(PERFIL_VAZIO);
 
   // Carrega perfil do localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem(PERFIL_KEY);
-      if (saved) { const p = JSON.parse(saved); setPerfil(p); setPerfilDraft(p); }
+      if (saved) { const p = { ...PERFIL_VAZIO, ...JSON.parse(saved) }; setPerfil(p); setPerfilDraft(p); }
     } catch { /* ignora */ }
   }, []);
 
-  const salvarPerfil = () => {
-    setPerfil(perfilDraft);
-    localStorage.setItem(PERFIL_KEY, JSON.stringify(perfilDraft));
+  const salvarPerfil = async () => {
+    setGeocodingLoading(true);
+    // Geocodifica locais que ainda não têm coords ou que o endereço mudou
+    const draft = { ...perfilDraft };
+    const geocodes: Array<{ campo: keyof PerfilImobiliario; coordCampo: keyof PerfilImobiliario; endereco: string }> = [
+      { campo: 'trabalho1', coordCampo: 'coordTrabalho1', endereco: draft.trabalho1 },
+      { campo: 'trabalho2', coordCampo: 'coordTrabalho2', endereco: draft.trabalho2 },
+      { campo: 'escola1',   coordCampo: 'coordEscola1',   endereco: draft.escola1 },
+      { campo: 'escola2',   coordCampo: 'coordEscola2',   endereco: draft.escola2 },
+    ];
+    for (const { campo, coordCampo, endereco } of geocodes) {
+      if (endereco && endereco !== (perfil as any)[campo]) {
+        const coords = await geocodificar(endereco);
+        (draft as any)[coordCampo] = coords ?? undefined;
+      }
+    }
+    setPerfil(draft);
+    setPerfilDraft(draft);
+    localStorage.setItem(PERFIL_KEY, JSON.stringify(draft));
+    // Publica o perfil para o CardEmpreendimento usar
+    window.dispatchEvent(new CustomEvent('perfil-changed', { detail: draft }));
+    setGeocodingLoading(false);
     setModalPerfil(false);
     toast.success('Perfil salvo!');
   };
@@ -893,18 +941,34 @@ export default function HomePage() {
                 </select>
               </div>
 
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>
-                  Local de trabalho (bairro ou cidade)
-                </label>
-                <input value={perfilDraft.localTrabalho} onChange={e => setPerfilDraft(d => ({ ...d, localTrabalho: e.target.value }))}
-                  placeholder="Ex: Savassi, Centro, São Paulo"
-                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 13, color: '#111827', outline: 'none', boxSizing: 'border-box' }} />
+              {/* ── Locais de trabalho e escola ── */}
+              <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '14px 14px 10px', border: '1px solid #F3F4F6' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>
+                  Locais de referência
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {([
+                    { campo: 'trabalho1' as const, label: 'Trabalho dele',    placeholder: 'Ex: Rua Bernardo Guimarães, 1510' },
+                    { campo: 'trabalho2' as const, label: 'Trabalho dela',    placeholder: 'Ex: Av. Raja Gabaglia — Ministério Agricultura' },
+                    { campo: 'escola1'   as const, label: 'Escola — Filho 1', placeholder: 'Ex: Colégio Santo Antônio' },
+                    { campo: 'escola2'   as const, label: 'Escola — Filho 2', placeholder: 'Ex: Faculdade de Direito da UFMG' },
+                  ] as const).map(({ campo, label, placeholder }) => (
+                    <div key={campo}>
+                      <label style={{ fontSize: 10.5, fontWeight: 600, color: '#9CA3AF', display: 'block', marginBottom: 4 }}>{label}</label>
+                      <input
+                        value={perfilDraft[campo]}
+                        onChange={e => setPerfilDraft(d => ({ ...d, [campo]: e.target.value }))}
+                        placeholder={placeholder}
+                        style={{ width: '100%', padding: '9px 11px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 12.5, color: '#111827', outline: 'none', boxSizing: 'border-box', background: '#fff' }}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>
-                  Distância máxima ao trabalho
+                  Tempo máximo de deslocamento
                 </label>
                 <select value={perfilDraft.distanciaMax} onChange={e => setPerfilDraft(d => ({ ...d, distanciaMax: e.target.value }))}
                   style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 13, color: '#111827', background: '#fff' }}>
@@ -915,7 +979,7 @@ export default function HomePage() {
                   <option>45</option>
                   <option>60</option>
                 </select>
-                {perfilDraft.distanciaMax && <span style={{ fontSize: 11, color: '#9CA3AF' }}>minutos</span>}
+                {perfilDraft.distanciaMax && <span style={{ fontSize: 11, color: '#9CA3AF' }}>minutos de carro</span>}
               </div>
 
               <div>
@@ -950,9 +1014,9 @@ export default function HomePage() {
                 style={{ flex: 1, padding: '12px', borderRadius: 12, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 14, fontWeight: 600, color: '#6B7280', cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button onClick={salvarPerfil}
-                style={{ flex: 2, padding: '12px', borderRadius: 12, border: 'none', background: '#0E8F6E', fontSize: 14, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
-                Salvar perfil
+              <button onClick={salvarPerfil} disabled={geocodingLoading}
+                style={{ flex: 2, padding: '12px', borderRadius: 12, border: 'none', background: geocodingLoading ? '#6B7280' : '#0E8F6E', fontSize: 14, fontWeight: 700, color: '#fff', cursor: geocodingLoading ? 'wait' : 'pointer' }}>
+                {geocodingLoading ? 'Geocodificando...' : 'Salvar perfil'}
               </button>
             </div>
           </div>

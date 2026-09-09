@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toggleFavorito, useEhFavorito } from '@/lib/favoritos';
 import { useAuth } from '@/lib/auth';
@@ -8,8 +8,41 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   MapPin, BedDouble, Car, Maximize2, Heart,
-  CheckCircle, ChevronRight,
+  CheckCircle, ChevronRight, Navigation,
 } from 'lucide-react';
+import type { PerfilImobiliario } from '@/app/page';
+
+// ─── Cache de distâncias por empreendimento ────────────────────────────────
+const _distCache = new Map<string, {label: string; min: number}[]>();
+
+function lerPerfil(): PerfilImobiliario | null {
+  if (typeof window === 'undefined') return null;
+  try { return JSON.parse(localStorage.getItem('sc_perfil') || 'null'); } catch { return null; }
+}
+
+async function calcularDistancias(
+  empLat: number, empLng: number,
+  perfil: PerfilImobiliario,
+): Promise<{label: string; min: number}[]> {
+  const locais: {label: string; coord: [number,number]}[] = [];
+  if (perfil.coordTrabalho1 && perfil.trabalho1) locais.push({ label: 'Trabalho dele', coord: perfil.coordTrabalho1 });
+  if (perfil.coordTrabalho2 && perfil.trabalho2) locais.push({ label: 'Trabalho dela', coord: perfil.coordTrabalho2 });
+  if (perfil.coordEscola1   && perfil.escola1)   locais.push({ label: 'Filho 1',       coord: perfil.coordEscola1 });
+  if (perfil.coordEscola2   && perfil.escola2)   locais.push({ label: 'Filho 2',       coord: perfil.coordEscola2 });
+  if (!locais.length) return [];
+
+  const resultados = await Promise.all(locais.map(async ({ label, coord }) => {
+    try {
+      const [lat, lon] = coord;
+      const url = `https://router.project-osrm.org/route/v1/driving/${lon},${lat};${empLng},${empLat}?overview=false`;
+      const r = await fetch(url);
+      const d = await r.json();
+      if (d.routes?.length) return { label, min: Math.round(d.routes[0].duration / 60) };
+    } catch { /* ignora */ }
+    return null;
+  }));
+  return resultados.filter(Boolean) as {label: string; min: number}[];
+}
 import { formatCurrency } from '@/lib/utils';
 import type { Empreendimento } from '@/types';
 
@@ -67,6 +100,31 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
   const router = useRouter();
   const favoritoReal = useEhFavorito(emp.id);
   const [favOtimista, setFavOtimista] = useState<boolean | null>(null);
+  const [distancias, setDistancias] = useState<{label: string; min: number}[]>([]);
+
+  // Calcula distâncias OSRM se o empreendimento tem coordenadas e o usuário tem perfil
+  useEffect(() => {
+    const cacheKey = emp.id;
+    if (_distCache.has(cacheKey)) { setDistancias(_distCache.get(cacheKey)!); return; }
+
+    const calcular = async (p?: PerfilImobiliario | null) => {
+      if (!emp.latitude || !emp.longitude) return;
+      const perfil = p ?? lerPerfil();
+      if (!perfil) return;
+      const dists = await calcularDistancias(emp.latitude, emp.longitude, perfil);
+      _distCache.set(cacheKey, dists);
+      setDistancias(dists);
+    };
+
+    calcular();
+
+    const h = (e: Event) => {
+      _distCache.delete(cacheKey); // invalida cache ao mudar perfil
+      calcular((e as CustomEvent).detail);
+    };
+    window.addEventListener('perfil-changed', h);
+    return () => window.removeEventListener('perfil-changed', h);
+  }, [emp.id, emp.latitude, emp.longitude]);
 
   // Usa o valor otimista se disponível, senão o da API
   const favorito = favOtimista !== null ? favOtimista : favoritoReal;
@@ -234,6 +292,22 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
               </span>
             )}
           </div>
+
+          {/* Distâncias OSRM */}
+          {distancias.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+              {distancias.map(d => (
+                <span key={d.label} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 3,
+                  fontSize: 10, fontWeight: 600, color: '#0E8F6E',
+                  background: '#F0FAF7', borderRadius: 6, padding: '3px 7px',
+                }}>
+                  <Navigation size={8} style={{ flexShrink: 0 }} />
+                  {d.label} · {d.min} min
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Preço + botão */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
