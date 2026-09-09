@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Cookies from 'js-cookie';
 import { useAuth } from './auth';
 import { favoritosApi } from './api';
 import type { Empreendimento } from '@/types';
@@ -23,7 +24,6 @@ function emitir() {
 // Verifica cookie APENAS para toggleFavorito (função não-hook)
 function isLogadoCookie() {
   if (typeof window === 'undefined') return false;
-  const { default: Cookies } = require('js-cookie');
   return !!Cookies.get('token');
 }
 
