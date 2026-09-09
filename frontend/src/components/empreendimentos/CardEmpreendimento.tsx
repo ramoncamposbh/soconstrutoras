@@ -69,6 +69,7 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
 
   const handleFavorito = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!isAuthenticated) {
       // Redireciona para login sem salvar no localStorage
       router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
