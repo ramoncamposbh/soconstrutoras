@@ -157,19 +157,17 @@ export default function FavoritosPage() {
                   }}
                 >
                   {/* Imagem */}
-                  <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', background: '#F3F4F6' }}>
                     {emp.foto_capa ? (
-                      <Image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
                         src={emp.foto_capa}
                         alt={emp.nome}
-                        fill
-                        className="object-cover"
-                        unoptimized
+                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     ) : (
                       <div style={{
                         width: '100%', height: '100%',
-                        background: '#F3F4F6',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         <svg width={48} height={48} fill="none" stroke="#D1D5DB" viewBox="0 0 24 24">
