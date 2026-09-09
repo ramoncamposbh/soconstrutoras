@@ -88,6 +88,8 @@ interface Props {
   zoomInicial?: number;
   /** Passa true quando o container do mapa se torna visível (ex: toggle lista/mapa no mobile) */
   visivel?: boolean;
+  /** false = não ajusta bounds automaticamente (geolocalização controla o centro) */
+  fitBounds?: boolean;
 }
 
 /**
@@ -205,6 +207,7 @@ export default function MapaEmpreendimentos({
   centroInicial = SAVASSI,
   zoomInicial = ZOOM_CIDADE,
   visivel = true,
+  fitBounds = false,
 }: Props) {
   const temEmpreendimentos = empreendimentos.length > 0;
 
@@ -229,8 +232,8 @@ export default function MapaEmpreendimentos({
         {/* Invalida tamanho e re-centra quando o container se torna visível (mobile toggle) */}
         <InvalidarECentralizar visivel={visivel} empreendimentos={empreendimentos} />
 
-        {/* Ajusta bounds apenas quando o conjunto de empreendimentos muda de verdade */}
-        {temEmpreendimentos && <AjustarBounds empreendimentos={empreendimentos} />}
+        {/* Ajusta bounds — só quando explicitamente solicitado (ex: página de detalhe) */}
+        {temEmpreendimentos && fitBounds && <AjustarBounds empreendimentos={empreendimentos} />}
 
         {empreendimentos.map((emp) => (
           <Marker

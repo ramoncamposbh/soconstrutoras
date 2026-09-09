@@ -172,13 +172,23 @@ export default function HomePage() {
       // 2. Se autenticado, busca do servidor (pode ter perfil de outro dispositivo)
       if (isAuthenticated) {
         try {
-          const res = await import('@/lib/api').then(m => m.authApi.getPerfilImobiliario());
+          const { authApi } = await import('@/lib/api');
+          const res = await authApi.getPerfilImobiliario();
           if (res.data) {
+            // Servidor tem perfil → usa ele (pode ser mais atualizado que localStorage)
             const p = { ...PERFIL_VAZIO, ...res.data };
             setPerfil(p);
             setPerfilDraft(p);
             localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
             window.dispatchEvent(new CustomEvent('perfil-changed', { detail: p }));
+          } else {
+            // Servidor não tem perfil ainda → sobe o que está no localStorage (auto-sync)
+            const localStr = localStorage.getItem(PERFIL_KEY);
+            if (localStr) {
+              const localP = JSON.parse(localStr);
+              authApi.savePerfilImobiliario(localP).catch(() => {});
+              window.dispatchEvent(new CustomEvent('perfil-changed', { detail: localP }));
+            }
           }
         } catch { /* ignora — usa localStorage */ }
       }
