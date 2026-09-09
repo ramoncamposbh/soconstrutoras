@@ -141,10 +141,10 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
             {s.label}
           </span>
 
-          {/* Compatibilidade badge */}
+          {/* Compatibilidade badge — canto inferior esquerdo */}
           {compatibilidade && (
             <div style={{
-              position: 'absolute', top: 10, left: 10,
+              position: 'absolute', bottom: 10, left: 10,
               background: 'rgba(4,36,29,0.88)',
               backdropFilter: 'blur(4px)',
               borderRadius: 9, padding: '5px 9px',
@@ -251,16 +251,16 @@ export default function CardEmpreendimento({ emp, compatibilidade }: Props) {
         </div>
       </Link>
 
-      {/* ── "Por que recomendamos?" — painel hover ── */}
+      {/* ── "Por que recomendamos?" — painel hover (direita do card) ── */}
       <div style={{
-        position: 'absolute', top: 0, right: 'calc(100% + 10px)',
+        position: 'absolute', top: 0, left: 'calc(100% + 10px)',
         width: 200, zIndex: 20,
         background: '#fff',
         border: `1.5px solid ${G}`,
         borderRadius: 14, padding: '14px 14px',
         boxShadow: '0 12px 40px rgba(14,143,110,0.18)',
         opacity: hover ? 1 : 0,
-        transform: hover ? 'translateX(0) scale(1)' : 'translateX(8px) scale(0.97)',
+        transform: hover ? 'translateX(0) scale(1)' : 'translateX(-8px) scale(0.97)',
         transition: 'all 0.22s cubic-bezier(0.34,1.2,0.64,1)',
         pointerEvents: 'none',
       }}>
