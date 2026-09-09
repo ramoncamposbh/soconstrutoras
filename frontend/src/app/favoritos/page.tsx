@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/layout/Header';
@@ -20,6 +21,13 @@ const STATUS_LABEL: Record<string, { label: string; bg: string; text: string }> 
 export default function FavoritosPage() {
   const { isAuthenticated, loading } = useAuth();
   const favoritos = useFavoritos();
+
+  // Limpa localStorage de visitantes (dado órfão de sessões anteriores)
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      localStorage.removeItem('sc_favoritos');
+    }
+  }, [loading, isAuthenticated]);
 
   // Exige login — não mostrar favoritos de localStorage para visitantes
   if (!loading && !isAuthenticated) {
