@@ -28,8 +28,8 @@ export class EmpreendimentosService {
          (construtora_id, nome, descricao, tipo, status, endereco, bairro,
           cidade, estado, cep, latitude, longitude,
           preco_min, preco_max, area_min, area_max,
-          quartos_min, quartos_max, vagas, previsao_entrega, slug)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+          quartos_min, quartos_max, vagas, previsao_entrega, slug, itens_condominio)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
        RETURNING *`,
       [
         construtoraId, dto.nome, dto.descricao, dto.tipo, dto.status ?? 'lancamento',
@@ -37,6 +37,7 @@ export class EmpreendimentosService {
         dto.latitude ?? null, dto.longitude ?? null,
         dto.preco_min, dto.preco_max, dto.area_min, dto.area_max,
         dto.quartos_min, dto.quartos_max, dto.vagas, dto.previsao_entrega ?? null, slug,
+        dto.itens_condominio ?? null,
       ],
     );
     return emp;
@@ -45,7 +46,11 @@ export class EmpreendimentosService {
   async listar(userId: string) {
     const construtoraId = await this.resolverConstrutoraId(userId);
     const { rows } = await this.pool.query(
-      `SELECT e.*, COUNT(l.id) AS total_leads
+      `SELECT e.*,
+              COUNT(l.id) AS total_leads,
+              (SELECT m.url FROM empreendimento_midias m
+               WHERE m.empreendimento_id = e.id AND m.tipo = 'foto'
+               ORDER BY m.ordem LIMIT 1) AS foto_capa
        FROM empreendimentos e
        LEFT JOIN leads l ON l.empreendimento_id = e.id
        WHERE e.construtora_id = $1

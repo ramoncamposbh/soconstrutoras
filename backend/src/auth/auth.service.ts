@@ -25,6 +25,7 @@ export class AuthService implements OnModuleInit {
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS perfil_imobiliario JSONB`,
       `ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`,
+      `ALTER TABLE empreendimentos ADD COLUMN IF NOT EXISTS itens_condominio TEXT[]`,
       `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS telefone          VARCHAR(20)`,
       `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS responsavel_nome  VARCHAR(255)`,
       `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS responsavel_email VARCHAR(255)`,

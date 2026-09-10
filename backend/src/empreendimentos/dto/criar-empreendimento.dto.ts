@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsIn, IsNumber, IsPositive, Min, Max } from 'class-validator';
+import { IsString, IsOptional, IsIn, IsNumber, IsPositive, Min, Max, IsArray } from 'class-validator';
 
 export class CriarEmpreendimentoDto {
   @IsString()
@@ -85,4 +85,9 @@ export class CriarEmpreendimentoDto {
   @IsOptional()
   @IsString()
   previsao_entrega?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  itens_condominio?: string[];
 }

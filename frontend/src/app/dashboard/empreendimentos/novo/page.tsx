@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -8,9 +8,29 @@ import { empreendimentosApi } from '@/lib/api';
 import { TIPOS_IMOVEL, STATUS_OBRA, ESTADOS_BR } from '@/lib/utils';
 import { ArrowLeft } from 'lucide-react';
 
+const ITENS_CONDOMINIO = [
+  'Piscina', 'Academia', 'Churrasqueira', 'Salão de festas', 'Playground',
+  'Quadra esportiva', 'Espaço gourmet', 'Sauna', 'Spa', 'Coworking',
+  'Pet place', 'Brinquedoteca', 'Portaria 24h', 'Gerador', 'Elevador',
+  'Heliponto', 'Rooftop', 'Cinema', 'Pub / lounge', 'Lavanderia coletiva',
+];
+
 export default function NovoEmpreendimentoPage() {
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+  const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: { itens_condominio: [] as string[] },
+  });
+
+  const itensSelecionados: string[] = watch('itens_condominio') ?? [];
+
+  const toggleItem = (item: string) => {
+    const atual = itensSelecionados;
+    setValue(
+      'itens_condominio',
+      atual.includes(item) ? atual.filter(i => i !== item) : [...atual, item],
+      { shouldDirty: true }
+    );
+  };
 
   const onSubmit = async (data: any) => {
     try {
@@ -140,6 +160,24 @@ export default function NovoEmpreendimentoPage() {
               <label className="label">Vagas</label>
               <input {...register('vagas', { valueAsNumber: true })} type="number" className="input" min={0} />
             </div>
+          </div>
+        </div>
+
+        {/* Itens do condomínio */}
+        <div className="card p-6 space-y-4">
+          <h2 className="font-semibold text-gray-900">Itens do condomínio</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {ITENS_CONDOMINIO.map((item) => (
+              <label key={item} className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={itensSelecionados.includes(item)}
+                  onChange={() => toggleItem(item)}
+                  className="w-4 h-4 rounded accent-primary-500"
+                />
+                <span className="text-sm text-gray-700">{item}</span>
+              </label>
+            ))}
           </div>
         </div>
 

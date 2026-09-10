@@ -47,7 +47,17 @@ export default function EditarEmpreendimentoPage() {
   const [tab, setTab] = useState<Tab>('dados');
   const [formUnidade, setFormUnidade] = useState<{ open: boolean; unidade?: Unidade | null }>({ open: false });
 
-  const { register, handleSubmit, reset, setValue, getValues, formState: { isSubmitting, isDirty } } = useForm();
+  const { register, handleSubmit, reset, setValue, getValues, watch, formState: { isSubmitting, isDirty } } = useForm();
+
+  const itensSelecionados: string[] = watch('itens_condominio') ?? [];
+  const toggleItem = (item: string) => {
+    const atual: string[] = getValues('itens_condominio') ?? [];
+    setValue(
+      'itens_condominio',
+      atual.includes(item) ? atual.filter((i: string) => i !== item) : [...atual, item],
+      { shouldDirty: true }
+    );
+  };
 
   useEffect(() => {
     Promise.all([
@@ -70,7 +80,14 @@ export default function EditarEmpreendimentoPage() {
     'latitude','longitude',
     'preco_min','preco_max','area_min','area_max',
     'quartos_min','quartos_max','vagas',
-    'previsao_entrega',
+    'previsao_entrega','itens_condominio',
+  ];
+
+  const ITENS_CONDOMINIO = [
+    'Piscina','Academia','Churrasqueira','Salão de festas','Playground',
+    'Quadra esportiva','Espaço gourmet','Sauna','Spa','Coworking',
+    'Pet place','Brinquedoteca','Portaria 24h','Gerador','Elevador',
+    'Heliponto','Rooftop','Cinema','Pub / lounge','Lavanderia coletiva',
   ];
 
   const salvar = async (data: any) => {
@@ -245,6 +262,23 @@ export default function EditarEmpreendimentoPage() {
                 setValue('longitude', lng, { shouldDirty: true });
               }}
             />
+          </div>
+
+          <div className="card p-6 space-y-4">
+            <h2 className="font-semibold text-gray-900">Itens do condomínio</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {ITENS_CONDOMINIO.map((item) => (
+                <label key={item} className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={itensSelecionados.includes(item)}
+                    onChange={() => toggleItem(item)}
+                    className="w-4 h-4 rounded accent-primary-500"
+                  />
+                  <span className="text-sm text-gray-700">{item}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="card p-6 space-y-4">
