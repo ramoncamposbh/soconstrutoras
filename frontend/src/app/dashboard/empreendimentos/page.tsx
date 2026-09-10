@@ -50,9 +50,10 @@ export default function EmpreendimentosPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Empreendimentos</h1>
-        <Link href="/dashboard/empreendimentos/novo" className="btn-primary flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          Novo empreendimento
+        <Link href="/dashboard/empreendimentos/novo" className="btn-primary flex items-center gap-1.5 text-sm px-3 py-2">
+          <Plus className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Novo empreendimento</span>
+          <span className="sm:hidden">Novo</span>
         </Link>
       </div>
 
