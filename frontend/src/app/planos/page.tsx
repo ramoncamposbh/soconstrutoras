@@ -100,20 +100,20 @@ export default function PlanosPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold text-[#4361ee]">SóConstrutoras</a>
+          <a href="/" className="text-xl font-bold text-[#0E8F6E]">SóConstrutoras</a>
           <div className="flex items-center gap-4">
             {user ? (
-              <a href="/dashboard" className="text-sm text-gray-600 hover:text-[#4361ee]">
+              <a href="/dashboard" className="text-sm text-gray-600 hover:text-[#0E8F6E]">
                 Dashboard
               </a>
             ) : (
               <>
-                <a href="/auth/login" className="text-sm text-gray-600 hover:text-[#4361ee]">
+                <a href="/auth/login" className="text-sm text-gray-600 hover:text-[#0E8F6E]">
                   Entrar
                 </a>
                 <a
                   href="/auth/register"
-                  className="text-sm bg-[#4361ee] text-white px-4 py-2 rounded-lg hover:bg-[#3451d1] transition-colors"
+                  className="text-sm bg-[#0E8F6E] text-white px-4 py-2 rounded-lg hover:bg-[#0a7a5c] transition-colors"
                 >
                   Criar conta
                 </a>
@@ -159,14 +159,14 @@ export default function PlanosPage() {
               key={plano.id}
               className={`relative bg-white rounded-2xl shadow-sm border-2 flex flex-col ${
                 plano.destaque
-                  ? 'border-[#4361ee] shadow-lg shadow-[#4361ee]/10'
+                  ? 'border-[#0E8F6E] shadow-lg shadow-[#0E8F6E]/10'
                   : 'border-gray-200'
               }`}
             >
               {/* Badge "Mais popular" */}
               {plano.destaque && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-[#4361ee] text-white text-xs font-bold px-4 py-1.5 rounded-full">
+                  <span className="bg-[#0E8F6E] text-white text-xs font-bold px-4 py-1.5 rounded-full">
                     MAIS POPULAR
                   </span>
                 </div>
@@ -187,17 +187,17 @@ export default function PlanosPage() {
                 {/* Limites */}
                 <div className="mt-6 grid grid-cols-3 gap-3">
                   <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-[#4361ee]">
+                    <div className="text-2xl font-bold text-[#0E8F6E]">
                       {plano.limites.empreendimentos === 999 ? '∞' : plano.limites.empreendimentos}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">empreendimentos</div>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-[#4361ee]">{plano.limites.parceiros}</div>
+                    <div className="text-2xl font-bold text-[#0E8F6E]">{plano.limites.parceiros}</div>
                     <div className="text-xs text-gray-500 mt-1">parceiros</div>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-[#4361ee]">{plano.limites.fotos}</div>
+                    <div className="text-2xl font-bold text-[#0E8F6E]">{plano.limites.fotos}</div>
                     <div className="text-xs text-gray-500 mt-1">fotos/emp.</div>
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export default function PlanosPage() {
                   disabled={loading !== null}
                   className={`w-full py-3 px-6 rounded-xl font-semibold text-sm transition-all ${
                     plano.destaque
-                      ? 'bg-[#4361ee] text-white hover:bg-[#3451d1] shadow-md shadow-[#4361ee]/30'
+                      ? 'bg-[#0E8F6E] text-white hover:bg-[#0a7a5c] shadow-md shadow-[#0E8F6E]/30'
                       : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
