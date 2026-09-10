@@ -8,7 +8,7 @@ import LogoFaicoh from '@/components/layout/LogoFaicoh';
 import {
   LayoutDashboard, Building2, Users, Bell, LogOut,
   ChevronRight, ChevronDown, Loader2, CreditCard, Menu, X, Store, Calculator,
-  HardHat, UserCog, Home,
+  HardHat, UserCog, Home, Pencil,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +20,7 @@ const navItems = [
   { href: '/dashboard/leads',           label: 'Leads',            icon: Bell,            roles: null },
   { href: '/dashboard/simulacoes',      label: 'Simulações',       icon: Calculator,      roles: ['admin'] },
   { href: '/dashboard/lojas',           label: 'Lojas Parceiras',  icon: Store,           roles: ['admin'] },
-  { href: '/dashboard/imoveis-usados',   label: 'Imóveis Usados',   icon: Home,            roles: ['construtora'] },
+  { href: '/dashboard/imoveis-usados',   label: 'Repasses',         icon: Home,            roles: ['construtora'] },
   { href: '/dashboard/assinatura',      label: 'Assinatura',       icon: CreditCard,      roles: null },
 ];
 
@@ -173,6 +173,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </nav>
 
       <div className="p-4 border-t border-gray-100">
+        {user?.role === 'construtora' && (
+          <Link
+            href="/dashboard/perfil"
+            className="w-full flex items-center gap-2 px-3 py-2 mb-1 text-sm text-gray-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
+          >
+            <Pencil className="w-4 h-4" />
+            Editar perfil
+          </Link>
+        )}
         <div className="flex items-center gap-3 mb-3 px-3">
           <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold text-sm shrink-0">
             {user?.nome?.[0]?.toUpperCase()}
