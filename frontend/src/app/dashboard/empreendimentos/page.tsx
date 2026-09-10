@@ -66,7 +66,7 @@ export default function EmpreendimentosPage() {
       ) : (
         <div className="card divide-y divide-gray-100">
           {empreendimentos.map((emp) => (
-            <div key={emp.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+            <div key={emp.id} className="flex gap-3 p-4 hover:bg-gray-50 transition-colors">
               {/* Thumbnail */}
               <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                 {emp.foto_capa ? (
@@ -83,46 +83,50 @@ export default function EmpreendimentosPage() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={STATUS_COLOR[emp.status] ?? 'badge bg-gray-100 text-gray-600'}>
+                {/* Linha 1: nome + badge status */}
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="font-medium text-gray-900 truncate flex-1">{emp.nome}</p>
+                  <span className={`${STATUS_COLOR[emp.status] ?? 'badge bg-gray-100 text-gray-600'} shrink-0`}>
                     {STATUS_LABEL[emp.status]}
                   </span>
                   {!emp.publicado && (
-                    <span className="badge bg-orange-100 text-orange-700">Rascunho</span>
+                    <span className="badge bg-orange-100 text-orange-700 shrink-0">Rascunho</span>
                   )}
                 </div>
-                <p className="font-medium text-gray-900 truncate">{emp.nome}</p>
-                <p className="text-sm text-gray-500 flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
+
+                {/* Linha 2: localização */}
+                <p className="text-xs text-gray-500 flex items-center gap-1 truncate">
+                  <MapPin className="w-3 h-3 shrink-0" />
                   {emp.cidade} — {emp.estado}
                   {emp.preco_min && ` · A partir de ${formatCurrency(emp.preco_min)}`}
                 </p>
-              </div>
 
-              <div className="flex items-center gap-1 text-sm text-gray-500">
-                <Bell className="w-4 h-4" />
-                {emp.total_leads ?? 0} leads
-              </div>
-
-              <div className="flex items-center gap-2">
-                {!emp.publicado && (
-                  <button
-                    onClick={() => publicar(emp.id)}
-                    disabled={publicando === emp.id}
-                    className="btn-secondary text-xs flex items-center gap-1"
-                  >
-                    {publicando === emp.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Eye className="w-3 h-3" />}
-                    Publicar
-                  </button>
-                )}
-                <Link href={`/dashboard/empreendimentos/${emp.id}`} className="btn-secondary text-xs">
-                  Editar
-                </Link>
-                {emp.publicado && (
-                  <Link href={`/imoveis/${emp.slug}`} target="_blank" className="btn-secondary text-xs flex items-center gap-1">
-                    <Eye className="w-3 h-3" /> Ver
-                  </Link>
-                )}
+                {/* Linha 3: leads + botões */}
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs text-gray-400 flex items-center gap-1">
+                    <Bell className="w-3 h-3" />{emp.total_leads ?? 0} leads
+                  </span>
+                  <div className="flex items-center gap-1.5 ml-auto">
+                    {!emp.publicado && (
+                      <button
+                        onClick={() => publicar(emp.id)}
+                        disabled={publicando === emp.id}
+                        className="btn-secondary text-xs flex items-center gap-1"
+                      >
+                        {publicando === emp.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Eye className="w-3 h-3" />}
+                        Publicar
+                      </button>
+                    )}
+                    <Link href={`/dashboard/empreendimentos/${emp.id}`} className="btn-secondary text-xs">
+                      Editar
+                    </Link>
+                    {emp.publicado && (
+                      <Link href={`/imoveis/${emp.slug}`} target="_blank" className="btn-secondary text-xs flex items-center gap-1">
+                        <Eye className="w-3 h-3" /> Ver
+                      </Link>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           ))}
