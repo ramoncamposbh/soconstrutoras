@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { billingApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import LogoFaicoh from '@/components/layout/LogoFaicoh';
+import { ArrowLeft } from 'lucide-react';
 
 const planos = [
   {
@@ -98,28 +101,31 @@ export default function PlanosPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold text-[#0E8F6E]">SóConstrutoras</a>
-          <div className="flex items-center gap-4">
-            {user ? (
-              <a href="/dashboard" className="text-sm text-gray-600 hover:text-[#0E8F6E]">
-                Dashboard
-              </a>
-            ) : (
-              <>
-                <a href="/auth/login" className="text-sm text-gray-600 hover:text-[#0E8F6E]">
-                  Entrar
-                </a>
-                <a
-                  href="/auth/register"
-                  className="text-sm bg-[#0E8F6E] text-white px-4 py-2 rounded-lg hover:bg-[#0a7a5c] transition-colors"
-                >
-                  Criar conta
-                </a>
-              </>
-            )}
+      <header style={{ background: 'linear-gradient(90deg, #04241D, #0E8F6E)' }}>
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+          {/* Esquerda: voltar + logo */}
+          <div className="flex items-center gap-3">
+            <Link href="/" className="text-white/70 hover:text-white transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <Link href="/">
+              <LogoFaicoh height={28} textColor="white" />
+            </Link>
           </div>
+
+          {/* Direita: avatar / login */}
+          {user ? (
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold text-sm">
+                {user.nome?.[0]?.toUpperCase()}
+              </div>
+            </Link>
+          ) : (
+            <Link href="/auth/login"
+              className="text-sm text-white/80 hover:text-white transition-colors">
+              Entrar
+            </Link>
+          )}
         </div>
       </header>
 
