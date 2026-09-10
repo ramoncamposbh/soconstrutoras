@@ -1086,10 +1086,12 @@ export default function HomePage() {
                 <Heart className="w-4 h-4 text-primary-500" /> Favoritos
               </Link>
             )}
-            <button onClick={() => { setUserMenuOpen(false); setModalPerfil(true); }}
-              className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-              <SlidersHorizontal className="w-4 h-4 text-primary-500" /> Meu perfil imobiliário
-            </button>
+            {user?.role === 'cliente' && (
+              <button onClick={() => { setUserMenuOpen(false); setModalPerfil(true); }}
+                className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <SlidersHorizontal className="w-4 h-4 text-primary-500" /> Meu perfil imobiliário
+              </button>
+            )}
             <div style={{ borderTop: '1px solid #F3F4F6' }} />
             <button onClick={() => { setUserMenuOpen(false); logout(); }}
               className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">

@@ -22,6 +22,14 @@ export class ConstutorasService {
     nome_fantasia: string;
     logo_url: string;
     has_house_de_vendas: boolean;
+    telefone: string;
+    responsavel_nome: string;
+    responsavel_email: string;
+    responsavel_tel: string;
+    endereco: string;
+    cidade: string;
+    estado: string;
+    cep: string;
   }>) {
     const campos = Object.entries(dto)
       .filter(([, v]) => v !== undefined)

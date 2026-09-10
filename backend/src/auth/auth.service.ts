@@ -25,6 +25,14 @@ export class AuthService implements OnModuleInit {
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS perfil_imobiliario JSONB`,
       `ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`,
+      `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS telefone          VARCHAR(20)`,
+      `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS responsavel_nome  VARCHAR(255)`,
+      `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS responsavel_email VARCHAR(255)`,
+      `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS responsavel_tel   VARCHAR(20)`,
+      `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS endereco          TEXT`,
+      `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS cidade            VARCHAR(100)`,
+      `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS estado            VARCHAR(2)`,
+      `ALTER TABLE construtoras ADD COLUMN IF NOT EXISTS cep               VARCHAR(10)`,
       `DO $$ BEGIN
          IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename='users' AND indexname='users_google_id_idx')
          THEN CREATE UNIQUE INDEX users_google_id_idx ON users(google_id) WHERE google_id IS NOT NULL;
