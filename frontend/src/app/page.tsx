@@ -1309,61 +1309,25 @@ export default function HomePage() {
             </div>
 
             {/* Botões de ação */}
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-3">
               <button
                 onClick={startVoiceSearch}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold border transition-all"
                 style={{
-                  background: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.08)',
-                  borderColor: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.18)',
+                  background: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.10)',
+                  borderColor: isListening ? '#0E8F6E' : 'rgba(255,255,255,0.22)',
                   color: '#bbf7d0',
                   animation: isListening ? 'pulse 1s infinite' : 'none',
                 }}>
-                <Mic className="w-3.5 h-3.5" />
+                <Mic className="w-4.5 h-4.5" />
                 {isListening ? 'Parar 🔴' : 'Falar'}
               </button>
               <button
-                onClick={() => {
-                  if (!navigator.geolocation) { toast.error('Geolocalização não disponível.'); return; }
-                  toast('Obtendo localização...', { icon: '📍' });
-                  navigator.geolocation.getCurrentPosition(
-                    async (pos) => {
-                      const { latitude, longitude } = pos.coords;
-                      try {
-                        const r = await fetch(
-                          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=pt-BR`,
-                          { headers: { 'User-Agent': 'faicoh.com.br' } }
-                        );
-                        const geo = await r.json();
-                        const bairro = geo.address?.suburb || geo.address?.neighbourhood || geo.address?.district || '';
-                        const cidade = geo.address?.city || geo.address?.town || geo.address?.municipality || '';
-                        const estado = geo.address?.state || '';
-                        const texto = bairro
-                          ? `Imóveis no ${bairro}, ${cidade}`
-                          : cidade
-                          ? `Imóveis em ${cidade}, ${estado}`
-                          : `Imóveis perto de mim`;
-                        toast.success(`Localização: ${bairro || cidade}`);
-                        handleAiSearch(texto);
-                      } catch {
-                        handleAiSearch(`Imóveis perto de mim`);
-                      }
-                    },
-                    () => toast.error('Permissão de localização negada.')
-                  );
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
-                style={{ background: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.18)', color: '#bbf7d0' }}>
-                <Navigation className="w-3.5 h-3.5" /> Usar minha localização
-              </button>
-              <button
-                onClick={() => {
-                  const cidade = prompt('Digite a cidade ou bairro:');
-                  if (cidade) setAiText(`Imóveis em ${cidade}`);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all"
-                style={{ background: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.18)', color: '#bbf7d0' }}>
-                <MapPin className="w-3.5 h-3.5" /> Adicionar localização
+                onClick={() => handleAiSearch(aiText)}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold transition-all"
+                style={{ background: '#0E8F6E', color: '#fff', border: 'none' }}>
+                <Search className="w-4 h-4" />
+                Buscar
               </button>
             </div>
 
