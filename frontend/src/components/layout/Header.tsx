@@ -47,16 +47,13 @@ export default function Header() {
   const renderUserBtn = () => {
     if (!isAuthenticated) {
       return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <InstallPWA />
-          <Link href="/auth/login" style={{
-            display: 'flex', alignItems: 'center', gap: 5,
-            background: '#0E8F6E', color: '#fff', fontSize: 12, fontWeight: 600,
-            padding: '6px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap',
-          }}>
-            <LogIn size={13} /> Entrar
-          </Link>
-        </div>
+        <Link href="/auth/login" style={{
+          display: 'flex', alignItems: 'center', gap: 5,
+          background: '#0E8F6E', color: '#fff', fontSize: 12, fontWeight: 600,
+          padding: '6px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap',
+        }}>
+          <LogIn size={13} /> Entrar
+        </Link>
       );
     }
 
