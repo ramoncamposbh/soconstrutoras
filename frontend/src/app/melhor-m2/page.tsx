@@ -103,16 +103,16 @@ export default function MelhorM2Page() {
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Header />
       {/* Hero */}
-      <div style={{ background: '#04241D', padding: '1rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
-          <Ruler className="w-4 h-4" style={{ color: '#4ade80' }} />
+      <div style={{ background: '#04241D', padding: '0.55rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <div style={{ width: 22, height: 22, borderRadius: 5, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Ruler className="w-3 h-3" style={{ color: '#4ade80' }} />
+          </div>
+          <span style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 800, letterSpacing: '0.03em' }}>OPORTUNIDADE POR M²</span>
         </div>
-        <h1 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-          OPORTUNIDADE POR M²
-        </h1>
-        <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.72rem', margin: '0.2rem 0 0' }}>
+        <div style={{ color: '#4ade80', fontSize: '0.62rem', lineHeight: 1.2, letterSpacing: '0.01em', marginTop: 2 }}>
           AS MELHORES OPÇÕES POR VALOR DE M²
-        </p>
+        </div>
       </div>
 
       {/* Filtros */}
