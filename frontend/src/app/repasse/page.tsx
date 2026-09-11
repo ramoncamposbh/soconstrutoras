@@ -58,14 +58,14 @@ export default function RepassePage() {
       <Header />
 
       {/* Hero */}
-      <div style={{ background: '#04241D', padding: '0.55rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 5, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Home size={12} color="#4ade80" />
+      <div style={{ background: '#04241D', padding: '0.82rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+          <div style={{ width: 33, height: 33, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Home size={18} color="#4ade80" />
           </div>
-          <span style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 800, letterSpacing: '0.03em' }}>REPASSES</span>
+          <span style={{ color: '#fff', fontSize: '1.35rem', fontWeight: 800, letterSpacing: '0.03em' }}>REPASSES</span>
         </div>
-        <div style={{ color: '#4ade80', fontSize: '0.62rem', lineHeight: 1.2, letterSpacing: '0.01em', marginTop: 2 }}>
+        <div style={{ color: '#4ade80', fontSize: '0.93rem', lineHeight: 1.2, letterSpacing: '0.01em', marginTop: 3 }}>
           OS IMÓVEIS DE REPASSES DAS CONSTRUTORAS
         </div>
       </div>
