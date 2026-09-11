@@ -9,11 +9,16 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
+type PeriodoFiltro = 'hoje' | '7d' | '30d' | 'custom' | '';
+
 export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroStatus, setFiltroStatus] = useState('');
   const [filtroEmp, setFiltroEmp] = useState('');
+  const [filtroPeriodo, setFiltroPeriodo] = useState<PeriodoFiltro>('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
   const [leadSelecionado, setLeadSelecionado] = useState<Lead | null>(null);
 
   const empreendimentos = Array.from(
@@ -36,6 +41,29 @@ export default function LeadsPage() {
       setLoading(false);
     }
   };
+
+  // Filtra leads por período no frontend (sem nova chamada à API)
+  const filtrarPorPeriodo = (lista: Lead[]): Lead[] => {
+    if (!filtroPeriodo) return lista;
+    const agora = new Date();
+    const inicio = (() => {
+      if (filtroPeriodo === 'hoje') {
+        const d = new Date(agora); d.setHours(0, 0, 0, 0); return d;
+      }
+      if (filtroPeriodo === '7d') { const d = new Date(agora); d.setDate(d.getDate() - 7); return d; }
+      if (filtroPeriodo === '30d') { const d = new Date(agora); d.setDate(d.getDate() - 30); return d; }
+      if (filtroPeriodo === 'custom' && dataInicio) return new Date(dataInicio);
+      return null;
+    })();
+    const fim = filtroPeriodo === 'custom' && dataFim ? new Date(dataFim + 'T23:59:59') : agora;
+    if (!inicio) return lista;
+    return lista.filter(l => {
+      const d = new Date(l.created_at);
+      return d >= inicio && d <= fim;
+    });
+  };
+
+  const leadsFiltrados = filtrarPorPeriodo(leads);
 
   useEffect(() => { buscar(); }, []);
 
@@ -75,20 +103,63 @@ export default function LeadsPage() {
             {STATUS_LEAD.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
+
+        {/* Filtro de período */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Calendar className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+          <span className="text-xs text-gray-400 mr-1">Período:</span>
+          {([
+            { val: '' as PeriodoFiltro,       label: 'Todos' },
+            { val: 'hoje' as PeriodoFiltro,   label: 'Hoje' },
+            { val: '7d' as PeriodoFiltro,     label: '7 dias' },
+            { val: '30d' as PeriodoFiltro,    label: '30 dias' },
+            { val: 'custom' as PeriodoFiltro, label: 'Personalizado' },
+          ] as { val: PeriodoFiltro; label: string }[]).map(({ val, label }) => (
+            <button
+              key={val}
+              onClick={() => setFiltroPeriodo(val)}
+              className={cn(
+                'px-3 py-1 rounded-full text-xs font-medium border transition-colors',
+                filtroPeriodo === val
+                  ? 'bg-primary-500 text-white border-primary-500'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-primary-300 hover:text-primary-600',
+              )}
+            >
+              {label}
+            </button>
+          ))}
+          {filtroPeriodo === 'custom' && (
+            <div className="flex items-center gap-2 mt-2 w-full">
+              <input
+                type="date"
+                className="input flex-1"
+                value={dataInicio}
+                onChange={e => setDataInicio(e.target.value)}
+              />
+              <span className="text-xs text-gray-400">até</span>
+              <input
+                type="date"
+                className="input flex-1"
+                value={dataFim}
+                onChange={e => setDataFim(e.target.value)}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
         </div>
-      ) : leads.length === 0 ? (
+      ) : leadsFiltrados.length === 0 ? (
         <div className="card p-12 text-center">
           <Bell className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-400">Nenhum lead {filtroStatus ? 'com este status' : 'registrado ainda'}.</p>
+          <p className="text-gray-400">Nenhum lead {filtroStatus ? 'com este status' : filtroPeriodo ? 'neste período' : 'registrado ainda'}.</p>
         </div>
       ) : (
         <div className="card divide-y divide-gray-100">
-          {leads.map((lead) => {
+          {leadsFiltrados.map((lead) => {
             const info = statusInfo(lead.status);
             return (
               <div

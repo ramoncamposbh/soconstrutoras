@@ -52,6 +52,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => { setSidebarAberto(false); }, [pathname]);
 
+  // PWA Corpore: aponta manifest próprio no painel
+  useEffect(() => {
+    const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+    if (link) link.href = '/manifest-corpore.json';
+    return () => { if (link) link.href = '/manifest.json'; };
+  }, []);
+
   // Abre automaticamente se estiver numa rota de Construtoras
   useEffect(() => {
     if (pathname.startsWith('/dashboard/construtoras')) setConstrutorasAberto(true);

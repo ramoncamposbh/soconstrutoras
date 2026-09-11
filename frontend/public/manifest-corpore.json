@@ -1,0 +1,14 @@
+{
+  "name": "Corpore — Faicoh",
+  "short_name": "Corpore",
+  "description": "Painel do construtor — Faicoh",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#04241D",
+  "theme_color": "#04241D",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
