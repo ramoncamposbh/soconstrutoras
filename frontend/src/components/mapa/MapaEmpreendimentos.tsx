@@ -94,10 +94,10 @@ interface Props {
 
 /**
  * Centra o mapa na localização real do usuário (geolocalização do browser).
- * Se a permissão for negada ou der timeout, mantém o centro inicial (Savassi).
- * Só executa UMA vez — não interfere com fitBounds posterior.
+ * Quando bem-sucedido, marca geolocalizouRef para que InvalidarECentralizar
+ * não sobrescreva a posição do usuário ao abrir o mapa no mobile.
  */
-function CentrarNaLocalizacao() {
+function CentrarNaLocalizacao({ geolocalizouRef }: { geolocalizouRef: React.MutableRefObject<boolean> }) {
   const map = useMap();
   const tentouRef = useRef(false);
 
@@ -109,6 +109,7 @@ function CentrarNaLocalizacao() {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        geolocalizouRef.current = true;
         map.setView(
           [pos.coords.latitude, pos.coords.longitude],
           ZOOM_CIDADE,
@@ -118,7 +119,7 @@ function CentrarNaLocalizacao() {
       () => { /* permissão negada — mantém Savassi */ },
       { timeout: 5000, maximumAge: 60_000 }
     );
-  }, [map]);
+  }, [map, geolocalizouRef]);
 
   return null;
 }
@@ -159,9 +160,11 @@ function AjustarBounds({ empreendimentos }: { empreendimentos: EmpreendimentoMap
 function InvalidarECentralizar({
   visivel,
   empreendimentos,
+  geolocalizouRef,
 }: {
   visivel: boolean;
   empreendimentos: EmpreendimentoMapa[];
+  geolocalizouRef: React.MutableRefObject<boolean>;
 }) {
   const map = useMap();
 
@@ -169,6 +172,8 @@ function InvalidarECentralizar({
     if (!visivel) return;
     const timer = setTimeout(() => {
       map.invalidateSize();
+      // Se o usuário já foi geolocalizaodo, não sobrescreve com fitBounds
+      if (geolocalizouRef.current) return;
       if (empreendimentos.length === 0) return;
       const coords = empreendimentos.map(e => [e.latitude, e.longitude] as [number, number]);
       if (coords.length === 1) {
@@ -210,6 +215,7 @@ export default function MapaEmpreendimentos({
   fitBounds = false,
 }: Props) {
   const temEmpreendimentos = empreendimentos.length > 0;
+  const geolocalizouRef = useRef(false);
 
   return (
     <div style={{ height: altura, width: '100%', position: 'relative' }}>
@@ -226,11 +232,12 @@ export default function MapaEmpreendimentos({
           maxZoom={19}
         />
 
-        {/* Centra na localização do usuário (ou mantém Savassi) — roda 1x */}
-        <CentrarNaLocalizacao />
+        {/* Centra na localização do usuário — marca geolocalizouRef ao suceder */}
+        <CentrarNaLocalizacao geolocalizouRef={geolocalizouRef} />
 
         {/* Invalida tamanho e re-centra quando o container se torna visível (mobile toggle) */}
-        <InvalidarECentralizar visivel={visivel} empreendimentos={empreendimentos} />
+        {/* Não sobrescreve se geolocalização já posicionou o mapa */}
+        <InvalidarECentralizar visivel={visivel} empreendimentos={empreendimentos} geolocalizouRef={geolocalizouRef} />
 
         {/* Ajusta bounds — só quando explicitamente solicitado (ex: página de detalhe) */}
         {temEmpreendimentos && fitBounds && <AjustarBounds empreendimentos={empreendimentos} />}
