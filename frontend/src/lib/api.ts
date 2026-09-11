@@ -59,7 +59,7 @@ export const empreendimentosApi = {
   atualizar:     (id: string, data: any) => api.patch(`/empreendimentos/${id}`, data),
   publicar:      (id: string) => api.patch(`/empreendimentos/${id}/publicar`),
   remover:       (id: string) => api.delete(`/empreendimentos/${id}`),
-  melhorM2:      (params: { estado?: string; cidade?: string; bairro?: string; tipo?: string }) =>
+  melhorM2:      (params: { estado?: string; cidade?: string; bairro?: string; tipo?: string; quartos?: number; suites?: number; vagas?: number }) =>
     api.get('/empreendimentos/melhor-m2', { params }),
 };
 

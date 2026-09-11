@@ -303,7 +303,7 @@ export class EmpreendimentosService {
     return { deleted: true, ...emp };
   }
 
-  async melhorM2(filtros: { estado?: string; cidade?: string; bairro?: string; tipo?: string }) {
+  async melhorM2(filtros: { estado?: string; cidade?: string; bairro?: string; tipo?: string; quartos?: number; suites?: number; vagas?: number }) {
     const conditions: string[] = ['e.publicado = TRUE', 'u.preco IS NOT NULL', 'u.metragem_privativa IS NOT NULL', 'u.metragem_privativa > 0'];
     const params: any[] = [];
     let i = 1;
@@ -323,6 +323,18 @@ export class EmpreendimentosService {
     if (filtros.tipo) {
       conditions.push(`u.tipo = $${i++}`);
       params.push(filtros.tipo);
+    }
+    if (filtros.quartos) {
+      conditions.push(`u.quartos >= $${i++}`);
+      params.push(Number(filtros.quartos));
+    }
+    if (filtros.suites) {
+      conditions.push(`u.suites >= $${i++}`);
+      params.push(Number(filtros.suites));
+    }
+    if (filtros.vagas) {
+      conditions.push(`u.vagas >= $${i++}`);
+      params.push(Number(filtros.vagas));
     }
 
     const where = conditions.map(c => `AND ${c}`).join('\n        ');

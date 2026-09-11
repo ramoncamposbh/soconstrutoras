@@ -69,6 +69,9 @@ export default function MelhorM2Page() {
   const [cidade, setCidade] = useState('');
   const [bairro, setBairro] = useState('');
   const [tipo, setTipo] = useState('');
+  const [quartos, setQuartos] = useState('');
+  const [suites, setSuites] = useState('');
+  const [vagas, setVagas] = useState('');
   const [resultados, setResultados] = useState<ResultadoM2[]>([]);
   const [loading, setLoading] = useState(false);
   const [buscou, setBuscou] = useState(false);
@@ -81,6 +84,9 @@ export default function MelhorM2Page() {
       if (cidade.trim()) params.cidade = cidade.trim();
       if (bairro.trim()) params.bairro = bairro.trim();
       if (tipo) params.tipo = tipo;
+      if (quartos) params.quartos = Number(quartos);
+      if (suites) params.suites = Number(suites);
+      if (vagas) params.vagas = Number(vagas);
       const { data } = await empreendimentosApi.melhorM2(params);
       setResultados(data);
     } catch {
@@ -88,7 +94,7 @@ export default function MelhorM2Page() {
     } finally {
       setLoading(false);
     }
-  }, [cidade, bairro, tipo]);
+  }, [cidade, bairro, tipo, quartos, suites, vagas]);
 
   // Carrega tudo ao montar
   useEffect(() => { buscar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -144,27 +150,51 @@ export default function MelhorM2Page() {
         </div>
         <div style={{ flex: '1 1 160px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Tipo de unidade</label>
-          <select
-            value={tipo}
-            onChange={e => setTipo(e.target.value)}
-            style={{
-              border: '1.5px solid #e2e8f0', borderRadius: '0.75rem',
-              padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none',
-              background: '#fff', cursor: 'pointer',
-            }}
-          >
+          <select value={tipo} onChange={e => setTipo(e.target.value)}
+            style={{ border: '1.5px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.65rem 1rem', fontSize: '0.9rem', outline: 'none', background: '#fff', cursor: 'pointer' }}>
             {TIPOS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
+
+        {/* Quartos */}
+        <div style={{ flex: '1 1 110px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Quartos (mín)</label>
+          <select value={quartos} onChange={e => setQuartos(e.target.value)}
+            style={{ border: '1.5px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.65rem 0.75rem', fontSize: '0.9rem', outline: 'none', background: '#fff', cursor: 'pointer' }}>
+            <option value="">Todos</option>
+            {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}+</option>)}
+          </select>
+        </div>
+
+        {/* Suítes */}
+        <div style={{ flex: '1 1 110px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Suítes (mín)</label>
+          <select value={suites} onChange={e => setSuites(e.target.value)}
+            style={{ border: '1.5px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.65rem 0.75rem', fontSize: '0.9rem', outline: 'none', background: '#fff', cursor: 'pointer' }}>
+            <option value="">Todas</option>
+            {[1,2,3,4].map(n => <option key={n} value={n}>{n}+</option>)}
+          </select>
+        </div>
+
+        {/* Vagas */}
+        <div style={{ flex: '1 1 110px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>Vagas (mín)</label>
+          <select value={vagas} onChange={e => setVagas(e.target.value)}
+            style={{ border: '1.5px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.65rem 0.75rem', fontSize: '0.9rem', outline: 'none', background: '#fff', cursor: 'pointer' }}>
+            <option value="">Todas</option>
+            {[1,2,3,4].map(n => <option key={n} value={n}>{n}+</option>)}
+          </select>
+        </div>
+
         <button
           onClick={buscar}
           disabled={loading}
           style={{
-            background: 'linear-gradient(90deg, #0E8F6E, #22D497)',
+            background: '#0E8F6E',
             color: '#fff', border: 'none', borderRadius: '0.75rem',
             padding: '0.65rem 1.75rem', fontWeight: 700, fontSize: '0.9rem',
             cursor: loading ? 'wait' : 'pointer', whiteSpace: 'nowrap',
-            flex: '0 0 auto',
+            flex: '0 0 auto', alignSelf: 'flex-end',
           }}
         >
           {loading ? 'Buscando…' : 'Buscar'}
