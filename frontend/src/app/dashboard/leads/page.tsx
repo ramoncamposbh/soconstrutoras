@@ -44,12 +44,14 @@ export default function LeadsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
-        <div className="flex items-center gap-2">
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
           <Filter className="w-4 h-4 text-gray-400" />
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
           <select
-            className="input w-52"
+            className="input flex-1"
             value={filtroEmp}
             onChange={(e) => {
               setFiltroEmp(e.target.value);
@@ -62,7 +64,7 @@ export default function LeadsPage() {
             ))}
           </select>
           <select
-            className="input w-48"
+            className="input flex-1 sm:max-w-[180px]"
             value={filtroStatus}
             onChange={(e) => {
               setFiltroStatus(e.target.value);
