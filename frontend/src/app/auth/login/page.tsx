@@ -39,6 +39,11 @@ function LoginContent() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>();
 
   const redirectAfterLogin = (role?: string) => {
+    // Construtoras e admins vão sempre para o dashboard, ignorando ?redirect=
+    if (role === 'construtora' || role === 'admin') {
+      router.push('/dashboard');
+      return;
+    }
     const dest = searchParams.get('redirect');
     router.push(dest || getRedirect(role));
   };
