@@ -65,11 +65,14 @@ export default function RepassePage() {
         <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>
           REPASSES
         </h1>
-        <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.875rem', margin: '0.25rem 0 1rem' }}>
+        <p style={{ color: '#4ade80', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
           OS IMÓVEIS DE REPASSES DAS CONSTRUTORAS.
         </p>
-        {/* Busca */}
-        <div style={{ position: 'relative', maxWidth: 480, margin: '0 auto' }}>
+      </div>
+
+      {/* Busca */}
+      <div style={{ maxWidth: 480, margin: '1.25rem auto 0', padding: '0 1.5rem' }}>
+        <div style={{ position: 'relative' }}>
           <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
           <input
             value={busca}
@@ -77,9 +80,9 @@ export default function RepassePage() {
             placeholder="Buscar por nome, bairro ou cidade..."
             style={{
               width: '100%', boxSizing: 'border-box',
-              background: '#fff', border: 'none', borderRadius: 12,
+              background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12,
               padding: '13px 14px 13px 40px', fontSize: 14, color: '#111',
-              outline: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+              outline: 'none',
             }}
           />
         </div>
