@@ -34,14 +34,14 @@ export default function FavoritosPage() {
     return (
       <main style={{ minHeight: '100vh', background: '#F9FAFB' }}>
         <Header />
-        <div style={{ background: '#04241D', padding: '0.82rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-            <div style={{ width: 33, height: 33, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ background: '#04241D', padding: '1.1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 10, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Heart className="w-5 h-5" style={{ color: '#4ade80' }} />
             </div>
-            <span style={{ color: '#fff', fontSize: '1.35rem', fontWeight: 800, letterSpacing: '0.03em' }}>FAVORITOS</span>
+            <span style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '0.03em' }}>FAVORITOS</span>
           </div>
-          <div style={{ color: '#4ade80', fontSize: '0.93rem', lineHeight: 1.2, letterSpacing: '0.01em', marginTop: 3 }}>
+          <div style={{ color: '#4ade80', fontSize: '1.05rem', lineHeight: 1.2, letterSpacing: '0.01em', marginTop: 4 }}>
             OS IMÓVEIS QUE VOCÊ TEVE INTERESSE
           </div>
         </div>
@@ -78,16 +78,16 @@ export default function FavoritosPage() {
     <main style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       <Header />
       {/* Hero */}
-      <div style={{ background: '#04241D', padding: '1rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
-          <Heart className="w-4 h-4" style={{ color: '#4ade80' }} />
+      <div style={{ background: '#04241D', padding: '1.1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Heart className="w-5 h-5" style={{ color: '#4ade80' }} />
+          </div>
+          <span style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '0.03em' }}>FAVORITOS</span>
         </div>
-        <h1 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-          FAVORITOS
-        </h1>
-        <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.72rem', margin: '0.2rem 0 0' }}>
+        <div style={{ color: '#4ade80', fontSize: '1.05rem', lineHeight: 1.2, letterSpacing: '0.01em', marginTop: 4 }}>
           OS IMÓVEIS QUE VOCÊ TEVE INTERESSE
-        </p>
+        </div>
       </div>
 
       {/* Content */}
