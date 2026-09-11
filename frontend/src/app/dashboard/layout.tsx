@@ -38,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [sidebarAberto, setSidebarAberto] = useState(false);
   const [construtorasAberto, setConstrutorasAberto] = useState(false);
+  const [userMenuAberto, setUserMenuAberto] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -220,15 +221,51 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <div className="md:hidden sticky top-0 z-20 flex items-center justify-between px-4 h-14"
-          style={{ background: 'linear-gradient(90deg, #04241D, #0E8F6E)' }}>
-          <button onClick={() => setSidebarAberto(true)} className="p-2 -ml-2 text-white/80 hover:text-white">
-            <Menu className="w-5 h-5" />
-          </button>
-          <Link href="/">
-            <LogoFaicoh height={26} textColor="white" />
-          </Link>
-          <div className="w-9" />
+        <div className="md:hidden sticky top-0 z-20" style={{ background: 'linear-gradient(90deg, #04241D, #0E8F6E)' }}>
+          <div className="flex items-center justify-between px-4 h-14">
+            <button onClick={() => setSidebarAberto(true)} className="p-2 -ml-2 text-white/80 hover:text-white">
+              <Menu className="w-5 h-5" />
+            </button>
+            <Link href="/">
+              <LogoFaicoh height={26} textColor="white" />
+            </Link>
+            <button
+              onClick={() => setUserMenuAberto(v => !v)}
+              className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold text-sm"
+            >
+              {user?.nome?.[0]?.toUpperCase()}
+            </button>
+          </div>
+
+          {/* Dropdown do usuário */}
+          {userMenuAberto && (
+            <>
+              <div className="fixed inset-0 z-30" onClick={() => setUserMenuAberto(false)} />
+              <div className="absolute right-3 top-[3.75rem] z-40 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden w-56">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{user?.nome}</p>
+                  <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                </div>
+                {user?.role === 'construtora' && (
+                  <Link href="/dashboard/perfil"
+                    onClick={() => setUserMenuAberto(false)}
+                    className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <Pencil className="w-4 h-4 text-primary-500" /> Editar perfil
+                  </Link>
+                )}
+                <Link href="/dashboard"
+                  onClick={() => setUserMenuAberto(false)}
+                  className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <LayoutDashboard className="w-4 h-4 text-primary-500" /> Dashboard
+                </Link>
+                <button
+                  onClick={() => { setUserMenuAberto(false); logout(); }}
+                  className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
+                  <LogOut className="w-4 h-4" /> Sair
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         <main className="flex-1 p-4 md:p-8">
