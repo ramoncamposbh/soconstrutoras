@@ -58,14 +58,14 @@ export default function RepassePage() {
       <Header />
 
       {/* Hero */}
-      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-          <Home size={24} color="#4ade80" />
+      <div style={{ background: '#04241D', padding: '1rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+          <Home size={16} color="#4ade80" />
         </div>
-        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>
+        <h1 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
           REPASSES
         </h1>
-        <p style={{ color: '#4ade80', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+        <p style={{ color: '#4ade80', fontSize: '0.72rem', margin: '0.2rem 0 0' }}>
           OS IMÓVEIS DE REPASSES DAS CONSTRUTORAS.
         </p>
       </div>
@@ -209,11 +209,11 @@ function CardRepasse({ imovel: im, logado, onLogin }: { imovel: ImovelUsado; log
         {/* Preço — gated */}
         {logado ? (
           im.preco ? (
-            <p style={{ fontSize: 16, fontWeight: 800, color: G, marginBottom: 12 }}>
+            <p style={{ fontSize: 16, fontWeight: 800, color: G, marginBottom: 8 }}>
               {formatCurrency(im.preco)}
             </p>
           ) : (
-            <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 12 }}>Consulte o valor</p>
+            <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 8 }}>Consulte o valor</p>
           )
         ) : (
           <button

@@ -177,14 +177,14 @@ export default function LancamentosPage() {
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Header />
       {/* Hero */}
-      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-          <Rocket className="w-6 h-6" style={{ color: '#4ade80' }} />
+      <div style={{ background: '#04241D', padding: '1rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+          <Rocket className="w-4 h-4" style={{ color: '#4ade80' }} />
         </div>
-        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>
+        <h1 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
           LANÇAMENTOS
         </h1>
-        <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+        <p style={{ color: '#4ade80', marginTop: '0.25rem', fontSize: '0.72rem', margin: '0.2rem 0 0' }}>
           IMÓVEIS LANÇADOS NOS ÚLTIMOS MESES
         </p>
       </div>

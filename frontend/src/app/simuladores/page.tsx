@@ -225,12 +225,12 @@ function PreviewScreen({
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
       <Header />
-      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-          <Calculator className="w-6 h-6" style={{ color: '#4ade80' }} />
+      <div style={{ background: '#04241D', padding: '1rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+          <Calculator className="w-4 h-4" style={{ color: '#4ade80' }} />
         </div>
-        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
-        <p style={{ color: '#4ade80', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>REVISE SEUS DADOS ANTES DE CALCULAR</p>
+        <h1 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
+        <p style={{ color: '#4ade80', fontSize: '0.72rem', margin: '0.2rem 0 0' }}>REVISE SEUS DADOS ANTES DE CALCULAR</p>
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-5 space-y-3">
@@ -277,7 +277,7 @@ function PreviewScreen({
         <button onClick={onConfirmar}
           className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white font-black text-lg transition-opacity hover:opacity-90 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #04241D 0%, #0d4a38 100%)', border: '1px solid rgba(74,222,128,0.3)' }}>
-          <Brain className="w-6 h-6" style={{ color: '#4ade80' }} />
+          <Brain className="w-4 h-4" style={{ color: '#4ade80' }} />
           <span>Analisar meu perfil com IA</span>
           <ChevronRight className="w-5 h-5" style={{ color: '#4ade80' }} />
         </button>
@@ -479,12 +479,12 @@ export default function SimuladoresPage() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       {/* Hero padrão */}
-      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-          <Calculator className="w-6 h-6" style={{ color: '#4ade80' }} />
+      <div style={{ background: '#04241D', padding: '1rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+          <Calculator className="w-4 h-4" style={{ color: '#4ade80' }} />
         </div>
-        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
-        <p style={{ color: '#4ade80', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>DESCUBRA SEU PODER DE COMPRA EM SEGUNDOS</p>
+        <h1 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
+        <p style={{ color: '#4ade80', fontSize: '0.72rem', margin: '0.2rem 0 0' }}>DESCUBRA SEU PODER DE COMPRA EM SEGUNDOS</p>
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6">
@@ -705,12 +705,12 @@ function ResultadoView({ resultado, form, onVoltar, loading }: {
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       <Header />
-      <div style={{ background: '#04241D', padding: '2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-          <Calculator className="w-6 h-6" style={{ color: '#4ade80' }} />
+      <div style={{ background: '#04241D', padding: '1rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+          <Calculator className="w-4 h-4" style={{ color: '#4ade80' }} />
         </div>
-        <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
-        <p style={{ color: '#4ade80', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>SEU SCORE IMOBILIÁRIO</p>
+        <h1 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>SIMULADOR IMOBILIÁRIO</h1>
+        <p style={{ color: '#4ade80', fontSize: '0.72rem', margin: '0.2rem 0 0' }}>SEU SCORE IMOBILIÁRIO</p>
         <div className="relative inline-block mt-4">
           <svg width="180" height="100" viewBox="0 0 180 100">
             <path d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="14" strokeLinecap="round" />
