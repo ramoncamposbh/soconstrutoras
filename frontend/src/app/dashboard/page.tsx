@@ -121,7 +121,7 @@ export default function DashboardPage() {
     {
       label: 'CRM',
       sub: 'Modern Broker ↗',
-      href: 'https://www.moderbroker.com.br',
+      href: 'https://www.modernbroker.com.br/dashboard',
       icon: TrendingUp,
       cor: '#8B5CF6',
       bg: 'rgba(139,92,246,0.08)',
