@@ -905,17 +905,28 @@ export default function HomePage() {
         // Resultado ideal: bairro + amenidades — exibe normalmente
         setEmpreendimentos(porAmenidades);
         setSearchCtx({ filtros, amenidades: todasAmenidades });
-        // Sugestões: segunda chamada SEM busca de amenidade para achar imóveis parecidos
+        // Sugestões: segunda chamada mais ampla (só cidade) para achar imóveis parecidos
         if (todasAmenidades.length > 0) {
           try {
-            const filtrosSug: Record<string, any> = { ...filtros };
-            delete filtrosSug.busca;
+            // Filtra apenas por cidade (sem amenidade, sem quartos, sem tipo) para ter opções
+            const filtrosSug: Record<string, any> = {};
+            if (filtros.cidade) filtrosSug.cidade = filtros.cidade;
+            if (filtros.estado) filtrosSug.estado = filtros.estado;
+
             const { data: dataSug } = await empreendimentosApi.buscarPublico(filtrosSug);
             const idsJa = new Set(porAmenidades.map((e: any) => e.id));
-            const sugestoes = filtrarPorBairro(dataSug)
+
+            // Ordena por compatibilidade (quartos + preço) e pega os 6 mais parecidos
+            const candidatos = dataSug
               .filter((e: any) => !idsJa.has(e.id))
+              .map((e: any) => ({
+                ...e,
+                _compat: calcCompatibilidade(e, filtros, [], normalizarTexto),
+              }))
+              .sort((a: any, b: any) => b._compat - a._compat)
               .slice(0, 6);
-            setEmpreendimentosSugestoes(sugestoes);
+
+            setEmpreendimentosSugestoes(candidatos);
           } catch { setEmpreendimentosSugestoes([]); }
         } else {
           setEmpreendimentosSugestoes([]);
