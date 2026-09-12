@@ -1011,7 +1011,7 @@ export default function HomePage() {
     };
   }, [handleHeroMouseMove, handleHeroMouseLeave]);
 
-  const comCoordenadas = empreendimentos.filter(
+  const comCoordenadas = [...empreendimentos, ...empreendimentosSugestoes].filter(
     (e) => e.latitude != null && e.longitude != null,
   ) as any[];
 
@@ -1641,8 +1641,8 @@ export default function HomePage() {
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 px-4 pb-4">
                     {empreendimentosSugestoes.map((emp) => {
-                      // Sugestões não têm a amenidade — compat calculada só por quartos/preço/local
-                      const compat = calcCompatibilidade(emp, searchCtx.filtros, [], normalizarTexto);
+                      // Passa amenidades reais: se não tem adega, desconta os 20pts da amenidade
+                      const compat = calcCompatibilidade(emp, searchCtx.filtros, searchCtx.amenidades, normalizarTexto);
                       return (
                         <div key={emp.id}
                           onMouseEnter={() => setDestacado(emp.id)}
