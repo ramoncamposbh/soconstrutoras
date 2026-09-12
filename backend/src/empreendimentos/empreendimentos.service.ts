@@ -28,8 +28,9 @@ export class EmpreendimentosService {
          (construtora_id, nome, descricao, tipo, status, endereco, bairro,
           cidade, estado, cep, latitude, longitude,
           preco_min, preco_max, area_min, area_max,
-          quartos_min, quartos_max, vagas, previsao_entrega, slug, itens_condominio)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+          quartos_min, quartos_max, vagas, previsao_entrega, slug,
+          itens_condominio, itens_imovel, proximidades)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
        RETURNING *`,
       [
         construtoraId, dto.nome, dto.descricao, dto.tipo, dto.status ?? 'lancamento',
@@ -38,6 +39,8 @@ export class EmpreendimentosService {
         dto.preco_min, dto.preco_max, dto.area_min, dto.area_max,
         dto.quartos_min, dto.quartos_max, dto.vagas, dto.previsao_entrega ?? null, slug,
         dto.itens_condominio ?? null,
+        dto.itens_imovel ?? null,
+        dto.proximidades ?? null,
       ],
     );
     return emp;
@@ -112,8 +115,9 @@ export class EmpreendimentosService {
       // Busca em descricao E em itens_condominio (array estruturado)
       // REPLACE remove hifens: "co-working" e "coworking" equivalentes
       conditions.push(
-        `(REPLACE(e.descricao, '-', '') ILIKE $${i} OR ` +
-        `EXISTS(SELECT 1 FROM unnest(COALESCE(e.itens_condominio, '{}')) AS it WHERE it ILIKE $${i}))`,
+        `(REPLACE(e.descricao, '-', '') ILIKE $${i}` +
+        ` OR EXISTS(SELECT 1 FROM unnest(COALESCE(e.itens_condominio,'{}')) AS it WHERE it ILIKE $${i})` +
+        ` OR EXISTS(SELECT 1 FROM unnest(COALESCE(e.itens_imovel,'{}'))   AS it WHERE it ILIKE $${i}))`,
       );
       params.push(`%${filtros.busca.replace(/-/g, '')}%`);
       i++;
@@ -138,7 +142,8 @@ export class EmpreendimentosService {
       `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.bairro, e.cidade, e.estado,
               e.preco_min, e.preco_max, e.area_min, e.area_max,
               e.quartos_min, e.quartos_max, e.vagas, e.previsao_entrega,
-              e.latitude, e.longitude, e.descricao, e.itens_condominio,
+              e.latitude, e.longitude, e.descricao,
+              e.itens_condominio, e.itens_imovel, e.proximidades,
               c.nome_fantasia AS construtora,
               (SELECT url FROM empreendimento_midias m
                WHERE m.empreendimento_id = e.id AND m.tipo = 'foto'

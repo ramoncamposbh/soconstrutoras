@@ -49,14 +49,13 @@ export default function EditarEmpreendimentoPage() {
 
   const { register, handleSubmit, reset, setValue, getValues, watch, formState: { isSubmitting, isDirty } } = useForm();
 
-  const itensSelecionados: string[] = watch('itens_condominio') ?? [];
-  const toggleItem = (item: string) => {
-    const atual: string[] = getValues('itens_condominio') ?? [];
-    setValue(
-      'itens_condominio',
-      atual.includes(item) ? atual.filter((i: string) => i !== item) : [...atual, item],
-      { shouldDirty: true }
-    );
+  const condSel: string[]  = watch('itens_condominio') ?? [];
+  const imovelSel: string[]= watch('itens_imovel')     ?? [];
+  const proxSel: string[]  = watch('proximidades')      ?? [];
+
+  const toggle = (field: 'itens_condominio'|'itens_imovel'|'proximidades', item: string) => {
+    const cur: string[] = getValues(field) ?? [];
+    setValue(field, cur.includes(item) ? cur.filter((i: string) => i !== item) : [...cur, item], { shouldDirty: true });
   };
 
   useEffect(() => {
@@ -80,14 +79,45 @@ export default function EditarEmpreendimentoPage() {
     'latitude','longitude',
     'preco_min','preco_max','area_min','area_max',
     'quartos_min','quartos_max','vagas',
-    'previsao_entrega','itens_condominio',
+    'previsao_entrega','itens_condominio','itens_imovel','proximidades',
   ];
 
   const ITENS_CONDOMINIO = [
-    'Piscina','Academia','Churrasqueira','Salão de festas','Playground',
-    'Quadra esportiva','Espaço gourmet','Sauna','Spa','Coworking',
-    'Pet place','Brinquedoteca','Portaria 24h','Gerador','Elevador',
-    'Heliponto','Rooftop','Cinema','Pub / lounge','Lavanderia coletiva',
+    'Academia de ginástica','Adega','Aquecimento solar','Área verde preservada',
+    'Auditório','Automação residencial','Bicicletário','Brinquedoteca',
+    'Câmeras de segurança','Campo de futebol gramado','Campo de Golfe',
+    'Cerca elétrica','Churrasqueira','Cinema','Condomínio fechado','Coworking',
+    'Elevador de serviço','Elevador social','Espaço Gourmet','Espaço mulher',
+    'Espaço Pet','Espelho d\'água','Fechadura Biométrica','Fonte decorativa',
+    'Gerador elétrico','Gramado','Home Office','Interfone','Jacuzzi','Lago',
+    'Lan house','Lanchonete','Lavanderia','Locker','Massagem','Mercadinho',
+    'Permite animais','Piscina adulto','Piscina aquecida','Piscina coberta',
+    'Piscina infantil','Pista de caminhada','Pista de cooper','Playground',
+    'Ponto para carregamento elétrico','Port Cochere','Portão Elétrico',
+    'Portaria 24 horas','Portaria Virtual','Porteiro Diurno','Porteiro eletrônico',
+    'Porteiro noturno','Quadra de areia','Quadra de tênis','Quadra poliesportiva',
+    'Recarga de carros elétricos','Ronda motorizada','Sala de jogos',
+    'Salão de festas','Salão de festas infantil','Sauna','Solarium','Vinoteca',
+  ];
+  const ITENS_IMOVEL = [
+    'Academia','Acessibilidade','Adega','Aquecimento a gás','Aquecimento central',
+    'Aquecimento solar','Ar condicionado','Ar condicionado central',
+    'Ar condicionado na Suíte','Área esportiva','Armário na cozinha','Banheira',
+    'Biblioteca','Cabeamento estruturado','Calefação','Circuito de segurança',
+    'Closet','Cozinha americana','Cozinha gourmet','Cozinha independente',
+    'Deck Molhado','Depósito','Energia solar','Espaço Gourmet','Espaço Pet',
+    'Espaço verde','Fechadura digital','Forro de gesso','Forro de madeira',
+    'Forro de PVC','Forro rebaixado','Gás central','Gás individual',
+    'Gerador elétrico','Hidromassagem','Hidrômetro individual','Home office',
+    'Infraestrutura p/ ar-condicionado','Interfone','Internet','Isolamento acústico',
+    'Lareira','Lavanderia','Mezanino','Portaria','Ronda/Vigilância',
+    'Rua asfaltada','Sala de TV','Sauna','Sistema de alarme','SPA',
+    'Terraço privativo','Tomadas USB','Varanda','Varanda Gourmet','Vigia',
+    'Vista exterior','Vista para a montanha','Vista para o lago','Zelador',
+  ];
+  const ITENS_PROXIMIDADES = [
+    'Banco','Escola','Escola de idioma','Faculdade','Farmácia','Hospital',
+    'Igreja','Padaria','Praça','Rodovia','Shopping','Supermercado','Transporte público',
   ];
 
   const salvar = async (data: any) => {
@@ -265,16 +295,50 @@ export default function EditarEmpreendimentoPage() {
           </div>
 
           <div className="card p-6 space-y-4">
-            <h2 className="font-semibold text-gray-900">Itens do condomínio</h2>
-            <div className="grid grid-cols-2 gap-2">
+            <div>
+              <h2 className="font-semibold text-gray-900">Características do condomínio</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Áreas comuns e infraestrutura</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {ITENS_CONDOMINIO.map((item) => (
                 <label key={item} className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={itensSelecionados.includes(item)}
-                    onChange={() => toggleItem(item)}
-                    className="w-4 h-4 rounded accent-primary-500"
-                  />
+                  <input type="checkbox" checked={condSel.includes(item)}
+                    onChange={() => toggle('itens_condominio', item)}
+                    className="w-4 h-4 rounded accent-primary-500" />
+                  <span className="text-sm text-gray-700">{item}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="card p-6 space-y-4">
+            <div>
+              <h2 className="font-semibold text-gray-900">Características do imóvel</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Diferenciais internos da unidade</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {ITENS_IMOVEL.map((item) => (
+                <label key={item} className="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" checked={imovelSel.includes(item)}
+                    onChange={() => toggle('itens_imovel', item)}
+                    className="w-4 h-4 rounded accent-primary-500" />
+                  <span className="text-sm text-gray-700">{item}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="card p-6 space-y-4">
+            <div>
+              <h2 className="font-semibold text-gray-900">Proximidades</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Estabelecimentos próximos</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {ITENS_PROXIMIDADES.map((item) => (
+                <label key={item} className="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" checked={proxSel.includes(item)}
+                    onChange={() => toggle('proximidades', item)}
+                    className="w-4 h-4 rounded accent-primary-500" />
                   <span className="text-sm text-gray-700">{item}</span>
                 </label>
               ))}

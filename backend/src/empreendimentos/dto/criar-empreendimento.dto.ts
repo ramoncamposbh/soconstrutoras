@@ -90,4 +90,14 @@ export class CriarEmpreendimentoDto {
   @IsArray()
   @IsString({ each: true })
   itens_condominio?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  itens_imovel?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  proximidades?: string[];
 }
