@@ -534,6 +534,20 @@ export default function HomePage() {
       subsolo:       'subsolo',
       varanda:       'varanda',
       'garden':      'garden',
+      adega:         'adega',
+      'cave de vinho': 'adega',
+      academia:      'academia',
+      fitness:       'academia',
+      brinquedoteca: 'brinquedoteca',
+      playground:    'playground',
+      'espaco kids': 'playground',
+      cinema:        'cinema',
+      'home theater': 'home theater',
+      lavanderia:    'lavanderia',
+      'sky lounge':  'sky lounge',
+      lounge:        'lounge',
+      yoga:          'yoga',
+      pilates:       'pilates',
     };
     const amenidadesEncontradas: string[] = [];
     for (const [palavra, termo] of Object.entries(mapaAmenidades)) {
