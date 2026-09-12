@@ -60,6 +60,58 @@ function getCompatibilidade(id: string): number {
   return 82 + (hash % 17);
 }
 
+function calcCompatibilidade(
+  emp: any,
+  filtros: Record<string, any>,
+  amenidades: string[],
+  normFn: (s: string) => string,
+): number {
+  let pts = 0; let total = 0;
+
+  // Quartos (30 pts)
+  if (filtros.quartos_min) {
+    total += 30;
+    const q = filtros.quartos_min;
+    const qMin = emp.quartos_min ?? 0;
+    const qMax = emp.quartos_max ?? 99;
+    if (qMin <= q && qMax >= q) pts += 30;
+    else if (Math.abs(qMin - q) <= 1 || Math.abs(qMax - q) <= 1) pts += 15;
+  }
+
+  // Preço (25 pts)
+  if (filtros.preco_max) {
+    total += 25;
+    const pMin = emp.preco_min ?? 0;
+    if (pMin <= filtros.preco_max) pts += 25;
+    else if (pMin <= filtros.preco_max * 1.25) pts += 12;
+  }
+
+  // Localização (25 pts)
+  if (filtros.bairros || filtros.cidade) {
+    total += 25;
+    const bairroEmp = normFn(emp.bairro ?? '');
+    const cidadeEmp = normFn(emp.cidade ?? '');
+    if (filtros.bairros && bairroEmp.includes(normFn(filtros.bairros))) pts += 25;
+    else if (filtros.cidade && cidadeEmp.includes(normFn(filtros.cidade))) pts += 15;
+    else pts += 5;
+  }
+
+  // Amenidades (20 pts)
+  if (amenidades.length > 0) {
+    total += 20;
+    const desc = normFn(emp.descricao ?? '');
+    const itens = (emp.itens_condominio ?? []).map((it: string) => normFn(it));
+    const encontradas = amenidades.filter((a) => {
+      const t = normFn(a).replace(/\s/g, '');
+      return desc.replace(/\s/g, '').includes(t) || itens.some((it: string) => it.replace(/\s/g, '').includes(t));
+    });
+    pts += Math.round(20 * encontradas.length / amenidades.length);
+  }
+
+  if (total === 0) return getCompatibilidade(String(emp.id));
+  return Math.max(50, Math.min(99, Math.round((pts / total) * 100)));
+}
+
 type PesquisaRapida = { label: string; icon: React.ComponentType<{ className?: string }>; query: Record<string, number> };
 const PESQUISAS_RAPIDAS: PesquisaRapida[] = [
   { label: 'Primeiro imóvel',   icon: Home,        query: { preco_max: 600000 } },
@@ -369,6 +421,7 @@ export default function HomePage() {
   const [bairrosOpen, setBairrosOpen] = useState(false);
   const [mensagemBusca, setMensagemBusca] = useState<{ texto: string; sugestoes: string[] } | null>(null);
   const [empreendimentosSugestoes, setEmpreendimentosSugestoes] = useState<any[]>([]);
+  const [searchCtx, setSearchCtx] = useState<{ filtros: Record<string, any>; amenidades: string[] }>({ filtros: {}, amenidades: [] });
   const [buscaProgresso, setBuscaProgresso] = useState<{
     pais: string; estado: string; cidade: string; regiao: string;
     totalConstrutoras: number | null; totalImoveis: number | null;
@@ -851,12 +904,19 @@ export default function HomePage() {
       } else if (porAmenidades.length > 0) {
         // Resultado ideal: bairro + amenidades — exibe normalmente
         setEmpreendimentos(porAmenidades);
-        // Se buscou por amenidade, sugere outros imóveis do mesmo perfil que não têm a amenidade
+        setSearchCtx({ filtros, amenidades: todasAmenidades });
+        // Sugestões: segunda chamada SEM busca de amenidade para achar imóveis parecidos
         if (todasAmenidades.length > 0) {
-          const semAmenidade = porBairro.filter(
-            (e: any) => !porAmenidades.some((p: any) => p.id === e.id),
-          ).slice(0, 6);
-          setEmpreendimentosSugestoes(semAmenidade);
+          try {
+            const filtrosSug: Record<string, any> = { ...filtros };
+            delete filtrosSug.busca;
+            const { data: dataSug } = await empreendimentosApi.buscarPublico(filtrosSug);
+            const idsJa = new Set(porAmenidades.map((e: any) => e.id));
+            const sugestoes = filtrarPorBairro(dataSug)
+              .filter((e: any) => !idsJa.has(e.id))
+              .slice(0, 6);
+            setEmpreendimentosSugestoes(sugestoes);
+          } catch { setEmpreendimentosSugestoes([]); }
         } else {
           setEmpreendimentosSugestoes([]);
         }
@@ -1541,7 +1601,7 @@ export default function HomePage() {
               {empreendimentos.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
                   {empreendimentos.map((emp) => {
-                    const compat = getCompatibilidade(emp.id);
+                    const compat = calcCompatibilidade(emp, searchCtx.filtros, searchCtx.amenidades, normalizarTexto);
                     return (
                       <div key={emp.id}
                         onMouseEnter={() => setDestacado(emp.id)}
@@ -1570,7 +1630,8 @@ export default function HomePage() {
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 px-4 pb-4">
                     {empreendimentosSugestoes.map((emp) => {
-                      const compat = getCompatibilidade(emp.id);
+                      // Sugestões não têm a amenidade — compat calculada só por quartos/preço/local
+                      const compat = calcCompatibilidade(emp, searchCtx.filtros, [], normalizarTexto);
                       return (
                         <div key={emp.id}
                           onMouseEnter={() => setDestacado(emp.id)}
