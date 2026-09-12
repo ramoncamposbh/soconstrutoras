@@ -511,18 +511,27 @@ export default function HomePage() {
       filtros.preco_max = /mil|k/.test(mPreco[2] ?? '') ? v * 1000 : v;
     }
 
-    // Amenidades / características — busca textual na descrição do empreendimento
+    // Amenidades / características — busca em descricao e itens_condominio
     const mapaAmenidades: Record<string, string> = {
-      piscina:       'piscina',
-      quadra:        'quadra',
-      academia:      'academia',
-      playground:    'playground',
-      salao:         'salão de festas',
+      piscina:           'piscina',
+      'piscina adulto':  'piscina',
+      'piscina infantil':'piscina infantil',
+      quadra:            'quadra',
+      'quadra esportiva':'quadra esportiva',
+      'quadra de tenis': 'quadra de tênis',
+      'quadra poliesportiva': 'quadra poliesportiva',
+      squash:            'squash',
+      academia:          'academia',
+      playground:        'playground',
+      salao:             'salão de festas',
       'salao de festas': 'salão de festas',
-      churrasqueira: 'churrasqueira',
-      sauna:         'sauna',
-      spa:           'spa',
-      portaria:      'portaria',
+      'salao de jogos':  'salão de jogos',
+      churrasqueira:     'churrasqueira',
+      sauna:             'sauna',
+      spa:               'spa',
+      jacuzzi:           'jacuzzi',
+      'banheira':        'jacuzzi',
+      portaria:          'portaria',
       concierge:     'concierge',
       rooftop:       'rooftop',
       coworking:       'coworking',
@@ -534,20 +543,45 @@ export default function HomePage() {
       subsolo:       'subsolo',
       varanda:       'varanda',
       'garden':      'garden',
-      adega:         'adega',
-      'cave de vinho': 'adega',
-      academia:      'academia',
-      fitness:       'academia',
-      brinquedoteca: 'brinquedoteca',
-      playground:    'playground',
-      'espaco kids': 'playground',
-      cinema:        'cinema',
-      'home theater': 'home theater',
-      lavanderia:    'lavanderia',
-      'sky lounge':  'sky lounge',
-      lounge:        'lounge',
-      yoga:          'yoga',
-      pilates:       'pilates',
+      adega:              'adega',
+      'cave de vinho':    'adega',
+      'espaco vinho':     'adega',
+      academia:           'academia',
+      fitness:            'academia',
+      brinquedoteca:      'brinquedoteca',
+      playground:         'playground',
+      'espaco kids':      'espaço kids',
+      'espaco infantil':  'espaço kids',
+      cinema:             'cinema / home theater',
+      'home theater':     'cinema / home theater',
+      lavanderia:         'lavanderia coletiva',
+      'lavanderia coletiva': 'lavanderia coletiva',
+      'sky lounge':       'sky lounge',
+      lounge:             'pub / lounge',
+      pub:                'pub / lounge',
+      yoga:               'yoga / pilates',
+      pilates:            'yoga / pilates',
+      'espaco yoga':      'yoga / pilates',
+      rooftop:            'rooftop',
+      'telhado verde':    'rooftop',
+      coworking:          'coworking',
+      'co-working':       'coworking',
+      'espaco trabalho':  'coworking',
+      bicicletario:       'bicicletário',
+      bicicleta:          'bicicletário',
+      'pet place':        'pet place',
+      'pet friendly':     'pet place',
+      'espaco pet':       'espaço pet',
+      heliponto:          'heliponto',
+      gerador:            'gerador',
+      elevador:           'elevador',
+      'energia solar':    'energia solar',
+      'gas encanado':     'gás encanado',
+      'portaria 24h':     'portaria 24h',
+      varanda:            'varanda gourmet',
+      'varanda gourmet':  'varanda gourmet',
+      karaoke:            'karaokê',
+      karaokê:            'karaokê',
     };
     const amenidadesEncontradas: string[] = [];
     for (const [palavra, termo] of Object.entries(mapaAmenidades)) {
@@ -777,16 +811,19 @@ export default function HomePage() {
       const norm = (s: string) =>
         normalizarTexto(s).replace(/[-\s]+/g, ' ').trim();
 
-      // Helper: filtra TODAS as amenidades client-side APENAS na descricao
-      // (não inclui e.nome — amenidades são características do imóvel, não parte do nome)
+      // Helper: filtra TODAS as amenidades client-side em descricao E em itens_condominio
       const filtrarPorAmenidades = (lista: any[]) => {
         if (todasAmenidades.length === 0) return lista;
         return lista.filter((e: any) => {
           const desc = norm(e.descricao ?? '');
+          // itens_condominio é array retornado pelo backend
+          const itens = (e.itens_condominio ?? []).map((it: string) => norm(it));
           return todasAmenidades.every((a) => {
             const termo = norm(a);
-            // tenta match exato ou sem hífens (co-working → coworking)
-            return desc.includes(termo) || desc.includes(termo.replace(/\s/g, ''));
+            const termoSemEspaco = termo.replace(/\s/g, '');
+            // match em descricao OU em qualquer item do array itens_condominio
+            return desc.includes(termo) || desc.includes(termoSemEspaco)
+              || itens.some((it: string) => it.includes(termo) || it.includes(termoSemEspaco));
           });
         });
       };
@@ -812,9 +849,17 @@ export default function HomePage() {
             : ['Mostrando os imóveis disponíveis mais próximos do seu perfil:'],
         });
       } else if (porAmenidades.length > 0) {
-        // Resultado ideal: bairro + amenidades — exibe normalmente, sem sugestões
+        // Resultado ideal: bairro + amenidades — exibe normalmente
         setEmpreendimentos(porAmenidades);
-        setEmpreendimentosSugestoes([]);
+        // Se buscou por amenidade, sugere outros imóveis do mesmo perfil que não têm a amenidade
+        if (todasAmenidades.length > 0) {
+          const semAmenidade = porBairro.filter(
+            (e: any) => !porAmenidades.some((p: any) => p.id === e.id),
+          ).slice(0, 6);
+          setEmpreendimentosSugestoes(semAmenidade);
+        } else {
+          setEmpreendimentosSugestoes([]);
+        }
       } else if (todasAmenidades.length > 0) {
         // Pediu característica mas não confirmamos na descrição — bairro vira sugestão
         const amenLabel = todasAmenidades.map(a =>
@@ -1519,7 +1564,7 @@ export default function HomePage() {
                       border: '1.5px solid #0E8F6E', borderRadius: 8,
                       padding: '5px 14px', whiteSpace: 'nowrap', userSelect: 'none',
                     }}>
-                      <Sparkles size={11} /> Sugestões de imóveis
+                      <Sparkles size={11} /> Veja algumas sugestões — imóveis parecidos
                     </div>
                     <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
                   </div>

@@ -109,9 +109,12 @@ export class EmpreendimentosService {
       }
     }
     if (filtros.busca) {
-      // Busca só na descricao (amenidades são características, não fazem parte do nome)
-      // REPLACE remove hifens para "co-working" e "coworking" serem equivalentes
-      conditions.push(`REPLACE(e.descricao, '-', '') ILIKE $${i}`);
+      // Busca em descricao E em itens_condominio (array estruturado)
+      // REPLACE remove hifens: "co-working" e "coworking" equivalentes
+      conditions.push(
+        `(REPLACE(e.descricao, '-', '') ILIKE $${i} OR ` +
+        `EXISTS(SELECT 1 FROM unnest(COALESCE(e.itens_condominio, '{}')) AS it WHERE it ILIKE $${i}))`,
+      );
       params.push(`%${filtros.busca.replace(/-/g, '')}%`);
       i++;
     }
@@ -135,7 +138,7 @@ export class EmpreendimentosService {
       `SELECT e.id, e.nome, e.slug, e.tipo, e.status, e.bairro, e.cidade, e.estado,
               e.preco_min, e.preco_max, e.area_min, e.area_max,
               e.quartos_min, e.quartos_max, e.vagas, e.previsao_entrega,
-              e.latitude, e.longitude, e.descricao,
+              e.latitude, e.longitude, e.descricao, e.itens_condominio,
               c.nome_fantasia AS construtora,
               (SELECT url FROM empreendimento_midias m
                WHERE m.empreendimento_id = e.id AND m.tipo = 'foto'

@@ -9,10 +9,24 @@ import { TIPOS_IMOVEL, STATUS_OBRA, ESTADOS_BR } from '@/lib/utils';
 import { ArrowLeft } from 'lucide-react';
 
 const ITENS_CONDOMINIO = [
-  'Piscina', 'Academia', 'Churrasqueira', 'Salão de festas', 'Playground',
-  'Quadra esportiva', 'Espaço gourmet', 'Sauna', 'Spa', 'Coworking',
-  'Pet place', 'Brinquedoteca', 'Portaria 24h', 'Gerador', 'Elevador',
-  'Heliponto', 'Rooftop', 'Cinema', 'Pub / lounge', 'Lavanderia coletiva',
+  // Lazer aquático / social
+  'Piscina', 'Piscina adulto', 'Piscina infantil', 'Sauna', 'Spa', 'Jacuzzi',
+  // Fitness
+  'Academia', 'Yoga / Pilates', 'Pista de caminhada', 'Quadra esportiva',
+  'Quadra de tênis', 'Quadra poliesportiva', 'Squash',
+  // Entretenimento
+  'Salão de festas', 'Salão de jogos', 'Cinema / Home theater', 'Pub / lounge',
+  'Sky lounge', 'Rooftop', 'Karaokê',
+  // Gourmet / social
+  'Churrasqueira', 'Espaço gourmet', 'Adega', 'Espaço vinho',
+  'Varanda gourmet', 'Área de estar',
+  // Crianças / pets
+  'Playground', 'Brinquedoteca', 'Espaço kids', 'Pet place', 'Espaço pet',
+  // Trabalho / mobilidade
+  'Coworking', 'Bicicletário', 'Carregador elétrico', 'Heliponto',
+  // Infraestrutura
+  'Portaria 24h', 'Elevador', 'Gerador', 'Lavanderia coletiva',
+  'Energia solar', 'Gás encanado',
 ];
 
 export default function NovoEmpreendimentoPage() {
